@@ -10,7 +10,7 @@ import {bindActionCreators} from 'redux';
 import * as navActions from '../core/navigation/nav-actions';
 import * as appPrefActions from '../core/common/apppref-actions';
 import LoginContainer from '../core/usermanagement/login-container';
-import StatusView from '../coreWeb/status/status-view';
+import StatusView from '../coreView/status/status-view';
 import TabsView from '../adminView/navigation/tabs-view';
 import UsersContainer from './users/users-container';
 import BugsContainer from './bugs/bugs-container';
