@@ -3,7 +3,6 @@
 */
 'use strict';
 import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
@@ -17,6 +16,7 @@ import BugsContainer from './bugs/bugs-container';
 import ChangeRequestsContainer from './changerequests/changerequests-container';
 import PreferencesContainer from './preferences/preferences-container';
 import SubmenuContainer from './submenu/submenu-container';
+import AdminView from '../adminView/admin-view';
 import fuLogger from '../core/common/fu-logger';
 
 class AdminContainer extends Component {
@@ -59,34 +59,14 @@ class AdminContainer extends Component {
         container = <ChangeRequestsContainer/>;
     }
     return (
-      <View style={styles.container}>
+      <AdminView>
         <TabsView menus={this.props.appMenus} activeTab={this.state.activeTab} changeTab={this.changeTab}/>
         <StatusView/>
         {container}
-      </View>
+      </AdminView>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'stretch',
-    backgroundColor: '#F5FCFF',
-    padding: 10
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
-
 
 AdminContainer.propTypes = {
 	appPrefs: PropTypes.object.isRequired,
