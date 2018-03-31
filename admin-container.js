@@ -6,11 +6,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
+import { Switch, Route, withRouter, Redirect} from "react-router-dom";
 import * as navActions from '../core/navigation/nav-actions';
 import * as appPrefActions from '../core/common/apppref-actions';
 import LoginContainer from '../core/usermanagement/login-container';
 import StatusView from '../coreView/status/status-view';
-import TabsView from '../adminView/navigation/tabs-view';
+import NavigationView from '../adminView/navigation/navigation-view';
 import UsersContainer from './users/users-container';
 import BugsContainer from './bugs/bugs-container';
 import ChangeRequestsContainer from './changerequests/changerequests-container';
@@ -60,9 +61,17 @@ class AdminContainer extends Component {
     }
     return (
       <AdminView>
-        <TabsView menus={this.props.appMenus} activeTab={this.state.activeTab} changeTab={this.changeTab}/>
+        <NavigationView
+        appPrefs={this.props.appPrefs}
+        menus={this.props.appMenus.MEMBER_MENU_TOP}
+        activeTab={this.state.activeTab} />
         <StatusView/>
-        {container}
+        <Switch>
+          <Route path="/admin" component={UsersContainer}/>
+          <Route path="/admin-preferences" component={PreferencesContainer}/>
+          <Route path="/admin-bugs" component={BugsContainer}/>
+          <Route path="/member-changerequests" component={ChangeRequestsContainer}/>
+        </Switch>
       </AdminView>
     );
   }
@@ -85,4 +94,4 @@ function mapDispatchToProps(dispatch) {
   return { actions:bindActionCreators(Object.assign({}, navActions, appPrefActions),dispatch) };
 }
 
-export default connect(mapStateToProps,mapDispatchToProps)(AdminContainer);
+export default withRouter(connect(mapStateToProps,mapDispatchToProps)(AdminContainer));
