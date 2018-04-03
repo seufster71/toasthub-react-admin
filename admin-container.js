@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import { Switch, Route, withRouter, Redirect} from "react-router-dom";
+import { Switch, Route, withRouter, Redirect} from "react-router";
 import * as navActions from '../core/navigation/nav-actions';
 import * as appPrefActions from '../core/common/apppref-actions';
 import LoginContainer from '../core/usermanagement/login-container';
