@@ -32,6 +32,10 @@ import fuLogger from '../core/common/fu-logger';
 class AdminContainer extends Component {
   constructor(props) {
 		super(props);
+    this.state = {
+      activeTab:"HOME"
+    };
+
     this.changeTab = this.changeTab.bind(this);
 	}
 
@@ -39,37 +43,22 @@ class AdminContainer extends Component {
     this.props.actions.initAdmin();
   }
 
-  changeTab(tabIndex) {
-    return (event) => {
-      fuLogger.log({level:'TRACE',loc:'AdminContainer::changeTab',msg:"index " + tabIndex});
-      this.setState({'activeTab':tabIndex});
-    };
+  changeTab(code,index) {
+      this.setState({activeTab:code});
+      this.props.history.replace("/"+index);
   }
 
   render() {
-    fuLogger.log({level:'TRACE',loc:'AdminContainer::render',msg:"page"});
-    // let container;
-    // switch(this.state.activeTab) {
-    //   case "USERS":
-    //     container = <UsersContainer/>;
-    //     break;
-    //   case "PREFERENCES":
-    //     container = <PreferencesContainer/>;
-    //     break;
-    //   case "BUGS":
-    //     container = <BugsContainer/>;
-    //     break;
-    //   case "SUBMENU":
-    //     container = <SubmenuContainer/>;
-    //     break;
-    //   default:
-    //     container = <ChangeRequestsContainer/>;
-    // }
+    fuLogger.log({level:'TRACE',loc:'AdminContainer::render',msg:"path "+ this.props.history.location.pathname});
+
+    let myMenus = [];
+    if (this.props.appMenus != null && this.props.appMenus[this.props.appPrefs.adminMenu] != null) {
+      myMenus = this.props.appMenus[this.props.appPrefs.adminMenu];
+    }
+    fuLogger.log({level:'TRACE',loc:'AdminContainer::render',msg:"menus "+ JSON.stringify(myMenus)});
     return (
       <AdminView>
-        <NavigationView
-        appPrefs={this.props.appPrefs}
-        menus={this.props.appMenus.ADMIN_MENU_TOP}/>
+        <NavigationView menus={myMenus} changeTab={this.changeTab} activeTab={this.state.activeTab}/>
         <StatusView/>
         <Switch>
           <Route path="/admin" component={DashboardContainer}/>
@@ -97,7 +86,8 @@ AdminContainer.propTypes = {
 	appMenus: PropTypes.object,
 	lang: PropTypes.string,
   session: PropTypes.object,
-	actions: PropTypes.object
+	actions: PropTypes.object,
+  history: PropTypes.object
 };
 
 function mapStateToProps(state, ownProps) {
