@@ -6,6 +6,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
+import {withRouter} from "react-router";
 import * as appPrefActions from '../../core/common/apppref-actions';
 import fuLogger from '../../core/common/fu-logger';
 import PreferencesView from '../../adminView/preferences/preferences-view';
@@ -22,9 +23,10 @@ class PreferencesContainer extends Component {
 	}
 
   render() {
-			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"Hi there"});
+
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"path " + this.props.history.location.pathname});
       return (
-				<PreferencesView/>
+				<PreferencesView path={this.props.history.location.pathname}/>
 			);
   }
 }
@@ -33,7 +35,8 @@ PreferencesContainer.propTypes = {
 	appPrefs: PropTypes.object,
 	lang: PropTypes.string,
 	appGlobal: PropTypes.object,
-	actions: PropTypes.object
+	actions: PropTypes.object,
+	history: PropTypes.object
 };
 
 function mapStateToProps(state, ownProps) {

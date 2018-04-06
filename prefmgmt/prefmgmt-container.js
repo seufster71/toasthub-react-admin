@@ -9,10 +9,10 @@ import {bindActionCreators} from 'redux';
 import {withRouter} from "react-router";
 import * as appPrefActions from '../../core/common/apppref-actions';
 import fuLogger from '../../core/common/fu-logger';
-import SubMenuView from '../../adminView/submenu/submenu-view';
+import PrefMgmtView from '../../adminView/prefmgmt/prefmgmt-view';
 
 
-class SubMenuContainer extends Component {
+class PrefMgmtContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.changeTab = this.changeTab.bind(this);
@@ -27,7 +27,7 @@ class SubMenuContainer extends Component {
 	}
 
   render() {
-			fuLogger.log({level:'TRACE',loc:'SubMenuContainer::render',msg:"Hi there"});
+			fuLogger.log({level:'TRACE',loc:'PrefMgmtContainer::render',msg:"Hi there"});
 			const path = this.props.history.location.pathname;
 			let topMenus = this.props.appMenus[this.props.appPrefs.adminMenu];
 			let children = [];
@@ -43,12 +43,12 @@ class SubMenuContainer extends Component {
 				}
 			}
       return (
-				<SubMenuView menus={children} changeTab={this.changeTab}/>
+				<PrefMgmtView menus={children} changeTab={this.changeTab}/>
 			);
   }
 }
 
-SubMenuContainer.propTypes = {
+PrefMgmtContainer.propTypes = {
 	appMenus: PropTypes.object,
 	appPrefs: PropTypes.object,
 	lang: PropTypes.string,
@@ -65,4 +65,4 @@ function mapDispatchToProps(dispatch) {
   return { actions:bindActionCreators(appPrefActions,dispatch) };
 }
 
-export default withRouter(connect(mapStateToProps,mapDispatchToProps)(SubMenuContainer));
+export default withRouter(connect(mapStateToProps,mapDispatchToProps)(PrefMgmtContainer));

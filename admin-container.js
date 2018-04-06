@@ -15,8 +15,9 @@ import NavigationView from '../coreView/navigation/navigation-view';
 import DashboardContainer from './dashboard/dashboard-container';
 import BugsContainer from './bugs/bugs-container';
 import ChangeRequestsContainer from './changerequests/changerequests-container';
+import PrefMgmtContainer from './prefmgmt/prefmgmt-container';
 import PreferencesContainer from './preferences/preferences-container';
-import SubmenuContainer from './submenu/submenu-container';
+import SubMenuContainer from './submenu/submenu-container';
 import UsersContainer from './users/users-container';
 import RolesContainer from './roles/roles-container';
 import PermissionsContainer from './permissions/permissions-container';
@@ -27,6 +28,7 @@ import ServiceContainer from './service/service-container';
 import MenuContainer from './menu/menu-container';
 import SystemContainer from './system/system-container';
 import AdminView from '../adminView/admin-view';
+import UserMgmtContainer from './usermgmt/usermgmt-container';
 import fuLogger from '../core/common/fu-logger';
 
 class AdminContainer extends Component {
@@ -55,10 +57,10 @@ class AdminContainer extends Component {
     if (this.props.appMenus != null && this.props.appMenus[this.props.appPrefs.adminMenu] != null) {
       myMenus = this.props.appMenus[this.props.appPrefs.adminMenu];
     }
-    fuLogger.log({level:'TRACE',loc:'AdminContainer::render',msg:"menus "+ JSON.stringify(myMenus)});
+    //fuLogger.log({level:'TRACE',loc:'AdminContainer::render',msg:"menus "+ JSON.stringify(myMenus)});
     return (
       <AdminView>
-        <NavigationView menus={myMenus} changeTab={this.changeTab} activeTab={this.state.activeTab}/>
+        <NavigationView menus={myMenus} changeTab={this.changeTab} activeTab={this.state.activeTab} backToTab={"member"}/>
         <StatusView/>
         <Switch>
           <Route path="/admin" component={DashboardContainer}/>
@@ -67,13 +69,18 @@ class AdminContainer extends Component {
           <Route path="/admin-users" component={UsersContainer}/>
           <Route path="/admin-roles" component={RolesContainer}/>
           <Route path="/admin-permissions" component={PermissionsContainer}/>
-          <Route path="/admin-preferences" component={PreferencesContainer}/>
+          <Route path="/admin-prefmgmt" component={PrefMgmtContainer}/>
+          <Route path="/admin-prefpublic" component={PreferencesContainer}/>
+          <Route path="/admin-prefmember" component={PreferencesContainer}/>
+          <Route path="/admin-prefadmin" component={PreferencesContainer}/>
           <Route path="/admin-language" component={LanguageContainer}/>
           <Route path="/admin-category" component={CategoryContainer}/>
           <Route path="/admin-status" component={StatusContainer}/>
           <Route path="/admin-service" component={ServiceContainer}/>
           <Route path="/admin-menu" component={MenuContainer}/>
           <Route path="/admin-system" component={SystemContainer}/>
+          <Route path="/admin-other" component={SubMenuContainer}/>
+          <Route path="/admin-usermgmt" component={UserMgmtContainer}/>
         </Switch>
       </AdminView>
     );

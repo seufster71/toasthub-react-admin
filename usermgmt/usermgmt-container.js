@@ -9,10 +9,9 @@ import {bindActionCreators} from 'redux';
 import {withRouter} from "react-router";
 import * as appPrefActions from '../../core/common/apppref-actions';
 import fuLogger from '../../core/common/fu-logger';
-import SubMenuView from '../../adminView/submenu/submenu-view';
+import UserMgmtView from '../../adminView/usermgmt/usermgmt-view';
 
-
-class SubMenuContainer extends Component {
+class UserMgmtContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.changeTab = this.changeTab.bind(this);
@@ -23,11 +22,11 @@ class SubMenuContainer extends Component {
 	}
 
 	changeTab(index) {
-			this.props.history.replace("/"+index);
-	}
+      this.props.history.replace("/"+index);
+  }
 
   render() {
-			fuLogger.log({level:'TRACE',loc:'SubMenuContainer::render',msg:"Hi there"});
+			fuLogger.log({level:'TRACE',loc:'UserMgmtContainer::render',msg:"Hi there"});
 			const path = this.props.history.location.pathname;
 			let topMenus = this.props.appMenus[this.props.appPrefs.adminMenu];
 			let children = [];
@@ -35,6 +34,7 @@ class SubMenuContainer extends Component {
 				for (let m = 0; m < topMenus.length; m++) {
 					if (topMenus[m].values[0].rendered) {
 						if (path.includes(topMenus[m].values[0].href)){
+							fuLogger.log({level:'TRACE',loc:'UserMgmtContainer::render',msg:"href " + topMenus[m].values[0].href});
 							if (topMenus[m].children != null && topMenus[m].children.length > 0){
 								children = topMenus[m].children;
 							}
@@ -43,12 +43,12 @@ class SubMenuContainer extends Component {
 				}
 			}
       return (
-				<SubMenuView menus={children} changeTab={this.changeTab}/>
+				<UserMgmtView menus={children} changeTab={this.changeTab}/>
 			);
   }
 }
 
-SubMenuContainer.propTypes = {
+UserMgmtContainer.propTypes = {
 	appMenus: PropTypes.object,
 	appPrefs: PropTypes.object,
 	lang: PropTypes.string,
@@ -65,4 +65,4 @@ function mapDispatchToProps(dispatch) {
   return { actions:bindActionCreators(appPrefActions,dispatch) };
 }
 
-export default withRouter(connect(mapStateToProps,mapDispatchToProps)(SubMenuContainer));
+export default withRouter(connect(mapStateToProps,mapDispatchToProps)(UserMgmtContainer));
