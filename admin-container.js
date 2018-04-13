@@ -57,10 +57,14 @@ class AdminContainer extends Component {
     if (this.props.appMenus != null && this.props.appMenus[this.props.appPrefs.adminMenu] != null) {
       myMenus = this.props.appMenus[this.props.appPrefs.adminMenu];
     }
+    let myPermissions = {};
+    if (this.props.member != null && this.props.member.user != null && this.props.member.user.permissions != null) {
+      myPermissions = this.props.member.user.permissions;
+    }
     //fuLogger.log({level:'TRACE',loc:'AdminContainer::render',msg:"menus "+ JSON.stringify(myMenus)});
     return (
       <AdminView>
-        <NavigationView menus={myMenus} changeTab={this.changeTab} activeTab={this.state.activeTab} backToTab={"member"}/>
+        <NavigationView menus={myMenus} changeTab={this.changeTab} permissions={myPermissions} activeTab={this.state.activeTab} backToTab={"member"}/>
         <StatusView/>
         <Switch>
           <Route path="/admin" component={DashboardContainer}/>
@@ -89,20 +93,20 @@ class AdminContainer extends Component {
 
 AdminContainer.propTypes = {
 	appPrefs: PropTypes.object.isRequired,
-	navigation: PropTypes.object.isRequired,
 	appMenus: PropTypes.object,
 	lang: PropTypes.string,
   session: PropTypes.object,
+  member: PropTypes.object,
 	actions: PropTypes.object,
   history: PropTypes.object
 };
 
 function mapStateToProps(state, ownProps) {
-  return {appMenus:state.appMenus, lang:state.lang, appPrefs:state.appPrefs, navigation:state.navigation, session:state.session};
+  return {appPrefs:state.appPrefs, appMenus:state.appMenus, lang:state.lang, session:state.session, member:state.member};
 }
 
 function mapDispatchToProps(dispatch) {
-  return { actions:bindActionCreators(Object.assign({}, navActions, appPrefActions),dispatch) };
+  return { actions:bindActionCreators(appPrefActions,dispatch) };
 }
 
 export default withRouter(connect(mapStateToProps,mapDispatchToProps)(AdminContainer));
