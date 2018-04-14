@@ -10,6 +10,7 @@ import { Switch, Route, withRouter, Redirect} from "react-router";
 import * as appPrefActions from '../core/common/apppref-actions';
 import LoginContainer from '../core/usermanagement/login-container';
 import StatusView from '../coreView/status/status-view';
+import LoadingView from '../coreView/status/loading-view';
 import NavigationView from '../coreView/navigation/navigation-view';
 import DashboardContainer from './dashboard/dashboard-container';
 import BugsContainer from './bugs/bugs-container';
@@ -29,6 +30,7 @@ import SystemContainer from './system/system-container';
 import AdminView from '../adminView/admin-view';
 import UserMgmtContainer from './usermgmt/usermgmt-container';
 import fuLogger from '../core/common/fu-logger';
+import {PrivateRoute} from '../core/common/utils';
 
 class AdminContainer extends Component {
   constructor(props) {
@@ -61,32 +63,39 @@ class AdminContainer extends Component {
       myPermissions = this.props.member.user.permissions;
     }
     //fuLogger.log({level:'TRACE',loc:'AdminContainer::render',msg:"menus "+ JSON.stringify(myMenus)});
-    return (
-      <AdminView>
-        <NavigationView menus={myMenus} changeTab={this.changeTab} permissions={myPermissions} activeTab={this.state.activeTab} backToTab={"member"}/>
-        <StatusView/>
-        <Switch>
-          <Route path="/admin" component={DashboardContainer}/>
-          <Route path="/admin-bugs" component={BugsContainer}/>
-          <Route path="/admin-changerequests" component={ChangeRequestsContainer}/>
-          <Route path="/admin-users" component={UsersContainer}/>
-          <Route path="/admin-roles" component={RolesContainer}/>
-          <Route path="/admin-permissions" component={PermissionsContainer}/>
-          <Route path="/admin-prefmgmt" component={PrefMgmtContainer}/>
-          <Route path="/admin-prefpublic" component={PreferencesContainer}/>
-          <Route path="/admin-prefmember" component={PreferencesContainer}/>
-          <Route path="/admin-prefadmin" component={PreferencesContainer}/>
-          <Route path="/admin-language" component={LanguageContainer}/>
-          <Route path="/admin-category" component={CategoryContainer}/>
-          <Route path="/admin-status" component={StatusContainer}/>
-          <Route path="/admin-service" component={ServiceContainer}/>
-          <Route path="/admin-menu" component={MenuContainer}/>
-          <Route path="/admin-system" component={SystemContainer}/>
-          <Route path="/admin-other" component={SubMenuContainer}/>
-          <Route path="/admin-usermgmt" component={UserMgmtContainer}/>
-        </Switch>
-      </AdminView>
-    );
+    if (myMenus.length > 0) {
+      return (
+        <AdminView>
+          <NavigationView menus={myMenus} changeTab={this.changeTab} permissions={myPermissions} activeTab={this.state.activeTab} backToTab={"member"}/>
+          <StatusView/>
+          <Switch>
+            <PrivateRoute path="/admin" component={DashboardContainer} permissions={myPermissions} code="AD" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-bugs" component={BugsContainer} permissions={myPermissions} code="AB" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-changerequests" component={ChangeRequestsContainer} permissions={myPermissions} code="ACR" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-users" component={UsersContainer} permissions={myPermissions} code="AU" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-roles" component={RolesContainer} permissions={myPermissions} code="AR" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-permissions" component={PermissionsContainer} permissions={myPermissions} code="AP" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-prefmgmt" component={PrefMgmtContainer} permissions={myPermissions} code="APR" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-prefpublic" component={PreferencesContainer} permissions={myPermissions} code="APRP" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-prefmember" component={PreferencesContainer} permissions={myPermissions} code="APRM" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-prefadmin" component={PreferencesContainer} permissions={myPermissions} code="APRA" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-language" component={LanguageContainer} permissions={myPermissions} code="AL" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-category" component={CategoryContainer} permissions={myPermissions} code="AC" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-status" component={StatusContainer} permissions={myPermissions} code="AS" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-service" component={ServiceContainer} permissions={myPermissions} code="ASVR" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-menu" component={MenuContainer} permissions={myPermissions} code="AM" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-system" component={SystemContainer} permissions={myPermissions} code="ASYS" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-other" component={SubMenuContainer} permissions={myPermissions} code="AO" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-usermgmt" component={UserMgmtContainer} permissions={myPermissions} code="AUM" pathto="/access-denied"/>
+          </Switch>
+        </AdminView>
+      );
+    } else {
+      return (
+        <AdminView> <LoadingView/>
+        </AdminView>
+      );
+    }
   }
 }
 
