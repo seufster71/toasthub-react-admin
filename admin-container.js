@@ -69,7 +69,7 @@ class AdminContainer extends Component {
           <NavigationView menus={myMenus} changeTab={this.changeTab} permissions={myPermissions} activeTab={this.state.activeTab} backToTab={"member"}/>
           <StatusView/>
           <Switch>
-            <PrivateRoute path="/admin" component={DashboardContainer} permissions={myPermissions} code="AD" pathto="/access-denied"/>
+            <Route exact path="/admin" component={DashboardContainer}/>
             <PrivateRoute path="/admin-bugs" component={BugsContainer} permissions={myPermissions} code="AB" pathto="/access-denied"/>
             <PrivateRoute path="/admin-changerequests" component={ChangeRequestsContainer} permissions={myPermissions} code="ACR" pathto="/access-denied"/>
             <PrivateRoute path="/admin-users" component={UsersContainer} permissions={myPermissions} code="AU" pathto="/access-denied"/>

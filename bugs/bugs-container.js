@@ -18,7 +18,7 @@ class BugsContainer extends Component {
 	}
 
 	componentDidMount() {
-		//this.props.actions.initMember();
+	//	this.props.actions.initBugs();
 	}
 
   render() {
