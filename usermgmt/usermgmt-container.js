@@ -22,7 +22,7 @@ class UserMgmtContainer extends Component {
 	}
 
 	changeTab(index) {
-      this.props.history.replace("/"+index);
+      this.props.history.replace(index);
   }
 
   render() {
