@@ -47,8 +47,8 @@ class AdminContainer extends Component {
   }
 
   changeTab(code,index) {
-      this.setState({activeTab:code});
-      this.props.history.replace("/"+index);
+      //this.setState({activeTab:code});
+      this.props.history.replace(index);
   }
 
   render() {
@@ -66,7 +66,8 @@ class AdminContainer extends Component {
     if (myMenus.length > 0) {
       return (
         <AdminView>
-          <NavigationView menus={myMenus} changeTab={this.changeTab} permissions={myPermissions} activeTab={this.state.activeTab} backToTab={"member"}/>
+          <NavigationView appPrefs={this.props.appPrefs} permissions={myPermissions}
+          menus={myMenus} changeTab={this.changeTab} activeTab={this.props.history.location.pathname} backToTab={"member"}/>
           <StatusView/>
           <Switch>
             <Route exact path="/admin" component={DashboardContainer}/>
