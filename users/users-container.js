@@ -6,7 +6,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import * as appPrefActions from '../../core/common/apppref-actions';
+import * as userActions from './user-actions';
 import fuLogger from '../../core/common/fu-logger';
 import UsersView from '../../adminView/users/users-view';
 
@@ -18,7 +18,7 @@ class UsersContainer extends Component {
 	}
 
 	componentDidMount() {
-		//this.props.actions.initMember();
+		this.props.actions.initUsers();
 	}
 
   render() {
@@ -41,7 +41,7 @@ function mapStateToProps(state, ownProps) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return { actions:bindActionCreators(appPrefActions,dispatch) };
+  return { actions:bindActionCreators(userActions,dispatch) };
 }
 
 export default connect(mapStateToProps,mapDispatchToProps)(UsersContainer);
