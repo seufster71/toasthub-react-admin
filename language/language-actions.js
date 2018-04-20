@@ -5,20 +5,20 @@ import callService from '../../core/api/api-call';
 
 
 // thunks
-export function initUsers() {
+export function initLanguages() {
   return function(dispatch) {
     let requestParams = {};
     requestParams.action = "INIT";
-    requestParams.service = "USERS_SVC";
-    requestParams.appForms = new Array("ADMIN_USER_FORM");
-    requestParams.appTexts = new Array("ADMIN_USER_PAGE");
-    requestParams.appLabels = new Array("ADMIN_USER_TABLE");
+    requestParams.service = "LANGUAGE_SVC";
+    requestParams.appForms = new Array("ADMIN_LANGUAGE_FORM");
+    requestParams.appTexts = new Array("ADMIN_LANGUAGE_PAGE");
+    requestParams.appLabels = new Array("ADMIN_LANGUAGE_TABLE");
     let params = {};
     params.requestParams = requestParams;
     params.URI = '/api/admin/callService';
 
     return callService(params).then( (responseJson) => {
-      dispatch({ type: "LOAD_INIT_USERS", responseJson });
+      dispatch({ type: "LOAD_INIT_LANGUAGES", responseJson });
     }).catch(error => {
       throw(error);
     });
