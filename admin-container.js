@@ -25,7 +25,7 @@ import LanguageContainer from './language/language-container';
 import CategoryContainer from './category/category-container';
 import StatusContainer from './status/status-container';
 import ServiceContainer from './service/service-container';
-import MenuContainer from './menu/menu-container';
+import MenuContainer from './menu/menus-container';
 import SystemContainer from './system/system-container';
 import AdminView from '../adminView/admin-view';
 import UserMgmtContainer from './usermgmt/usermgmt-container';
