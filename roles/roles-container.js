@@ -22,7 +22,7 @@ class RolesContainer extends Component {
 	}
 
 	onClick(code,index) {
-		fuLogger.log({level:'TRACE',loc:'UsersContainer::onClick',msg:"clicked " + code});
+		fuLogger.log({level:'TRACE',loc:'RolesContainer::onClick',msg:"clicked " + code});
 
 	}
 
