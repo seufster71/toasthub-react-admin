@@ -22,7 +22,7 @@ class LanguageContainer extends Component {
 	}
 
 	onClick(code,index) {
-    fuLogger.log({level:'TRACE',loc:'UsersContainer::onClick',msg:"clicked " + code});
+    fuLogger.log({level:'TRACE',loc:'LanguagesContainer::onClick',msg:"clicked " + code});
 
   }
 
@@ -35,15 +35,13 @@ class LanguageContainer extends Component {
 }
 
 LanguageContainer.propTypes = {
-	appPrefs: PropTypes.object,
 	lang: PropTypes.string,
-	appGlobal: PropTypes.object,
 	actions: PropTypes.object,
 	languages: PropTypes.object
 };
 
 function mapStateToProps(state, ownProps) {
-  return {lang:state.lang, appPrefs:state.appPrefs, languages:state.languages};
+  return {lang:state.lang, languages:state.languages};
 }
 
 function mapDispatchToProps(dispatch) {
