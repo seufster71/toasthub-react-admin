@@ -8,7 +8,7 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import { Switch, Route, withRouter, Redirect} from "react-router";
 import * as adminActions from './admin-actions';
-import LoginContainer from '../core/usermanagement/login-container';
+import LoginContainer from '../core/usermgnt/login-container';
 import StatusView from '../coreView/status/status-view';
 import LoadingView from '../coreView/status/loading-view';
 import NavigationView from '../coreView/navigation/navigation-view';
