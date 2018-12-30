@@ -6,6 +6,9 @@ export default function usersReducer(state = {}, action) {
     case 'LOAD_INIT_USERS': {
       return processInit(state,action);
     }
+    case 'LOAD_LIST_USERS': {
+      return processList(state,action);
+    }
     default:
       return state;
   }
@@ -19,6 +22,19 @@ const processInit = (state,action) => {
       appLabels: Object.assign({}, state.appLabels, reducerUtils.getAppLabels(action)),
       appOptions: Object.assign({}, state.appOptions, reducerUtils.getAppOptions(action)),
       columns: reducerUtils.getColumns(action),
+      itemCount: reducerUtils.getItemCount(action),
+      items: reducerUtils.getItems(action),
+      pageLimit: reducerUtils.getPageLimit(action),
+      pageStart: reducerUtils.getPageStart(action)
+    });
+  } else {
+    return state;
+  }
+};
+
+const processList = (state,action) => {
+  if (action.responseJson != null && action.responseJson.params != null) {
+    return Object.assign({}, state, {
       itemCount: reducerUtils.getItemCount(action),
       items: reducerUtils.getItems(action),
       pageLimit: reducerUtils.getPageLimit(action),
