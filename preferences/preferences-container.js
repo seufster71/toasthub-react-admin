@@ -16,12 +16,18 @@ import utils from '../../core/common/utils';
 class PreferencesContainer extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {pageName:"ADMIN_PREFERENCE",orderCriteria:[{'orderColumn':'ADMIN_PREFERENCE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_PREFERENCE_TABLE_CODE','orderDir':'ASC'}]};
+		this.state = {pageName:"ADMIN_PREFERENCE",orderCriteria:[{'orderColumn':'ADMIN_PREFERENCE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_PREFERENCE_TABLE_CODE','orderDir':'ASC'}],
+									isAddModalOpen: false, isDeleteModalOpen: false, isFilterModalOpen: false,selectedId:null};
 		this.onPageLimitChange = this.onPageLimitChange.bind(this);
 		this.onSearchClick = this.onSearchClick.bind(this);
 		this.onSearchChange = this.onSearchChange.bind(this);
 		this.onPaginationClick = this.onPaginationClick.bind(this);
 		this.onFilterClick = this.onFilterClick.bind(this);
+		this.onSaveFilter = this.onSaveFilter.bind(this);
+		this.onClearFilter = this.onClearFilter.bind(this);
+		this.onSavePreference = this.onSavePreference.bind(this);
+		this.onOpenAddModal = this.onOpenAddModal.bind(this);
+		this.onCloseModal = this.onCloseModal.bind(this);
 	}
 
 	componentDidMount() {
@@ -102,8 +108,42 @@ class PreferencesContainer extends Component {
 
 	onFilterClick(id) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onFilterClick',msg:"id " + id});
-			jQuery('#filterModal').modal({backdrop:"static",show:true});
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onFilterClick',msg:JSON.stringify(this.state)});
+			this.setState({isFilterModalOpen:true});
+		};
+	}
+
+	onSaveFilter(id) {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onSaveFilter',msg:JSON.stringify(this.state)});
+		};
+	}
+
+	onClearFilter(id) {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onClearFilter',msg:JSON.stringify(this.state)});
+		};
+	}
+
+
+	onSavePreference() {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onSavePreference',msg:JSON.stringify(this.state)});
+			this.closeModal();
+		};
+	}
+
+	onOpenAddModal() {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onOpenAddModal',msg:JSON.stringify(this.state)});
+			this.setState({isAddModalOpen:true});
+		};
+	}
+
+	onCloseModal() {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onCloseModal',msg:JSON.stringify(this.state)});
+			this.setState({isAddModalOpen:false,isDeleteModalOpen:false,isFilterModalOpen:false});
 		};
 	}
 
@@ -119,7 +159,12 @@ class PreferencesContainer extends Component {
 				onSearchChange={this.onSearchChange}
 				onSearchClick={this.onSearchClick}
 				onPaginationClick={this.onPaginationClick}
-				onFilterClick={this.onFilterClick}/>
+				onFilterClick={this.onFilterClick}
+				onSaveFilter={this.onSaveFilter}
+				onClearFilter={this.onClearFilter}
+				onSavePreference={this.onSavePreference}
+				onOpenAddModal={this.onOpenAddModal}
+				onCloseModal={this.onCloseModal}/>
 			);
 		} else {
 			return (<div> Loading </div>);
