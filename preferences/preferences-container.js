@@ -17,7 +17,7 @@ class PreferencesContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {pageName:"ADMIN_PREFERENCE",orderCriteria:[{'orderColumn':'ADMIN_PREFERENCE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_PREFERENCE_TABLE_CODE','orderDir':'ASC'}],
-									isAddModalOpen: false, isDeleteModalOpen: false, isFilterModalOpen: false, isDeleteModalOpen: false, selectedId:null};
+									isAddModalOpen: false, isDeleteModalOpen: false, isFilterModalOpen: false, isDeleteModalOpen: false, selectedId:null, openedItems:null};
 		this.onPageLimitChange = this.onPageLimitChange.bind(this);
 		this.onSearchClick = this.onSearchClick.bind(this);
 		this.onSearchChange = this.onSearchChange.bind(this);
@@ -30,6 +30,8 @@ class PreferencesContainer extends Component {
 		this.onAddModal = this.onAddModal.bind(this);
 		this.onDeleteModal = this.onDeleteModal.bind(this);
 		this.onCloseModal = this.onCloseModal.bind(this);
+		this.onClickTabItem = this.onClickTabItem.bind(this);
+		this.onToggleItem = this.onToggleItem.bind(this);
 	}
 
 	componentDidMount() {
@@ -163,6 +165,25 @@ class PreferencesContainer extends Component {
 		};
 	}
 
+	onClickTabItem(itemId,tabId) {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onClickTabItem',msg:JSON.stringify(this.state)});
+		};
+	}
+
+	onToggleItem(itemId) {
+		return (event) => {
+			if (this.state.openedItems != null && this.state.openedItems[itemId] != null) {
+				let openedItems = {...this.state.openedItems};
+				delete openedItems[itemId];
+				this.setState({openedItems});
+			} else {
+				this.setState({openedItems:{ ...this.state.openedItems,[itemId]:{activeTab:"Fields"}}});
+			}
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onToggleItem',msg:JSON.stringify(this.state)});
+		};
+	}
+
   render() {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"test " + JSON.stringify(this.state)});
 		if (this.props.preferences.items != null) {
@@ -182,7 +203,9 @@ class PreferencesContainer extends Component {
 				onDeletePreference={this.onDeletePreference}
 				onAddModal={this.onAddModal}
 				onDeleteModal={this.onDeleteModal}
-				onCloseModal={this.onCloseModal}/>
+				onCloseModal={this.onCloseModal}
+				onClickTabItem={this.onClickTabItem}
+				onToggleItem={this.onToggleItem}/>
 			);
 		} else {
 			return (<div> Loading </div>);
