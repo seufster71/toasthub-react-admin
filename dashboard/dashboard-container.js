@@ -11,6 +11,7 @@ import fuLogger from '../../core/common/fu-logger';
 import DashboardView from '../../adminView/dashboard/dashboard-view';
 
 
+
 class DashboardContainer extends Component {
 	constructor(props) {
 		super(props);
@@ -20,6 +21,7 @@ class DashboardContainer extends Component {
 	componentDidMount() {
 		//this.props.actions.initMember();
 	}
+
 
   render() {
 			fuLogger.log({level:'TRACE',loc:'DashboardContainer::render',msg:"Hi there"});
@@ -37,7 +39,7 @@ DashboardContainer.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  return {lang:state.lang, appPrefs:state.appPrefs};
+  return {appPrefs:state.appPrefs};
 }
 
 function mapDispatchToProps(dispatch) {
