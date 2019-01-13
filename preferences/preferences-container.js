@@ -17,7 +17,7 @@ class PreferencesContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {pageName:"ADMIN_PREFERENCE",orderCriteria:[{'orderColumn':'ADMIN_PREFERENCE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_PREFERENCE_TABLE_CODE','orderDir':'ASC'}],
-									isAddModalOpen: false, isDeleteModalOpen: false, isFilterModalOpen: false,selectedId:null};
+									isAddModalOpen: false, isDeleteModalOpen: false, isFilterModalOpen: false, isDeleteModalOpen: false, selectedId:null};
 		this.onPageLimitChange = this.onPageLimitChange.bind(this);
 		this.onSearchClick = this.onSearchClick.bind(this);
 		this.onSearchChange = this.onSearchChange.bind(this);
@@ -26,7 +26,9 @@ class PreferencesContainer extends Component {
 		this.onSaveFilter = this.onSaveFilter.bind(this);
 		this.onClearFilter = this.onClearFilter.bind(this);
 		this.onSavePreference = this.onSavePreference.bind(this);
-		this.onOpenAddModal = this.onOpenAddModal.bind(this);
+		this.onDeletePreference = this.onDeletePreference.bind(this);
+		this.onAddModal = this.onAddModal.bind(this);
+		this.onDeleteModal = this.onDeleteModal.bind(this);
 		this.onCloseModal = this.onCloseModal.bind(this);
 	}
 
@@ -133,17 +135,31 @@ class PreferencesContainer extends Component {
 		};
 	}
 
-	onOpenAddModal() {
+	onDeletePreference() {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onOpenAddModal',msg:JSON.stringify(this.state)});
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onDeletePreference',msg:JSON.stringify(this.state)});
+			this.closeModal();
+		};
+	}
+
+	onAddModal() {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onAddModal',msg:JSON.stringify(this.state)});
 			this.setState({isAddModalOpen:true});
+		};
+	}
+
+	onDeleteModal() {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onDeleteModal',msg:JSON.stringify(this.state)});
+			this.setState({isDeleteModalOpen:true});
 		};
 	}
 
 	onCloseModal() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onCloseModal',msg:JSON.stringify(this.state)});
-			this.setState({isAddModalOpen:false,isDeleteModalOpen:false,isFilterModalOpen:false});
+			this.setState({isAddModalOpen:false,isDeleteModalOpen:false,isFilterModalOpen:false,isDeleteModalOpen:false});
 		};
 	}
 
@@ -163,7 +179,9 @@ class PreferencesContainer extends Component {
 				onSaveFilter={this.onSaveFilter}
 				onClearFilter={this.onClearFilter}
 				onSavePreference={this.onSavePreference}
-				onOpenAddModal={this.onOpenAddModal}
+				onDeletePreference={this.onDeletePreference}
+				onAddModal={this.onAddModal}
+				onDeleteModal={this.onDeleteModal}
 				onCloseModal={this.onCloseModal}/>
 			);
 		} else {
@@ -174,7 +192,6 @@ class PreferencesContainer extends Component {
 
 PreferencesContainer.propTypes = {
 	appPrefs: PropTypes.object,
-	lang: PropTypes.string,
 	appGlobal: PropTypes.object,
 	actions: PropTypes.object,
 	codeType: PropTypes.string,
@@ -182,7 +199,7 @@ PreferencesContainer.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  return {lang:state.lang, appPrefs:state.appPrefs, preferences:state.preferences};
+  return {appPrefs:state.appPrefs, preferences:state.preferences};
 }
 
 function mapDispatchToProps(dispatch) {
