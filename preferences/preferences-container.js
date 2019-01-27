@@ -12,7 +12,9 @@ import fuLogger from '../../core/common/fu-logger';
 import PreferencesView from '../../adminView/preferences/preferences-view';
 import utils from '../../core/common/utils';
 
-
+/*
+* Preferences Page
+*/
 class PreferencesContainer extends Component {
 	constructor(props) {
 		super(props);
