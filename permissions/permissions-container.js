@@ -10,7 +10,9 @@ import * as permissionsActions from './permissions-actions';
 import fuLogger from '../../core/common/fu-logger';
 import PermissionsView from '../../adminView/permissions/permissions-view';
 
-
+/*
+* Permission Page
+*/
 class PermissionsContainer extends Component {
 	constructor(props) {
 		super(props);
