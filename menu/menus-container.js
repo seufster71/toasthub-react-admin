@@ -10,7 +10,9 @@ import * as menusActions from './menus-actions';
 import fuLogger from '../../core/common/fu-logger';
 import MenuView from '../../adminView/menu/menu-view';
 
-
+/*
+* Menu Page
+*/
 class MenuContainer extends Component {
 	constructor(props) {
 		super(props);
