@@ -10,7 +10,9 @@ import * as languageActions from './language-actions';
 import fuLogger from '../../core/common/fu-logger';
 import LanguageView from '../../adminView/language/language-view';
 
-
+/*
+* Language Page
+*/
 class LanguageContainer extends Component {
 	constructor(props) {
 		super(props);
