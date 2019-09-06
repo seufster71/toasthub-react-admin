@@ -24,8 +24,8 @@ const processInit = (state,action) => {
       columns: reducerUtils.getColumns(action),
       itemCount: reducerUtils.getItemCount(action),
       items: reducerUtils.getItems(action),
-      pageLimit: reducerUtils.getPageLimit(action),
-      pageStart: reducerUtils.getPageStart(action)
+      listLimit: reducerUtils.getListLimit(action),
+      listStart: reducerUtils.getListStart(action)
     });
   } else {
     return state;
@@ -37,8 +37,8 @@ const processList = (state,action) => {
     return Object.assign({}, state, {
       itemCount: reducerUtils.getItemCount(action),
       items: reducerUtils.getItems(action),
-      pageLimit: reducerUtils.getPageLimit(action),
-      pageStart: reducerUtils.getPageStart(action)
+      listLimit: reducerUtils.getListLimit(action),
+      listStart: reducerUtils.getListStart(action)
     });
   } else {
     return state;

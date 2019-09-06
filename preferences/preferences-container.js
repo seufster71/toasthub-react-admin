@@ -37,8 +37,22 @@ class PreferencesContainer extends Component {
 	}
 
 	componentDidMount() {
+		fuLogger.log({level:'TRACE',loc:'PreferenceContainer::componentDidMount',msg:"path "+ this.props.history.location.pathname });
+		let category = "PUBLIC";
+		if (this.props.history.location.pathname === "/admin-prefmember") {
+			category = "MEMBER";
+		} else if (this.props.history.location.pathname === "/admin-prefadmin") {
+			category = "ADMIN";
+		}
 		let orderCriteria = this.state.orderCriteria;
-		this.props.actions.initPreferences(orderCriteria);
+		this.props.actions.init(orderCriteria,category);
+	}
+	
+	componentDidUpdate() {
+		fuLogger.log({level:'TRACE',loc:'PreferenceContainer::componentDidUpdate',msg:"path "+ this.props.history.location.pathname});
+		// check to see if category has changed if so reload.
+		
+		
 	}
 
 	onPageLimitChange(fieldName) {

@@ -59,8 +59,8 @@ class AdminContainer extends Component {
       myMenus = this.props.appMenus[this.props.appPrefs.adminMenu];
     }
     let myPermissions = {};
-    if (this.props.member != null && this.props.member.user != null && this.props.member.user.permissions != null) {
-      myPermissions = this.props.member.user.permissions;
+    if (this.props.session != null && this.props.session.user != null && this.props.session.user.permissions != null) {
+      myPermissions = this.props.session.user.permissions;
     }
     //fuLogger.log({level:'TRACE',loc:'AdminContainer::render',msg:"menus "+ JSON.stringify(myMenus)});
     if (myMenus.length > 0) {
@@ -78,6 +78,8 @@ class AdminContainer extends Component {
             <PrivateRoute path="/admin-permissions" component={PermissionsContainer} permissions={myPermissions} code="AP" pathto="/access-denied"/>
             <PrivateRoute path="/admin-prefmgmt" component={PrefMgmtContainer} permissions={myPermissions} code="APR" pathto="/access-denied"/>
             <PrivateRoute path="/admin-prefpublic" component={PreferencesContainer} permissions={myPermissions} code="APRP" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-prefmember" component={PreferencesContainer} permissions={myPermissions} code="APRP" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-prefadmin" component={PreferencesContainer} permissions={myPermissions} code="APRP" pathto="/access-denied"/>
             <PrivateRoute path="/admin-language" component={LanguageContainer} permissions={myPermissions} code="AL" pathto="/access-denied"/>
             <PrivateRoute path="/admin-category" component={CategoryContainer} permissions={myPermissions} code="AC" pathto="/access-denied"/>
             <PrivateRoute path="/admin-status" component={StatusContainer} permissions={myPermissions} code="AS" pathto="/access-denied"/>
