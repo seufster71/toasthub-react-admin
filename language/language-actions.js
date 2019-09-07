@@ -7,28 +7,28 @@ import actionUtils from '../../core/common/action-utils';
 
 // thunks
 export function init() {
-  return function(dispatch) {
-    let requestParams = {};
-    requestParams.action = "INIT";
-    requestParams.service = "LANGUAGE_SVC";
-    requestParams.appForms = new Array("ADMIN_LANGUAGE_FORM");
-    requestParams.appTexts = new Array("ADMIN_LANGUAGE_PAGE");
-    requestParams.appLabels = new Array("ADMIN_LANGUAGE_TABLE");
-    let params = {};
-    params.requestParams = requestParams;
-    params.URI = '/api/admin/callService';
+	return function(dispatch) {
+		let requestParams = {};
+		requestParams.action = "INIT";
+		requestParams.service = "LANGUAGE_SVC";
+		requestParams.appForms = new Array("ADMIN_LANGUAGE_FORM");
+		requestParams.appTexts = new Array("ADMIN_LANGUAGE_PAGE");
+		requestParams.appLabels = new Array("ADMIN_LANGUAGE_TABLE");
+		let params = {};
+		params.requestParams = requestParams;
+		params.URI = '/api/admin/callService';
 
-    return callService(params).then( (responseJson) => {
-    	if (responseJson != null && responseJson.protocalError == null){
-    		dispatch({ type: "LOAD_INIT_LANGUAGES", responseJson });
-    	} else {
-			actionUtils.checkConnectivity(responseJson,dispatch);
-		}
-    }).catch(error => {
-      throw(error);
-    });
+		return callService(params).then( (responseJson) => {
+			if (responseJson != null && responseJson.protocalError == null){
+				dispatch({ type: "LOAD_INIT_LANGUAGES", responseJson });
+			} else {
+				actionUtils.checkConnectivity(responseJson,dispatch);
+			}
+		}).catch(error => {
+			throw(error);
+		});
 
-  };
+	};
 }
 
 export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
@@ -49,6 +49,9 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
 				dispatch({ type: "LOAD_LIST_LANGUAGES", responseJson });
+				if (info != null) {
+		        	  dispatch({type:'SHOW_STATUS',info:info});  
+		        }
 			} else {
 				actionUtils.checkConnectivity(responseJson,dispatch);
 			}
@@ -59,7 +62,7 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 	};
 }
 
-export function saveLanguage(langauge,listStart,listLimit,searchCriteria,orderCriteria) {
+export function saveLanguage(language,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "LANGUAGE_SAVE";

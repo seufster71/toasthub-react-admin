@@ -1,56 +1,54 @@
 import callService from '../../core/api/api-call';
 import actionUtils from '../../core/common/action-utils';
+
 // action helpers
 
 
 
 // thunks
 export function init() {
-	return function(dispatch) {
-		let requestParams = {};
-		requestParams.action = "INIT";
-		requestParams.service = "CATEGORY_SVC";
-		requestParams.appForms = new Array("ADMIN_CATEGORY_FORM");
-		requestParams.appTexts = new Array("ADMIN_CATEGORY_PAGE");
-		requestParams.appLabels = new Array("ADMIN_CATEGORY_TABLE");
-		let params = {};
-		params.requestParams = requestParams;
-		params.URI = '/api/admin/callService';
+  return function(dispatch) {
+    let requestParams = {};
+    requestParams.action = "INIT";
+    requestParams.service = "STATUS_SVC";
+    requestParams.appForms = new Array("ADMIN_STATUS_FORM");
+    requestParams.appTexts = new Array("ADMIN_STATUS_PAGE");
+    requestParams.appLabels = new Array("ADMIN_STATUS_TABLE");
+    let params = {};
+    params.requestParams = requestParams;
+    params.URI = '/api/admin/callService';
 
-		return callService(params).then( (responseJson) => {
-			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_INIT_CATEGORY", responseJson });
-			} else {
-				actionUtils.checkConnectivity(responseJson,dispatch);
-			}
-		}).catch(error => {
-			throw(error);
-		});
+    return callService(params).then( (responseJson) => {
+    	if (responseJson != null && responseJson.protocalError == null){
+    		dispatch({ type: "LOAD_INIT_STATUSES", responseJson });
+    	} else {
+			actionUtils.checkConnectivity(responseJson,dispatch);
+		}
+    }).catch(error => {
+      throw(error);
+    });
 
-	};
+  };
 }
 
 export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
-		requestParams.service = "CATEGORY_SVC";
+		requestParams.service = "STATUS_SVC";
 		requestParams.listStart = listStart;
 		requestParams.listLimit = listLimit;
 		requestParams.searchCriteria = searchCriteria;
 		requestParams.orderCriteria = orderCriteria;
-		let prefChange = {"page":"category","orderCriteria":orderCriteria,"listStart":listStart,"listLimit":listLimit};
-		dispatch({type:"CATEGORY_PREF_CHANGE", prefChange});
+		let prefChange = {"page":"statuses","orderCriteria":orderCriteria,"listStart":listStart,"listLimit":listLimit};
+		dispatch({type:"STATUS_PREF_CHANGE", prefChange});
 		let params = {};
 		params.requestParams = requestParams;
 		params.URI = '/api/admin/callService';
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_LIST_CATEGORY", responseJson });
-				if (info != null) {
-		        	  dispatch({type:'SHOW_STATUS',info:info});  
-		        }
+				dispatch({ type: "LOAD_LIST_STATUSES", responseJson });
 			} else {
 				actionUtils.checkConnectivity(responseJson,dispatch);
 			}
@@ -61,11 +59,11 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 	};
 }
 
-export function saveLanguage(langauge,listStart,listLimit,searchCriteria,orderCriteria) {
+export function saveLanguage(status,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 		let requestParams = {};
-	    requestParams.action = "CATEGORY_SAVE";
-	    requestParams.params = {"CATEGORY" : category};
+	    requestParams.action = "STATUS_SAVE";
+	    requestParams.params = {"STATIS" : status};
 
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -74,7 +72,7 @@ export function saveLanguage(langauge,listStart,listLimit,searchCriteria,orderCr
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESSFUL"){  
-	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Category save Successful"]));
+	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Status save Successful"]));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "error") {
 	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
 	    		}
@@ -88,11 +86,11 @@ export function saveLanguage(langauge,listStart,listLimit,searchCriteria,orderCr
 }
 
 
-export function deleteCategory(id,listStart,listLimit,searchCriteria,orderCriteria) {
+export function deleteLanguage(id,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "CATEGORY_DELETE";
-	    requestParams.params = {"CATEGORY_ID":id};
+	    requestParams.action = "STATUS_DELETE";
+	    requestParams.params = {"STATUS_ID":id};
 	    
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -110,10 +108,10 @@ export function deleteCategory(id,listStart,listLimit,searchCriteria,orderCriter
 	};
 }
 
-export function categoryPage() {
+export function statusesPage() {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "CATEGORY_PAGE";
+	    requestParams.action = "STATUSES_PAGE";
 	   
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -121,7 +119,7 @@ export function categoryPage() {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'CATEGORY_PAGE',responseJson});
+	    		dispatch({ type: 'STATUSES_PAGE',responseJson});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -131,13 +129,13 @@ export function categoryPage() {
 	};
 }
 
-export function category(id) {
+export function status(id) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "CATEGORY_CATEGORY";
+	    requestParams.action = "STATUSES_STATUS";
 	    if (id != null) {
 	    	requestParams.params = {};
-	    	requestParams.params.CATEGORY_ID = id;
+	    	requestParams.params.STATUS_ID = id;
 	    }
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -145,7 +143,7 @@ export function category(id) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'CATEGORY_CATEGORY',responseJson});
+	    		dispatch({ type: 'STATUSES_STATUS',responseJson});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -160,12 +158,12 @@ export function inputChange(field,value) {
 		 let params = {};
 		 params.field = field;
 		 params.value = value;
-		 dispatch({ type:"CATEGORY_INPUT_CHANGE",params});
+		 dispatch({ type:"STATUSES_INPUT_CHANGE",params});
 	 };
 }
 
 export function clearLanguage() {
 	return function(dispatch) {
-		dispatch({ type:"CATEGPRU_CLEAR_CATEGORY"});
+		dispatch({ type:"STATUSES_CLEAR_STATUS"});
 	};
 }

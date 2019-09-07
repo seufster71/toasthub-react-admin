@@ -1,16 +1,16 @@
 import reducerUtils from '../../core/common/reducer-utils';
 
-export default function categoryReducer(state = {}, action) {
+export default function languagesReducer(state = {}, action) {
 	let myState = {};
 	switch(action.type) {
-    	case 'LOAD_INIT_CATEGORY': {
-    		return processInit(state,action);
-    	}
-    	case 'LOAD_LIST_CATEGORY': {
+		case 'LOAD_INIT_STATUSES': {
+			return processInit(state,action);
+		}
+		case 'LOAD_LIST_STATUSES': {
 			return processList(state,action);
 		}
-    	default:
-    		return state;
+		default:
+			return state;
 	}
 }
 
@@ -44,4 +44,3 @@ const processList = (state,action) => {
 		return state;
 	}
 };
-

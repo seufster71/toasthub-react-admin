@@ -154,7 +154,7 @@ class LanguageContainer extends Component {
 	
 	openDeleteModal(id,name) {
 		return (event) => {
-		    this.setState({isDeleteModalOpen:true,selectedLanguageId:id,selectedName:name});
+		    this.setState({isDeleteModalOpen:true,selectedId:id,selectedName:name});
 		}
 	}
 	

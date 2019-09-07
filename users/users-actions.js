@@ -52,9 +52,9 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
 				dispatch({ type: "LOAD_LIST_USERS", responseJson });
-				//if (info != null) {
-		        //	  dispatch({type:'SHOW_STATUS',info:info});  
-		        //}
+				if (info != null) {
+		        	  dispatch({type:'SHOW_STATUS',info:info});  
+		        }
 			} else {
 				actionUtils.checkConnectivity(responseJson,dispatch);
 			}
