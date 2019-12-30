@@ -50,11 +50,7 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria) {
 	        	  dispatch({type:'SHOW_STATUS',info:info});  
 	        }
 		} else {
-			if (responseJson != null && responseJson.error != null && responseJson.error == 401){
-				dispatch({ type: "PROCESS_LOGOUT" });
-			} else {
-				dispatch({type:'SHOW_STATUS_ERROR',error:["Connectivity issue"]});
-			}
+			actionUtils.checkConnectivity(responseJson,dispatch);
 		}
     }).catch(error => {
       throw(error);

@@ -68,7 +68,8 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 export function saveUser(user,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 		let requestParams = {};
-	    requestParams.action = "USER_SAVE";
+	    requestParams.action = "SAVE";
+	    requestParams.service = "USERS_SVC";
 	    requestParams.params = {"USER" : user};
 
 	    let params = {};
@@ -79,8 +80,8 @@ export function saveUser(user,listStart,listLimit,searchCriteria,orderCriteria) 
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESSFUL"){  
 	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["User save Successful"]));
-	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "error") {
-	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
+	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
+	    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
 	    		}
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
@@ -95,7 +96,8 @@ export function saveUser(user,listStart,listLimit,searchCriteria,orderCriteria) 
 export function deleteUser(id,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "USER_DELETE";
+	    requestParams.action = "DELETE";
+	    requestParams.service = "USERS_SVC";
 	    requestParams.params = {"USER_ID":id};
 	    
 	    let params = {};
@@ -138,10 +140,10 @@ export function usersPage() {
 export function user(id) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "USERS_USER";
+	    requestParams.action = "ITEM";
+	    requestParams.service = "USERS_SVC";
 	    if (id != null) {
-	    	requestParams.params = {};
-	    	requestParams.params.USER_ID = id;
+	    	requestParams.itemId = id;
 	    }
 	    let params = {};
 	    params.requestParams = requestParams;
