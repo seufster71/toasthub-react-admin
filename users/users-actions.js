@@ -11,7 +11,6 @@ export function init() {
     let requestParams = {};
     requestParams.action = "INIT";
     requestParams.service = "USERS_SVC";
-    requestParams.appForms = new Array("ADMIN_USER_FORM");
     requestParams.appTexts = new Array("ADMIN_USER_PAGE");
     requestParams.appLabels = new Array("ADMIN_USER_TABLE");
     let params = {};
@@ -65,12 +64,12 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 	};
 }
 
-export function saveUser(user,listStart,listLimit,searchCriteria,orderCriteria) {
+export function saveUser(inputFields,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
 	    requestParams.service = "USERS_SVC";
-	    requestParams.params = {"USER" : user};
+	    requestParams.inputFields = inputFields;
 
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -78,8 +77,8 @@ export function saveUser(user,listStart,listLimit,searchCriteria,orderCriteria) 
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESSFUL"){  
-	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["User save Successful"]));
+	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
+	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Save Successful"]));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
 	    		}
@@ -98,7 +97,7 @@ export function deleteUser(id,listStart,listLimit,searchCriteria,orderCriteria) 
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
 	    requestParams.service = "USERS_SVC";
-	    requestParams.params = {"USER_ID":id};
+	    requestParams.itemId = id;
 	    
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -142,6 +141,7 @@ export function user(id) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
 	    requestParams.service = "USERS_SVC";
+	    requestParams.appForms = new Array("ADMIN_USER_FORM");
 	    if (id != null) {
 	    	requestParams.itemId = id;
 	    }

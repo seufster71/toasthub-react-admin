@@ -62,11 +62,12 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 	};
 }
 
-export function saveLanguage(language,listStart,listLimit,searchCriteria,orderCriteria) {
+export function saveLanguage(inputFields,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 		let requestParams = {};
-	    requestParams.action = "LANGUAGE_SAVE";
-	    requestParams.params = {"LANGUAGE" : language};
+	    requestParams.action = "SAVE";
+	    requestParams.service = "LANGUAGE_SVC";
+	    requestParams.inputFields = inputFields;
 
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -74,10 +75,10 @@ export function saveLanguage(language,listStart,listLimit,searchCriteria,orderCr
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESSFUL"){  
-	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Language save Successful"]));
-	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "error") {
-	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
+	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
+	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Save Successful"]));
+	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
+	    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
 	    		}
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
@@ -92,8 +93,9 @@ export function saveLanguage(language,listStart,listLimit,searchCriteria,orderCr
 export function deleteLanguage(id,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "LANGUAGE_DELETE";
-	    requestParams.params = {"LANGUAGE_ID":id};
+	    requestParams.action = "DELETE";
+	    requestParams.service = "LANGUAGE_SVC";
+	    requestParams.itemId = id;
 	    
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -135,10 +137,11 @@ export function languagesPage() {
 export function language(id) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "LANGUAGES_LANGUAGE";
+	    requestParams.action = "ITEM";
+	    requestParams.service = "LANGUAGE_SVC";
+	    requestParams.appForms = new Array("ADMIN_LANGUAGE_FORM");
 	    if (id != null) {
-	    	requestParams.params = {};
-	    	requestParams.params.LANGUAGE_ID = id;
+	    	requestParams.itemId = id;
 	    }
 	    let params = {};
 	    params.requestParams = requestParams;

@@ -115,40 +115,14 @@ class UsersContainer extends Component {
 	
 	onSave() {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'UsersContainer::onSaveUser',msg:"test"});
-
-			if (this.props.users.selectedUser != null && this.props.users.selectedUser.firstname != "" && this.props.users.selectedUser.lastname != "" && this.props.users.selectedUser.username != ""
-				&& this.props.users.selectedUser.email != "" && this.props.users.selectedUser.zipcode != ""){
-				let searchCriteria = {'searchValue':this.state['USERS_SEARCH_input'],'searchColumn':'USER_TABLE_FIRSTNAME'};
-				this.props.actions.saveUser(this.props.users.selectedUser,this.props.users.listStart,this.props.users.listLimit,searchCriteria,this.state.orderCriteria);
+			fuLogger.log({level:'TRACE',loc:'UsersContainer::onSave',msg:"test"});
+			let errors = utils.validateFormFields(this.props.users.appForms.ADMIN_USER_FORM,this.props.users.inputFields);
+			
+			if (errors.isValid){
+				let searchCriteria = {'searchValue':this.state['ADMIN_USERS_SEARCH_input'],'searchColumn':'ADMIN_USER_TABLE_FIRSTNAME'};
+				this.props.actions.saveUser(this.props.users.inputFields,this.props.users.listStart,this.props.users.listLimit,searchCriteria,this.state.orderCriteria);
 			} else {
-				let errors = {};
-				if (this.props.users.selectedUser == null || this.props.users.selectedUser.firstname == null || this.props.users.selectedUser.firstname == "" ){
-					errors.USER_FIRSTNAME_input = "Missing!";
-				}
-				if (this.props.users.selectedUser == null || this.props.users.selectedUser.lastname == null || this.props.users.selectedUser.lastname == "") {
-					errors.USER_LASTNAME_input = "Missing!";
-				}
-				if (this.props.users.selectedUser == null || this.props.users.selectedUser.username == null || this.props.users.selectedUser.username == "") {
-					errors.USER_USERNAME_input = "Missing!";
-				}
-				if (this.props.users.selectedUser == null || this.props.users.selectedUser.email == null || this.props.users.selectedUser.email == "") {
-					errors.USER_EMAIL_input = "Missing!";
-				}
-				if (this.props.users.selectedUser == null || this.props.users.selectedUser.zipcode == null || this.props.users.selectedUser.zipcode == "") {
-					errors.USER_ZIPCODE_input = "Missing!";
-				}
-				if (this.props.users.selectedUser == null || (this.props.users.selectedUser != null 
-						&& (this.props.users.selectedUser.id == null || this.props.users.selectedUser.id == "") 
-						&& (this.props.users.selectedUser.password == null || this.props.users.selectedUser.password == "")) ) {
-					errors.USER_PASSWORD_input = "Missing!";
-				}
-				if (this.props.users.selectedUser == null || (this.props.users.selectedUser != null 
-						&& (this.props.users.selectedUser.id == null || this.props.users.selectedUser.id == "") 
-						&& (this.props.users.selectedUser.verifyPassword == null || this.props.users.selectedUser.verifyPassword == "")) ) {
-					errors.USER_VERIFY_PASSWORD_input = "Missing!";
-				}
-				this.setState({errors:errors});
+				this.setState({errors:errors.errorMap});
 			}
 		};
 	}
@@ -162,9 +136,9 @@ class UsersContainer extends Component {
 	
 	onDelete(id) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'UsersContainer::onDeleteUser',msg:"test"+id});
+			fuLogger.log({level:'TRACE',loc:'UsersContainer::onDelete',msg:"test"+id});
 			this.setState({isEditModalOpen:false,isDeleteModalOpen:false});
-			let searchCriteria = {'searchValue':this.state['USERS_SEARCH_input'],'searchColumn':'USER_TABLE_FIRSTNAME'};
+			let searchCriteria = {'searchValue':this.state['ADMIN_USERS_SEARCH_input'],'searchColumn':'ADMIN_USER_TABLE_FIRSTNAME'};
 			this.props.actions.deleteUser(id,this.props.users.listStart,this.props.users.listLimit,searchCriteria,this.state.orderCriteria);
 		};
 	}
@@ -193,14 +167,9 @@ class UsersContainer extends Component {
 	
 	inputChange(fieldName,switchValue) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'UsersContainer::inputChange',msg:"test "+fieldName+" val "+switchValue});
 			let	value = event.target.value;
 			if (switchValue != null) {
-				if (switchValue == 'Y') {
-					value = true;
-				} else {
-					value = false;
-				}
+				value = switchValue;
 			}
 			this.props.actions.inputChange(fieldName,value);
 		};
@@ -213,6 +182,7 @@ class UsersContainer extends Component {
 				<UsersModifyView
 				containerState={this.state}
 				user={this.props.users.selectedUser}
+				inputFields={this.props.users.inputFields}
 				appPrefs={this.props.appPrefs}
 				userAppForms={this.props.users.appForms}
 				onSave={this.onSave}
