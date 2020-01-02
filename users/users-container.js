@@ -28,6 +28,7 @@ class UsersContainer extends Component {
 		this.onSave = this.onSave.bind(this);
 		this.onModify = this.onModify.bind(this);
 		this.onDelete = this.onDelete.bind(this);
+		this.onEditRoles = this.onEditRoles.bind(this);
 		this.inputChange = this.inputChange.bind(this);
 		this.onCancel = this.onCancel.bind(this);
 	}
@@ -137,7 +138,7 @@ class UsersContainer extends Component {
 	onDelete(id) {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'UsersContainer::onDelete',msg:"test"+id});
-			this.setState({isEditModalOpen:false,isDeleteModalOpen:false});
+			this.setState({isDeleteModalOpen:false});
 			let searchCriteria = {'searchValue':this.state['ADMIN_USERS_SEARCH_input'],'searchColumn':'ADMIN_USER_TABLE_FIRSTNAME'};
 			this.props.actions.deleteUser(id,this.props.users.listStart,this.props.users.listLimit,searchCriteria,this.state.orderCriteria);
 		};
@@ -147,6 +148,13 @@ class UsersContainer extends Component {
 		return (event) => {
 		    this.setState({isDeleteModalOpen:true,selectedUserId:id,selectedUserName:name});
 		}
+	}
+	
+	onEditRoles(id) {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'UsersContainer::onEditRoles',msg:"test"+id});
+			this.props.actions.roles(id);
+		};
 	}
 	
 	closeModal() {
@@ -167,7 +175,12 @@ class UsersContainer extends Component {
 	
 	inputChange(fieldName,switchValue) {
 		return (event) => {
-			let	value = event.target.value;
+			let	value = null;
+			if (this.props.codeType === 'NATIVE') {
+				value = event.nativeEvent.text;
+			} else {
+				value = event.target.value;
+			}
 			if (switchValue != null) {
 				value = switchValue;
 			}
@@ -205,6 +218,7 @@ class UsersContainer extends Component {
 				closeModal={this.closeModal}
 				onModify={this.onModify}
 				onDelete={this.onDelete}
+				onEditRoles={this.onEditRoles}
 				inputChange={this.inputChange}/>
 			);
 		} else {

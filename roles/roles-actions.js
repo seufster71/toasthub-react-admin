@@ -11,7 +11,6 @@ export function init() {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "ROLES_SVC";
-		requestParams.appForms = new Array("ADMIN_ROLE_FORM");
 		requestParams.appTexts = new Array("ADMIN_ROLE_PAGE");
 		requestParams.appLabels = new Array("ADMIN_ROLE_TABLE");
 		let params = {};
@@ -35,7 +34,7 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
-		requestParams.service = "ROLE_SVC";
+		requestParams.service = "ROLES_SVC";
 		requestParams.listStart = listStart;
 		requestParams.listLimit = listLimit;
 		requestParams.searchCriteria = searchCriteria;
@@ -65,8 +64,9 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 export function saveRole(role,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 		let requestParams = {};
-	    requestParams.action = "ROLE_SAVE";
-	    requestParams.params = {"ROLE" : role};
+	    requestParams.action = "SAVE";
+	    requestParams.service = "ROLES_SVC";
+	    requestParams.inputFields = inputFields;
 
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -74,10 +74,10 @@ export function saveRole(role,listStart,listLimit,searchCriteria,orderCriteria) 
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESSFUL"){  
-	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Role save Successful"]));
+	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
+	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Save Successful"]));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "error") {
-	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
+	    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
 	    		}
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
@@ -92,8 +92,9 @@ export function saveRole(role,listStart,listLimit,searchCriteria,orderCriteria) 
 export function deleteRole(id,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "ROLE_DELETE";
-	    requestParams.params = {"ROLE_ID":id};
+	    requestParams.action = "DELETE";
+	    requestParams.service = "ROLES_SVC";
+	    requestParams.itemId = id;
 	    
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -135,10 +136,11 @@ export function rolesPage() {
 export function role(id) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "ROLES_ROLE";
+	    requestParams.action = "ITEM";
+	    requestParams.service = "ROLES_SVC";
+	    requestParams.appForms = new Array("ADMIN_ROLE_FORM");
 	    if (id != null) {
-	    	requestParams.params = {};
-	    	requestParams.params.ROLE_ID = id;
+	    	requestParams.itemId = id;
 	    }
 	    let params = {};
 	    params.requestParams = requestParams;

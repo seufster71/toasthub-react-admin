@@ -15,17 +15,20 @@ class RolesContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {pageName:"ADMIN_ROLE",orderCriteria:[{'orderColumn':'ADMIN_ROLE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_ROLE_TABLE_CODE','orderDir':'ASC'}],
-				isEditModalOpen: false, isDeleteModalOpen: false, errors:{}};
+			isDeleteModalOpen: false, errors:null, warns:null, successes:null};
 		this.onListLimitChange = this.onListLimitChange.bind(this);
 		this.onSearchClick = this.onSearchClick.bind(this);
+		this.onSearchChange = this.onSearchChange.bind(this);
 		this.onPaginationClick = this.onPaginationClick.bind(this);
 		this.onColumnSort = this.onColumnSort.bind(this);
-		this.openEditModal = this.openEditModal.bind(this);
 		this.openDeleteModal = this.openDeleteModal.bind(this);
 		this.closeModal = this.closeModal.bind(this);
-		this.onSaveRole = this.onSaveRole.bind(this);
-		this.onDeleteRole = this.onDeleteRole.bind(this);
+		this.onSave = this.onSave.bind(this);
+		this.onModify = this.onModify.bind(this);
+		this.onDelete = this.onDelete.bind(this);
+		this.onEditPermissions = this.onEditPermissions.bind(this);
 		this.inputChange = this.inputChange.bind(this);
+		this.onCancel = this.onCancel.bind(this);
 	}
 
 	componentDidMount() {
@@ -107,46 +110,33 @@ class RolesContainer extends Component {
 		};
 	}
 	
-	onSaveRole() {
+	onSave() {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onSaveRole',msg:"test"});
-
-			if (this.props.roles.selected != null && this.props.roles.selected.name != "" && this.props.roles.selected.code != "" ){
-				this.setState({isEditModalOpen:false,isDeleteModalOpen:false});
-				let searchCriteria = {'searchValue':this.state['ROLE_SEARCH_input'],'searchColumn':'ROLE_TABLE_TITLE'};
+			fuLogger.log({level:'TRACE',loc:'RoleContainer::onSave',msg:"test"});
+			let errors = utils.validateFormFields(this.props.roless.appForms.ADMIN_ROLE_FORM,this.props.roles.inputFields);
+			
+			if (errors.isValid){
+				let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
 				this.props.actions.saveRole(this.props.roles.selected,this.props.roles.listStart,this.props.roles.listLimit,searchCriteria,this.state.orderCriteria);
 			} else {
-				let errors = {};
-				if (this.props.roles.selected == null || this.props.roles.selected.name == null || this.props.roles.selected.name == "" ){
-					errors.ROLE_NAME_input = "Missing!";
-				}
-				if (this.props.roles.selected == null || this.props.roles.selected.code == null || this.props.roles.selected.code == "") {
-					errors.ROLE_CODE_input = "Missing!";
-				}
-				this.setState({errors:errors});
+				this.setState({errors:errors.errorMap});
 			}
 		};
 	}
 	
-	onDeleteRole(id) {
+	onModify(id) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onDeleteLanguage',msg:"test"+id});
-			this.setState({isEditModalOpen:false,isDeleteModalOpen:false});
-			let searchCriteria = {'searchValue':this.state['ROLE_SEARCH_input'],'searchColumn':'ROLE_TABLE_TITLE'};
+			fuLogger.log({level:'TRACE',loc:'RoleContainer::onModify',msg:"test"+id});
+			this.props.actions.role(id);
+		};
+	}
+	
+	onDelete(id) {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'RoleContainer::onDelete',msg:"test"+id});
+			this.setState({isDeleteModalOpen:false});
+			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
 			this.props.actions.deleteRole(id,this.props.roles.listStart,this.props.roles.listLimit,searchCriteria,this.state.orderCriteria);
-		};
-	}
-	
-	openEditModal(id) {
-		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::openEditModal',msg:"id " + id});
-			this.setState({isEditModalOpen:true});
-			this.props.actions.rolePage();
-			if (id != null) {
-				this.props.actions.role(id);
-			} else {
-				this.props.actions.clearRole();
-			}
 		};
 	}
 	
@@ -156,22 +146,60 @@ class RolesContainer extends Component {
 		}
 	}
 	
-	closeModal() {
+	onEditPermissions(id) {
 		return (event) => {
-			this.setState({isEditModalOpen:false,isDeleteModalOpen:false,errors:{}});
+			fuLogger.log({level:'TRACE',loc:'RoleContainer::onEditPermissions',msg:"test"+id});
+			this.props.actions.permissions(id);
 		};
 	}
 	
-	inputChange(fieldName) {
+	closeModal() {
 		return (event) => {
-			let	value = event.target.value;
+			this.setState({isDeleteModalOpen:false,errors:null,warns:null});
+		};
+	}
+	
+	onCancel() {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'RoleContainer::onCancel',msg:"test"});
+			let listStart = 0;
+			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_ROLE_ListLimit');
+			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_BOTH'};
+			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
+		};
+	}
+	
+	inputChange(fieldName,switchValue) {
+		return (event) => {
+			let	value = null;
+			if (this.props.codeType === 'NATIVE') {
+				value = event.nativeEvent.text;
+			} else {
+				value = event.target.value;
+			}
+			if (switchValue != null) {
+				value = switchValue;
+			}
 			this.props.actions.inputChange(fieldName,value);
 		};
 	}
 
 	render() {
 		fuLogger.log({level:'TRACE',loc:'RolesContainer::render',msg:"Hi there"});
-		if (this.props.roles.items != null) {
+		if (this.props.roles.isModifyOpen) {
+			return (
+				<RolesModifyView
+				containerState={this.state}
+				role={this.props.roles.selected}
+				inputFields={this.props.roles.inputFields}
+				appPrefs={this.props.appPrefs}
+				itemAppForms={this.props.roles.appForms}
+				onSave={this.onSave}
+				onCancel={this.onCancel}
+				onReturn={this.onCancel}
+				inputChange={this.inputChange}/>
+			);
+		} else if (this.props.roles.items != null) {
 			return (
 				<RolesView 
 				containerState={this.state}
@@ -182,11 +210,11 @@ class RolesContainer extends Component {
 				onSearchClick={this.onSearchClick}
 				onPaginationClick={this.onPaginationClick}
 				onColumnSort={this.onColumnSort}
-				openEditModal={this.openEditModal}
 				openDeleteMOdal={this.openDeleteModal}
 				closeModal={this.closeModal}
-				onSaveRole={this.onSaveRole}
-				onDeleteRole={this.onDeleteRole}
+				onModify={this.onModify}
+				onDelete={this.onDelete}
+				onEditPermissions={this.onEditPermissions}
 				inputChange={this.inputChange}
 				/>
 					
