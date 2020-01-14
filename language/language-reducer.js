@@ -14,7 +14,7 @@ export default function languagesReducer(state = {}, action) {
 					items: reducerUtils.getItems(action),
 					listLimit: reducerUtils.getListLimit(action),
 					listStart: reducerUtils.getListStart(action),
-					selectedItem: null,
+					selected: null,
 					isModifyOpen: false
 				});
 			} else {
@@ -28,7 +28,7 @@ export default function languagesReducer(state = {}, action) {
 					items: reducerUtils.getItems(action),
 					listLimit: reducerUtils.getListLimit(action),
 					listStart: reducerUtils.getListStart(action),
-					selectedItem: null,
+					selected: null,
 					isModifyOpen: false
 				});
 			} else {

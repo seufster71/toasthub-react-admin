@@ -11,7 +11,6 @@ export function init() {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "LANGUAGE_SVC";
-		requestParams.appForms = new Array("ADMIN_LANGUAGE_FORM");
 		requestParams.appTexts = new Array("ADMIN_LANGUAGE_PAGE");
 		requestParams.appLabels = new Array("ADMIN_LANGUAGE_TABLE");
 		let params = {};

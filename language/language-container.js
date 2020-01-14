@@ -19,7 +19,7 @@ class LanguageContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {pageName:"ADMIN_LANGUAGE",orderCriteria:[{'orderColumn':'ADMIN_LANGUAGE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_LANGUAGE_TABLE_CODE','orderDir':'ASC'}],
-				isEditModalOpen: false, isDeleteModalOpen: false, errors:{}};
+			isDeleteModalOpen: false, errors:null, warns:null, successes:null};
 		this.onListLimitChange = this.onListLimitChange.bind(this);
 		this.onSearchClick = this.onSearchClick.bind(this);
 		this.onSearchChange = this.onSearchChange.bind(this);
@@ -116,20 +116,13 @@ class LanguageContainer extends Component {
 	onSave() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'LanguageContainer::onSave',msg:"test"});
-
-			if (this.props.languages.selected != null && this.props.languages.selected.name != "" && this.props.languages.selected.code != "" ){
-				this.setState({isEditModalOpen:false,isDeleteModalOpen:false});
+			let errors = utils.validateFormFields(this.props.languages.appForms.ADMIN_LANGUAGE_FORM, this.props.languages.inputFields, this.props.appPrefs.appGlobal.LANGUAGES);
+			
+			if (errors.isValid){
 				let searchCriteria = {'searchValue':this.state['ADMIN_LANGUAGE_SEARCH_input'],'searchColumn':'ADMIN_LANGUAGE_TABLE_NAME'};
-				this.props.actions.saveLanguage(this.props.languages.selected,this.props.languages.listStart,this.props.languages.listLimit,searchCriteria,this.state.orderCriteria);
+				this.props.actions.saveLanguage(this.props.languages.inputFields,this.props.languages.listStart,this.props.languages.listLimit,searchCriteria,this.state.orderCriteria);
 			} else {
-				let errors = {};
-				if (this.props.languages.selected == null || this.props.languages.selected.name == null || this.props.languages.selected.name == "" ){
-					errors.LANGUAGE_NAME_input = "Missing!";
-				}
-				if (this.props.languages.selected == null || this.props.languages.selected.code == null || this.props.languages.selected.code == "") {
-					errors.LANGUAGE_CODE_input = "Missing!";
-				}
-				this.setState({errors:errors});
+				this.setState({errors:errors.errorMap});
 			}
 		};
 	}
@@ -144,7 +137,7 @@ class LanguageContainer extends Component {
 	onDelete(id) {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'LanguageContainer::onDelete',msg:"test"+id});
-			this.setState({isEditModalOpen:false,isDeleteModalOpen:false});
+			this.setState({isDeleteModalOpen:false});
 			let searchCriteria = {'searchValue':this.state['ADMIN_LANGUAGE_SEARCH_input'],'searchColumn':'ADMIN_LANGUAGE_TABLE_NAME'};
 			this.props.actions.deleteLanguage(id,this.props.languages.listStart,this.props.languages.listLimit,searchCriteria,this.state.orderCriteria);
 		};
@@ -158,7 +151,7 @@ class LanguageContainer extends Component {
 	
 	closeModal() {
 		return (event) => {
-			this.setState({isEditModalOpen:false,isDeleteModalOpen:false,errors:{}});
+			this.setState({isDeleteModalOpen:false,errors:null,warns:null});
 		};
 	}
 	
@@ -174,7 +167,12 @@ class LanguageContainer extends Component {
 	
 	inputChange(fieldName) {
 		return (event) => {
-			let	value = event.target.value;
+			let	value = null;
+			if (this.props.codeType === 'NATIVE') {
+				value = event.nativeEvent.text;
+			} else {
+				value = event.target.value;
+			}
 			if (switchValue != null) {
 				value = switchValue;
 			}
@@ -188,10 +186,10 @@ class LanguageContainer extends Component {
 			return (
 				<LanguageModifyView
 				containerState={this.state}
-				language={this.props.languages.selectedLanguage}
+				item={this.props.languages.selected}
 				inputFields={this.props.languages.inputFields}
 				appPrefs={this.props.appPrefs}
-				userAppForms={this.props.languages.appForms}
+				itemAppForms={this.props.languages.appForms}
 				onSave={this.onSave}
 				onCancel={this.onCancel}
 				onReturn={this.onCancel}

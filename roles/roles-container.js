@@ -9,6 +9,8 @@ import {bindActionCreators} from 'redux';
 import * as rolesActions from './roles-actions';
 import fuLogger from '../../core/common/fu-logger';
 import RolesView from '../../adminView/roles/roles-view';
+import RolesModifyView from '../../adminView/roles/roles-modify-view';
+import utils from '../../core/common/utils';
 
 
 class RolesContainer extends Component {
@@ -113,11 +115,11 @@ class RolesContainer extends Component {
 	onSave() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'RoleContainer::onSave',msg:"test"});
-			let errors = utils.validateFormFields(this.props.roless.appForms.ADMIN_ROLE_FORM,this.props.roles.inputFields);
+			let errors = utils.validateFormFields(this.props.roles.appForms.ADMIN_ROLE_FORM, this.props.roles.inputFields, this.props.appPrefs.appGlobal.LANGUAGES);
 			
 			if (errors.isValid){
 				let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
-				this.props.actions.saveRole(this.props.roles.selected,this.props.roles.listStart,this.props.roles.listLimit,searchCriteria,this.state.orderCriteria);
+				this.props.actions.saveRole(this.props.roles.inputFields,this.props.roles.listStart,this.props.roles.listLimit,searchCriteria,this.state.orderCriteria);
 			} else {
 				this.setState({errors:errors.errorMap});
 			}
@@ -190,7 +192,7 @@ class RolesContainer extends Component {
 			return (
 				<RolesModifyView
 				containerState={this.state}
-				role={this.props.roles.selected}
+				item={this.props.roles.selected}
 				inputFields={this.props.roles.inputFields}
 				appPrefs={this.props.appPrefs}
 				itemAppForms={this.props.roles.appForms}
@@ -210,7 +212,7 @@ class RolesContainer extends Component {
 				onSearchClick={this.onSearchClick}
 				onPaginationClick={this.onPaginationClick}
 				onColumnSort={this.onColumnSort}
-				openDeleteMOdal={this.openDeleteModal}
+				openDeleteModal={this.openDeleteModal}
 				closeModal={this.closeModal}
 				onModify={this.onModify}
 				onDelete={this.onDelete}

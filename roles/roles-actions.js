@@ -61,7 +61,7 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 	};
 }
 
-export function saveRole(role,listStart,listLimit,searchCriteria,orderCriteria) {
+export function saveRole(inputFields,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
@@ -76,7 +76,7 @@ export function saveRole(role,listStart,listLimit,searchCriteria,orderCriteria) 
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
 	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Save Successful"]));
-	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "error") {
+	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
 	    		}
 	    	} else {

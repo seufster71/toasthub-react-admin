@@ -11,7 +11,6 @@ export function init() {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "PERMISSIONS_SVC";
-		requestParams.appForms = new Array("ADMIN_PERMISSION_FORM");
 		requestParams.appTexts = new Array("ADMIN_PERMISSION_PAGE");
 		requestParams.appLabels = new Array("ADMIN_PERMISSION_TABLE");
 		let params = {};
@@ -65,8 +64,9 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 export function savePermission(permission,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 		let requestParams = {};
-	    requestParams.action = "PERMISSION_SAVE";
-	    requestParams.params = {"PERMISSION" : permission};
+	    requestParams.action = "SAVE";
+	    requestParams.service = "PERMISSIONS_SVC";
+	    requestParams.inputFields = inputFields;
 
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -74,9 +74,9 @@ export function savePermission(permission,listStart,listLimit,searchCriteria,ord
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESSFUL"){  
-	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Permission save Successful"]));
-	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "error") {
+	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
+	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Save Successful"]));
+	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
 	    		}
 	    	} else {
@@ -92,8 +92,9 @@ export function savePermission(permission,listStart,listLimit,searchCriteria,ord
 export function deletePermission(id,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "PERMISSION_DELETE";
-	    requestParams.params = {"PERMISSION_ID":id};
+	    requestParams.action = "DELETE";
+	    requestParams.service = "PERMISSIONS_SVC";
+	    requestParams.itemId = id;
 	    
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -135,10 +136,11 @@ export function permissionsPage() {
 export function permission(id) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "PERMISSIONS_PERMISSION";
+	    requestParams.action = "ITEM";
+	    requestParams.service = "PERMISSIONS_SVC";
+	    requestParams.appForms = new Array("ADMIN_PERMISSION_FORM");
 	    if (id != null) {
-	    	requestParams.params = {};
-	    	requestParams.params.PERMISSION_ID = id;
+	    	requestParams.itemId = id;
 	    }
 	    let params = {};
 	    params.requestParams = requestParams;
