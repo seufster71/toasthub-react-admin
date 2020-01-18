@@ -65,6 +65,7 @@ export default function rolesReducer(state = {}, action) {
 					appForms: Object.assign({}, state.appForms, reducerUtils.getAppForms(action)),
 					selected : action.responseJson.params.item,
 					inputFields : inputFields,
+					applicationSelectList : action.responseJson.params.applicationSelectList,
 					isModifyOpen: true
 				});
 			} else {

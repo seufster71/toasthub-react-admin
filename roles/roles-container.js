@@ -199,7 +199,8 @@ class RolesContainer extends Component {
 				onSave={this.onSave}
 				onCancel={this.onCancel}
 				onReturn={this.onCancel}
-				inputChange={this.inputChange}/>
+				inputChange={this.inputChange}
+				applicationSelectList={this.props.roles.applicationSelectList}/>
 			);
 		} else if (this.props.roles.items != null) {
 			return (
