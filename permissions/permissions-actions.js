@@ -6,13 +6,20 @@ import actionUtils from '../../core/common/action-utils';
 
 
 // thunks
-export function init() {
+export function init(role) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "PERMISSIONS_SVC";
 		requestParams.appTexts = new Array("ADMIN_PERMISSION_PAGE");
 		requestParams.appLabels = new Array("ADMIN_PERMISSION_TABLE");
+		if (role != null) {
+			requestParams.roleId = role.id;
+			dispatch({type:"PERMISSIONS_ADD_ROLE", role});
+		} else {
+			dispatch({type:"PERMISSIONS_CLEAR_ROLE"});
+		}
+		
 		let params = {};
 		params.requestParams = requestParams;
 		params.URI = '/api/admin/callService';
@@ -30,7 +37,7 @@ export function init() {
 	};
 }
 
-export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
+export function list(listStart,listLimit,searchCriteria,orderCriteria,info,roleId) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
@@ -39,6 +46,9 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 		requestParams.listLimit = listLimit;
 		requestParams.searchCriteria = searchCriteria;
 		requestParams.orderCriteria = orderCriteria;
+		if (roleId != null) {
+			requestParams.roleId = roleId;
+		}
 		let prefChange = {"page":"permissions","orderCriteria":orderCriteria,"listStart":listStart,"listLimit":listLimit};
 		dispatch({type:"PERMISSION_PREF_CHANGE", prefChange});
 		let params = {};
@@ -61,7 +71,7 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 	};
 }
 
-export function savePermission(permission,listStart,listLimit,searchCriteria,orderCriteria) {
+export function savePermission(inputFields,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";

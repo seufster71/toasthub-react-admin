@@ -59,7 +59,7 @@ export default function usersReducer(state = {}, action) {
 				}
 				// add id if this is existing item
 				if (action.responseJson.params.item != null) {
-					inputFields.ID = action.responseJson.params.item.id;
+					inputFields.itemId = action.responseJson.params.item.id;
 				}
 				return Object.assign({}, state, {
 					appForms: Object.assign({}, state.appForms, reducerUtils.getAppForms(action)),

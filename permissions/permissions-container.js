@@ -10,6 +10,7 @@ import * as permissionsActions from './permissions-actions';
 import fuLogger from '../../core/common/fu-logger';
 import utils from '../../core/common/utils';
 import PermissionsView from '../../adminView/permissions/permissions-view';
+import PermissionsModifyView from '../../adminView/permissions/permissions-modify-view';
 
 /*
 * Permission Page
@@ -31,10 +32,15 @@ class PermissionsContainer extends Component {
 		this.onDelete = this.onDelete.bind(this);
 		this.inputChange = this.inputChange.bind(this);
 		this.onCancel = this.onCancel.bind(this);
+		this.onRolePermissionModify = this.onRolePermissionModify.bind(this);
 	}
 
 	componentDidMount() {
-		this.props.actions.init();
+		if (this.props.history.location.state != null && this.props.history.location.state.parent != null) {
+			this.props.actions.init(this.props.history.location.state.parent);
+		} else {
+			this.props.actions.init();
+		}
 	}
 
 	onListLimitChange(fieldName) {
@@ -50,7 +56,7 @@ class PermissionsContainer extends Component {
 
 			let listStart = 0;
 			let listLimit = parseInt(value);
-			let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_BOTH'};
+			let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_NAME'};
 			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
 		};
 	}
@@ -75,7 +81,7 @@ class PermissionsContainer extends Component {
 			listStart = ((segmentValue - 1) * listLimit);
 			this.setState({"ADMIN_PERMISSION_PAGINATION":segmentValue});
 
-			let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_BOTH'};
+			let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_NAME'};
 			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
 		};
 	}
@@ -116,7 +122,7 @@ class PermissionsContainer extends Component {
 	onSave() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PermissionContainer::onSave',msg:"test"});
-			let errors = utils.validateFormFields(this.props.permissions.appForms.ADMIN_PERMISSION_FORM,this.props.permissions.inputFields);
+			let errors = utils.validateFormFields(this.props.permissions.appForms.ADMIN_PERMISSION_FORM,this.props.permissions.inputFields, this.props.appPrefs.appGlobal.LANGUAGES);
 			
 			if (errors.isValid){
 				let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_NAME'};
@@ -127,31 +133,31 @@ class PermissionsContainer extends Component {
 		};
 	}
 	
-	onModify(id) {
+	onModify(item) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'PermissionContainer::onModify',msg:"test"+id});
-			this.props.actions.permission(id);
+			fuLogger.log({level:'TRACE',loc:'PermissionContainer::onModify',msg:"test"+item.id});
+			this.props.actions.permission(item.id);
 		};
 	}
 	
-	onDelete(id) {
+	onDelete(item) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'PermissionContainer::onDeletePermission',msg:"test"+id});
+			fuLogger.log({level:'TRACE',loc:'PermissionContainer::onDeletePermission',msg:"test"+item.id});
 			this.setState({isDeleteModalOpen:false});
-			let searchCriteria = {'searchValue':this.state['PERMISSION_SEARCH_input'],'searchColumn':'PERMISSION_TABLE_NAME'};
-			this.props.actions.deletePermission(id,this.props.permissions.listStart,this.props.permissions.listLimit,searchCriteria,this.state.orderCriteria);
+			let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_NAME'};
+			this.props.actions.deletePermission(item.id,this.props.permissions.listStart,this.props.permissions.listLimit,searchCriteria,this.state.orderCriteria);
 		};
 	}
 	
-	openDeleteModal(id,name) {
+	openDeleteModal(item) {
 		return (event) => {
-		    this.setState({isDeleteModalOpen:true,selectedId:id,selectedName:name});
+		    this.setState({isDeleteModalOpen:true,selectedId:item.id,selectedName:item.title.defaultText});
 		}
 	}
 	
 	closeModal() {
 		return (event) => {
-			this.setState({isEditModalOpen:false,isDeleteModalOpen:false,errors:{}});
+			this.setState({isDeleteModalOpen:false,errors:null,warns:null});
 		};
 	}
 	
@@ -160,12 +166,12 @@ class PermissionsContainer extends Component {
 			fuLogger.log({level:'TRACE',loc:'UsersContainer::onCancel',msg:"test"});
 			let listStart = 0;
 			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_PERMISSION_ListLimit');
-			let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_BOTH'};
+			let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_NAME'};
 			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
 		};
 	}
 	
-	inputChange(fieldName) {
+	inputChange(fieldName,switchValue) {
 		return (event) => {
 			let	value = null;
 			if (this.props.codeType === 'NATIVE') {
@@ -177,6 +183,13 @@ class PermissionsContainer extends Component {
 				value = switchValue;
 			}
 			this.props.actions.inputChange(fieldName,value);
+		};
+	}
+	
+	onRolePermissionModify(item) {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PermissionContainer::onRolePermissionModify',msg:"test"+item.id});
+			this.props.actions.rolePermission(item.id);
 		};
 	}
 
@@ -193,7 +206,8 @@ class PermissionsContainer extends Component {
 				onSave={this.onSave}
 				onCancel={this.onCancel}
 				onReturn={this.onCancel}
-				inputChange={this.inputChange}/>
+				inputChange={this.inputChange}
+				applicationSelectList={this.props.permissions.applicationSelectList}/>
 			);
 		} else if (this.props.permissions.items != null) {
 			return (
@@ -210,6 +224,7 @@ class PermissionsContainer extends Component {
 				closeModal={this.closeModal}
 				onModify={this.onModify}
 				onDelete={this.onDelete}
+				onRolePermissionModify={this.onRolePermissionModify}
 				inputChange={this.inputChange}
 				/>
 					

@@ -42,8 +42,20 @@ export default function permissionsReducer(state = {}, action) {
 				let appForms = reducerUtils.getAppForms(action);
 				for (let i = 0; i < appForms.ADMIN_PERMISSION_FORM.length; i++) {
 					let classModel = JSON.parse(appForms.ADMIN_PERMISSION_FORM[i].classModel);
-					if (action.responseJson.params.item != null && action.responseJson.params.item[classModel.field]) {
-						inputFields[appForms.ADMIN_PERMISSION_FORM[i].name] = action.responseJson.params.item[classModel.field];
+					if (action.responseJson.params.item != null && action.responseJson.params.item.hasOwnProperty(classModel.field)) {
+						if (classModel.defaultClazz != null) {
+							inputFields[appForms.ADMIN_PERMISSION_FORM[i].name+"-DEFAULT"] = action.responseJson.params.item[classModel.field].defaultText;
+						}
+						if (classModel.textClazz != null) {
+							for (let j = 0; j < action.responseJson.params.item[classModel.field].langTexts.length; j++) {
+								inputFields[appForms.ADMIN_PERMISSION_FORM[i].name+"-TEXT-"+action.responseJson.params.item[classModel.field].langTexts[j].lang] = action.responseJson.params.item[classModel.field].langTexts[j].text;
+							}
+						}
+						if (classModel.type == "Object") {
+							inputFields[appForms.ADMIN_PERMISSION_FORM[i].name] = "Object";
+						} else {
+							inputFields[appForms.ADMIN_PERMISSION_FORM[i].name] = action.responseJson.params.item[classModel.field];
+						}
 					} else {
 						let result = "";
 						if (appForms.ADMIN_PERMISSION_FORM[i].value != null && appForms.ADMIN_PERMISSION_FORM[i].value != ""){
@@ -59,19 +71,20 @@ export default function permissionsReducer(state = {}, action) {
 				}
 				// add id if this is existing item
 				if (action.responseJson.params.item != null) {
-					inputFields.ID = action.responseJson.params.item.id;
+					inputFields.itemId = action.responseJson.params.item.id;
 				}
 				return Object.assign({}, state, {
 					appForms: Object.assign({}, state.appForms, reducerUtils.getAppForms(action)),
 					selected : action.responseJson.params.item,
 					inputFields : inputFields,
+					applicationSelectList : action.responseJson.params.applicationSelectList,
 					isModifyOpen: true
 				});
 			} else {
 				return state;
 			}
 		}
-		case 'USERS_INPUT_CHANGE': {
+		case 'PERMISSIONS_INPUT_CHANGE': {
 			if (action.params != null) {
 				let inputFields = Object.assign({}, state.inputFields);
 				inputFields[action.params.field] = action.params.value;
@@ -81,6 +94,20 @@ export default function permissionsReducer(state = {}, action) {
 			} else {
 		        return state;
 		    }
+		}
+		case 'PERMISSIONS_ADD_ROLE': {
+			if (action.role != null) {
+				return Object.assign({}, state, {
+					parent: action.role
+				});
+			} else {
+		        return state;
+		    }
+		}
+		case 'PERMISSIONS_CLEAR_ROLE': {
+			return Object.assign({}, state, {
+				parent: null
+			});
 		}
     	default:
     		return state;

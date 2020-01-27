@@ -126,32 +126,32 @@ class RolesContainer extends Component {
 		};
 	}
 	
-	onModify(id) {
+	onModify(item) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onModify',msg:"test"+id});
-			this.props.actions.role(id);
+			fuLogger.log({level:'TRACE',loc:'RoleContainer::onModify',msg:"test"+item.id});
+			this.props.actions.role(item.id);
 		};
 	}
 	
-	onDelete(id) {
+	onDelete(item) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onDelete',msg:"test"+id});
+			fuLogger.log({level:'TRACE',loc:'RoleContainer::onDelete',msg:"test"+item.id});
 			this.setState({isDeleteModalOpen:false});
 			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
-			this.props.actions.deleteRole(id,this.props.roles.listStart,this.props.roles.listLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.deleteRole(item.id,this.props.roles.listStart,this.props.roles.listLimit,searchCriteria,this.state.orderCriteria);
 		};
 	}
 	
-	openDeleteModal(id,name) {
+	openDeleteModal(item) {
 		return (event) => {
-		    this.setState({isDeleteModalOpen:true,selectedId:id,selectedName:name});
+		    this.setState({isDeleteModalOpen:true,selectedId:item.id,selectedName:item.title.defaultText});
 		}
 	}
 	
-	onEditPermissions(id) {
+	onEditPermissions(item) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onEditPermissions',msg:"test"+id});
-			this.props.actions.permissions(id);
+			fuLogger.log({level:'TRACE',loc:'RoleContainer::onEditPermissions',msg:"test"+item.id});
+			this.props.history.push({pathname:'/admin-permissions',state:{parent:item}});
 		};
 	}
 	
