@@ -10,6 +10,7 @@ import * as rolesActions from './roles-actions';
 import fuLogger from '../../core/common/fu-logger';
 import RolesView from '../../adminView/roles/roles-view';
 import RolesModifyView from '../../adminView/roles/roles-modify-view';
+import UserRolesModifyView from '../../adminView/roles/user-roles-modify-view';
 import utils from '../../core/common/utils';
 
 
@@ -31,10 +32,16 @@ class RolesContainer extends Component {
 		this.onEditPermissions = this.onEditPermissions.bind(this);
 		this.inputChange = this.inputChange.bind(this);
 		this.onCancel = this.onCancel.bind(this);
+		this.onUserRoleModify = this.onUserRoleModify.bind(this);
+		this.onUserRoleSave = this.onUserRoleSave.bind(this);
 	}
 
 	componentDidMount() {
-		this.props.actions.init();
+		if (this.props.history.location.state != null && this.props.history.location.state.parent != null) {
+			this.props.actions.init(this.props.history.location.state.parent);
+		} else {
+			this.props.actions.init();
+		}
 	}
 
 	onListLimitChange(fieldName) {
@@ -51,7 +58,7 @@ class RolesContainer extends Component {
 			let listStart = 0;
 			let listLimit = parseInt(value);
 			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
 		};
 	}
 
@@ -76,7 +83,7 @@ class RolesContainer extends Component {
 			this.setState({"ADMIN_ROLE_PAGINATION":segmentValue});
 
 			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
 		};
 	}
 
@@ -102,7 +109,7 @@ class RolesContainer extends Component {
 			let listStart = 0;
 			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_ROLE_ListLimit');
 			let searchCriteria = {'searchValue':this.state[fieldName+'_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
 		};
 	}
 
@@ -167,7 +174,7 @@ class RolesContainer extends Component {
 			let listStart = 0;
 			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_ROLE_ListLimit');
 			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_BOTH'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
 		};
 	}
 	
@@ -177,7 +184,13 @@ class RolesContainer extends Component {
 			if (this.props.codeType === 'NATIVE') {
 				value = event.nativeEvent.text;
 			} else {
-				value = event.target.value;
+				if (event != null) {
+					if (event.target != null) {
+						value = event.target.value;
+					} else {
+						value = event;
+					}
+				}
 			}
 			if (switchValue != null) {
 				value = switchValue;
@@ -186,6 +199,33 @@ class RolesContainer extends Component {
 		};
 	}
 
+	onUserRoleModify(item) {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'RoleContainer::onUserRoleModify',msg:"test"+item.id});
+			if (item.userRole != null) {
+				this.props.actions.userRole({userRoleId:item.userRole.id,roleId:item.id});
+			} else {
+				this.props.actions.userRole({roleId:item.id});
+			}
+		};
+	}
+	
+	onUserRoleSave() {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'RoleContainer::onUserRoleSave',msg:"test"});
+			let errors = utils.validateFormFields(this.props.roles.appForms.ADMIN_USER_ROLE_FORM,this.props.roles.inputFields, this.props.appPrefs.appGlobal.LANGUAGES);
+			
+			if (errors.isValid){
+				let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_NAME'};
+				this.props.actions.saveRolePermission({inputFields:this.props.roles.inputFields,listStart:this.props.roles.listStart,
+					listLimit:this.props.roles.listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,
+					user:this.props.roles.parent,roleId:this.props.roles.selected.roleId});
+			} else {
+				this.setState({errors:errors.errorMap});
+			}
+		};
+	}
+	
 	render() {
 		fuLogger.log({level:'TRACE',loc:'RolesContainer::render',msg:"Hi there"});
 		if (this.props.roles.isModifyOpen) {
@@ -201,6 +241,19 @@ class RolesContainer extends Component {
 				onReturn={this.onCancel}
 				inputChange={this.inputChange}
 				applicationSelectList={this.props.roles.applicationSelectList}/>
+			);
+		} else if (this.props.roles.isUserRoleOpen) {
+			return (
+				<UserRolesModifyView
+				containerState={this.state}
+				item={this.props.roles.selected}
+				inputFields={this.props.roles.inputFields}
+				appPrefs={this.props.appPrefs}
+				itemAppForms={this.props.roles.appForms}
+				onSave={this.onUserRoleSave}
+				onCancel={this.onCancel}
+				onReturn={this.onCancel}
+				inputChange={this.inputChange}/>
 			);
 		} else if (this.props.roles.items != null) {
 			return (
@@ -218,6 +271,7 @@ class RolesContainer extends Component {
 				onModify={this.onModify}
 				onDelete={this.onDelete}
 				onEditPermissions={this.onEditPermissions}
+				onUserRoleModify={this.onUserRoleModify}
 				inputChange={this.inputChange}
 				/>
 					

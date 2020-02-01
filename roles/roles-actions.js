@@ -6,13 +6,19 @@ import actionUtils from '../../core/common/action-utils';
 
 
 // thunks
-export function init() {
+export function init(user) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "ROLES_SVC";
 		requestParams.appTexts = new Array("ADMIN_ROLE_PAGE");
 		requestParams.appLabels = new Array("ADMIN_ROLE_TABLE");
+		if (user != null) {
+			requestParams.userId = user.id;
+			dispatch({type:"ROLES_ADD_USER", user});
+		} else {
+			dispatch({type:"ROLES_CLEAR_USER"});
+		}
 		let params = {};
 		params.requestParams = requestParams;
 		params.URI = '/api/admin/callService';
@@ -30,7 +36,7 @@ export function init() {
 	};
 }
 
-export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
+export function list({listStart,listLimit,searchCriteria,orderCriteria,info,user}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
@@ -39,6 +45,9 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 		requestParams.listLimit = listLimit;
 		requestParams.searchCriteria = searchCriteria;
 		requestParams.orderCriteria = orderCriteria;
+		if (user != null) {
+			requestParams.userId = user.id;
+		}
 		let prefChange = {"page":"roles","orderCriteria":orderCriteria,"listStart":listStart,"listLimit":listLimit};
 		dispatch({type:"ROLE_PREF_CHANGE", prefChange});
 		let params = {};
@@ -149,6 +158,61 @@ export function role(id) {
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		dispatch({ type: 'ROLES_ROLE',responseJson});
+	    	} else {
+	    		actionUtils.checkConnectivity(responseJson,dispatch);
+	    	}
+	    }).catch(error => {
+	    	throw(error);
+	    });
+	};
+}
+
+export function userRole({userRoleId, roleId}) {
+	return function(dispatch) {
+	    let requestParams = {};
+	    requestParams.action = "USER_ROLE_ITEM";
+	    requestParams.service = "ROLES_SVC";
+	    requestParams.appForms = new Array("ADMIN_USER_ROLE_FORM");
+	    if (userRoleId != null) {
+	    	requestParams.itemId = userRoleId;
+	    }
+	    requestParams.roleId = roleId;
+	    let params = {};
+	    params.requestParams = requestParams;
+	    params.URI = '/api/admin/callService';
+
+	    return callService(params).then( (responseJson) => {
+	    	if (responseJson != null && responseJson.protocalError == null){
+	    		dispatch({ type: 'ROLES_USER_ROLE',responseJson});
+	    	} else {
+	    		actionUtils.checkConnectivity(responseJson,dispatch);
+	    	}
+	    }).catch(error => {
+	    	throw(error);
+	    });
+	};
+}
+
+export function saveRolePermission({inputFields,listStart,listLimit,searchCriteria,orderCriteria,user,roleId}) {
+	return function(dispatch) {
+		let requestParams = {};
+	    requestParams.action = "USER_ROLE_SAVE";
+	    requestParams.service = "ROLES_SVC";
+	    requestParams.inputFields = inputFields;
+	    requestParams.userId = user.id;
+	    requestParams.roleId = roleId
+
+	    let params = {};
+	    params.requestParams = requestParams;
+	    params.URI = '/api/admin/callService';
+
+	    return callService(params).then( (responseJson) => {
+	    	if (responseJson != null && responseJson.protocalError == null){
+	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
+	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,info:["Save Successful"],user}));
+	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
+	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
+	    		}
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}

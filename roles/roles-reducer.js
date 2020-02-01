@@ -15,7 +15,8 @@ export default function rolesReducer(state = {}, action) {
     				listLimit: reducerUtils.getListLimit(action),
     				listStart: reducerUtils.getListStart(action),
     				selected: null,
-    				isModifyOpen: false
+    				isModifyOpen: false,
+    				isUserRoleOpen: false
     			});
     		} else {
     			return state;
@@ -29,7 +30,8 @@ export default function rolesReducer(state = {}, action) {
     				listLimit: reducerUtils.getListLimit(action),
     				listStart: reducerUtils.getListStart(action),
     				selected: null,
-    				isModifyOpen: false
+    				isModifyOpen: false,
+    				isUserRoleOpen: false
     			});
     		} else {
     			return state;
@@ -94,6 +96,70 @@ export default function rolesReducer(state = {}, action) {
 			} else {
 		        return state;
 		    }
+		}
+		case 'ROLES_ADD_USER': {
+			if (action.user != null) {
+				return Object.assign({}, state, {
+					parent: action.user
+				});
+			} else {
+		        return state;
+		    }
+		}
+		case 'ROLES_CLEAR_USER': {
+			return Object.assign({}, state, {
+				parent: null
+			});
+		}
+		case 'ROLES_USER_ROLE': {
+			if (action.responseJson !=  null && action.responseJson.params != null) {
+				// load inputFields
+				let inputFields = {};
+				let appForms = reducerUtils.getAppForms(action);
+				for (let i = 0; i < appForms.ADMIN_USER_ROLE_FORM.length; i++) {
+					let classModel = JSON.parse(appForms.ADMIN_USER_ROLE_FORM[i].classModel);
+					if (action.responseJson.params.item != null && action.responseJson.params.item.hasOwnProperty(classModel.field)) {
+						if (classModel.defaultClazz != null) {
+							inputFields[appForms.ADMIN_USER_ROLE_FORM[i].name+"-DEFAULT"] = action.responseJson.params.item[classModel.field].defaultText;
+						}
+						if (classModel.textClazz != null) {
+							for (let j = 0; j < action.responseJson.params.item[classModel.field].langTexts.length; j++) {
+								inputFields[appForms.ADMIN_USER_ROLE_FORM[i].name+"-TEXT-"+action.responseJson.params.item[classModel.field].langTexts[j].lang] = action.responseJson.params.item[classModel.field].langTexts[j].text;
+							}
+						}
+						if (classModel.type == "Object") {
+							inputFields[appForms.ADMIN_USER_ROLE_FORM[i].name] = "Object";
+						} else {
+							inputFields[appForms.ADMIN_USER_ROLE_FORM[i].name] = action.responseJson.params.item[classModel.field];
+						}
+					} else {
+						let result = "";
+						if (appForms.ADMIN_USER_ROLE_FORM[i].value != null && appForms.ADMIN_USER_ROLE_FORM[i].value != ""){
+							let formValue = JSON.parse(appForms.ADMIN_USER_ROLE_FORM[i].value);
+							for (let j = 0; j < formValue.options.length; j++) {
+								if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
+									result = formValue.options[j].value;
+								}
+							}
+						}
+						inputFields[appForms.ADMIN_USER_ROLE_FORM[i].name] = result;
+					}
+				}
+				// add id if this is existing item
+				if (action.responseJson.params.item != null) {
+					inputFields.itemId = action.responseJson.params.item.id;
+				} else {
+					action.responseJson.params.item = {roleId:action.responseJson.params.roleId};
+				}
+				return Object.assign({}, state, {
+					appForms: Object.assign({}, state.appForms, reducerUtils.getAppForms(action)),
+					selected : action.responseJson.params.item,
+					inputFields : inputFields,
+					isUserRoleOpen: true
+				});
+			} else {
+				return state;
+			}
 		}
     	default:
     		return state;

@@ -150,10 +150,10 @@ class UsersContainer extends Component {
 		}
 	}
 	
-	onEditRoles(id) {
+	onEditRoles(item) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'UsersContainer::onEditRoles',msg:"test"+id});
-			this.props.actions.roles(id);
+			fuLogger.log({level:'TRACE',loc:'UsersContainer::onEditRoles',msg:"test"+item.id});
+			this.props.history.push({pathname:'/admin-roles',state:{parent:item}});
 		};
 	}
 	

@@ -37,7 +37,7 @@ export function init(role) {
 	};
 }
 
-export function list(listStart,listLimit,searchCriteria,orderCriteria,info,roleId) {
+export function list({listStart,listLimit,searchCriteria,orderCriteria,info,role}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
@@ -46,8 +46,8 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info,roleI
 		requestParams.listLimit = listLimit;
 		requestParams.searchCriteria = searchCriteria;
 		requestParams.orderCriteria = orderCriteria;
-		if (roleId != null) {
-			requestParams.roleId = roleId;
+		if (role != null) {
+			requestParams.roleId = role.id;
 		}
 		let prefChange = {"page":"permissions","orderCriteria":orderCriteria,"listStart":listStart,"listLimit":listLimit};
 		dispatch({type:"PERMISSION_PREF_CHANGE", prefChange});
@@ -85,7 +85,7 @@ export function savePermission(inputFields,listStart,listLimit,searchCriteria,or
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Save Successful"]));
+	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,info:["Save Successful"]}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
 	    		}
@@ -112,7 +112,7 @@ export function deletePermission(id,listStart,listLimit,searchCriteria,orderCrit
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch(list(listStart,listLimit,searchCriteria,orderCriteria));
+	    		dispatch(list({listStart,listLimit,searchCriteria,orderCriteria}));
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -159,6 +159,61 @@ export function permission(id) {
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		dispatch({ type: 'PERMISSIONS_PERMISSION',responseJson});
+	    	} else {
+	    		actionUtils.checkConnectivity(responseJson,dispatch);
+	    	}
+	    }).catch(error => {
+	    	throw(error);
+	    });
+	};
+}
+
+export function rolePermission({rolePermissionId, permissionId}) {
+	return function(dispatch) {
+	    let requestParams = {};
+	    requestParams.action = "ROLE_PERMISSION_ITEM";
+	    requestParams.service = "PERMISSIONS_SVC";
+	    requestParams.appForms = new Array("ADMIN_ROLE_PERMISSION_FORM");
+	    if (rolePermissionId != null) {
+	    	requestParams.itemId = rolePermissionId;
+	    }
+	    requestParams.permissionId = permissionId;
+	    let params = {};
+	    params.requestParams = requestParams;
+	    params.URI = '/api/admin/callService';
+
+	    return callService(params).then( (responseJson) => {
+	    	if (responseJson != null && responseJson.protocalError == null){
+	    		dispatch({ type: 'PERMISSIONS_ROLE_PERMISSION',responseJson});
+	    	} else {
+	    		actionUtils.checkConnectivity(responseJson,dispatch);
+	    	}
+	    }).catch(error => {
+	    	throw(error);
+	    });
+	};
+}
+
+export function saveRolePermission({inputFields,listStart,listLimit,searchCriteria,orderCriteria,role,permissionId}) {
+	return function(dispatch) {
+		let requestParams = {};
+	    requestParams.action = "ROLE_PERMISSION_SAVE";
+	    requestParams.service = "PERMISSIONS_SVC";
+	    requestParams.inputFields = inputFields;
+	    requestParams.roleId = role.id;
+	    requestParams.permissionId = permissionId
+
+	    let params = {};
+	    params.requestParams = requestParams;
+	    params.URI = '/api/admin/callService';
+
+	    return callService(params).then( (responseJson) => {
+	    	if (responseJson != null && responseJson.protocalError == null){
+	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
+	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,info:["Save Successful"],role}));
+	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
+	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
+	    		}
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
