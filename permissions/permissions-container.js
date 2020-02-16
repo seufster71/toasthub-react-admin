@@ -35,6 +35,7 @@ class PermissionsContainer extends Component {
 		this.onCancel = this.onCancel.bind(this);
 		this.onRolePermissionModify = this.onRolePermissionModify.bind(this);
 		this.onRolePermissionSave = this.onRolePermissionSave.bind(this);
+		this.goBack = this.goBack.bind(this);
 	}
 
 	componentDidMount() {
@@ -221,6 +222,13 @@ class PermissionsContainer extends Component {
 			}
 		};
 	}
+	
+	goBack() {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PermissionContainer::goBack',msg:"test"});
+			this.props.history.goBack();
+		}
+	}
 
 	render() {
 		fuLogger.log({level:'TRACE',loc:'PermissionsContainer::render',msg:"Hi there"});
@@ -268,6 +276,7 @@ class PermissionsContainer extends Component {
 				onDelete={this.onDelete}
 				onRolePermissionModify={this.onRolePermissionModify}
 				inputChange={this.inputChange}
+				goBack={this.goBack}
 				/>
 					
 			);

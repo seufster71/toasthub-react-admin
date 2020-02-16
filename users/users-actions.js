@@ -181,3 +181,11 @@ export function clearUser() {
 		dispatch({ type:"USERS_CLEAR_USER"});
 	};
 }
+
+export function clearField(field) {
+	return function(dispatch) {
+		let params = {};
+		 params.field = field;
+		dispatch({ type:"USERS_CLEAR_FIELD",params});
+	};
+}

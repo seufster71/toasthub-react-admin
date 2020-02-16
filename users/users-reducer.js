@@ -82,6 +82,17 @@ export default function usersReducer(state = {}, action) {
 		        return state;
 		    }
 		}
+		case 'USERS_CLEAR_FIELD': {
+			if (action.params != null) {
+				let inputFields = Object.assign({}, state.inputFields);
+				inputFields[action.params.field] = "";
+				let clone = Object.assign({}, state);
+				clone.inputFields = inputFields;
+				return clone;
+			} else {
+		        return state;
+		    }
+		}
 		default:
 			return state;
 	}

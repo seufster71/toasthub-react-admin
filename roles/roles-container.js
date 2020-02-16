@@ -34,6 +34,7 @@ class RolesContainer extends Component {
 		this.onCancel = this.onCancel.bind(this);
 		this.onUserRoleModify = this.onUserRoleModify.bind(this);
 		this.onUserRoleSave = this.onUserRoleSave.bind(this);
+		this.goBack = this.goBack.bind(this);
 	}
 
 	componentDidMount() {
@@ -226,6 +227,13 @@ class RolesContainer extends Component {
 		};
 	}
 	
+	goBack() {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'RoleContainer::goBack',msg:"test"});
+			this.props.history.goBack();
+		}
+	}
+	
 	render() {
 		fuLogger.log({level:'TRACE',loc:'RolesContainer::render',msg:"Hi there"});
 		if (this.props.roles.isModifyOpen) {
@@ -273,6 +281,7 @@ class RolesContainer extends Component {
 				onEditPermissions={this.onEditPermissions}
 				onUserRoleModify={this.onUserRoleModify}
 				inputChange={this.inputChange}
+				goBack={this.goBack}
 				/>
 					
 			);

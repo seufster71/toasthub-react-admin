@@ -31,6 +31,8 @@ class UsersContainer extends Component {
 		this.onEditRoles = this.onEditRoles.bind(this);
 		this.inputChange = this.inputChange.bind(this);
 		this.onCancel = this.onCancel.bind(this);
+		this.onBlur = this.onBlur.bind(this);
+		this.clearVerifyPassword = this.clearVerifyPassword.bind(this);
 	}
 
 	componentDidMount() {
@@ -175,17 +177,60 @@ class UsersContainer extends Component {
 	
 	inputChange(fieldName,switchValue) {
 		return (event) => {
-			let	value = null;
-			if (this.props.codeType === 'NATIVE') {
-				value = event.nativeEvent.text;
-			} else {
-				value = event.target.value;
-			}
-			if (switchValue != null) {
-				value = switchValue;
-			}
-			this.props.actions.inputChange(fieldName,value);
+			utils.inputChange(this.props,fieldName,switchValue);
 		};
+	}
+	
+	onBlur(field) {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'UsersContainer::onBlur',msg:field.name});
+			let fieldName = field.name;
+			// get field and check what to do
+			if (field.optionalParams != ""){
+				let optionalParams = JSON.parse(field.optionalParams);
+				if (optionalParams.onBlur != null) {
+					if (optionalParams.onBlur.validation != null && optionalParams.onBlur.validation == "matchField") {
+						if (field.validation != "") {
+							let validation = JSON.parse(field.validation);
+							if (validation[optionalParams.onBlur.validation] != null && validation[optionalParams.onBlur.validation].id != null){
+								if (this.props.users.inputFields[validation[optionalParams.onBlur.validation].id] == this.props.users.inputFields[fieldName]) {
+									if (validation[optionalParams.onBlur.validation].successMsg != null) {
+										let successMap = this.state.successes;
+										if (successMap == null){
+											successMap = {};
+										}
+										successMap[fieldName] = validation[optionalParams.onBlur.validation].successMsg;
+										this.setState({successes:successMap, errors:null});
+									}
+								} else {
+									if (validation[optionalParams.onBlur.validation].failMsg != null) {
+										let errorMap = this.state.errors;
+										if (errorMap == null){
+											errorMap = {};
+										}
+										errorMap[fieldName] = validation[optionalParams.onBlur.validation].failMsg;
+										this.setState({errors:errorMap, successes:null});
+									}
+								}
+							}
+						}
+					} else if (optionalParams.onBlur.func != null) {
+						if (optionalParams.onBlur.func == "clearVerifyPassword"){
+							this.clearVerifyPassword();
+						}
+					}
+				}
+			}
+			
+		};
+	}
+	
+	clearVerifyPassword() {
+	//	return (event) => {
+			fuLogger.log({level:'TRACE',loc:'UsersContainer::clearVerifyPassword',msg:"Hi there"});
+			this.setState({errors:null, successes:null});
+			this.props.actions.clearField('ADMIN_USER_FORM_VERIFY_PASSWORD');
+	//	}
 	}
 
 	render() {
@@ -201,7 +246,8 @@ class UsersContainer extends Component {
 				onSave={this.onSave}
 				onCancel={this.onCancel}
 				onReturn={this.onCancel}
-				inputChange={this.inputChange}/>
+				inputChange={this.inputChange}
+				onBlur={this.onBlur}/>
 			);
 		} else if (this.props.users.items != null) {
 			return (
