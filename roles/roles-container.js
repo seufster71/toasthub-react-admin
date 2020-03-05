@@ -127,7 +127,7 @@ class RolesContainer extends Component {
 			
 			if (errors.isValid){
 				let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
-				this.props.actions.saveRole(this.props.roles.inputFields,this.props.roles.listStart,this.props.roles.listLimit,searchCriteria,this.state.orderCriteria);
+				this.props.actions.saveRole({inputFields:this.props.roles.inputFields,listStart:this.props.roles.listStart,searchCriteria:this.props.roles.listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
 			} else {
 				this.setState({errors:errors.errorMap});
 			}
@@ -136,8 +136,12 @@ class RolesContainer extends Component {
 	
 	onModify(item) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onModify',msg:"test"+item.id});
-			this.props.actions.role(item.id);
+			let id = null;
+			if (item != null && item.id != null) {
+				id = item.id;
+			}
+			fuLogger.log({level:'TRACE',loc:'RoleContainer::onModify',msg:"item id "+id});
+			this.props.actions.role(id);
 		};
 	}
 	
@@ -146,13 +150,13 @@ class RolesContainer extends Component {
 			fuLogger.log({level:'TRACE',loc:'RoleContainer::onDelete',msg:"test"+item.id});
 			this.setState({isDeleteModalOpen:false});
 			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
-			this.props.actions.deleteRole(item.id,this.props.roles.listStart,this.props.roles.listLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.deleteRole({id:item.id,listStart:this.props.roles.listStart,listLimit:this.props.roles.listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
 		};
 	}
 	
 	openDeleteModal(item) {
 		return (event) => {
-		    this.setState({isDeleteModalOpen:true,selectedId:item.id,selectedName:item.title.defaultText});
+		    this.setState({isDeleteModalOpen:true,selected:item});
 		}
 	}
 	

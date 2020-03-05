@@ -138,8 +138,12 @@ class PermissionsContainer extends Component {
 	
 	onModify(item) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'PermissionContainer::onModify',msg:"test"+item.id});
-			this.props.actions.permission(item.id);
+			let id = null;
+			if (item != null && item.id != null){
+				id = item.id;
+			}
+			fuLogger.log({level:'TRACE',loc:'PermissionContainer::onModify',msg:"item id "+id});
+			this.props.actions.permission(id);
 		};
 	}
 	

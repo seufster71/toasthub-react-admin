@@ -137,12 +137,14 @@ class UsersContainer extends Component {
 		};
 	}
 	
-	onDelete(id) {
+	onDelete(item) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'UsersContainer::onDelete',msg:"test"+id});
+			fuLogger.log({level:'TRACE',loc:'UsersContainer::onDelete',msg:"test"});
 			this.setState({isDeleteModalOpen:false});
 			let searchCriteria = {'searchValue':this.state['ADMIN_USERS_SEARCH_input'],'searchColumn':'ADMIN_USER_TABLE_FIRSTNAME'};
-			this.props.actions.deleteUser(id,this.props.users.listStart,this.props.users.listLimit,searchCriteria,this.state.orderCriteria);
+			if (item != null && item.id != "") {
+				this.props.actions.deleteUser(item.id,this.props.users.listStart,this.props.users.listLimit,searchCriteria,this.state.orderCriteria);
+			}
 		};
 	}
 	

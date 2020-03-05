@@ -15,16 +15,17 @@ class CategoryContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {pageName:"ADMIN_CATEGORY",orderCriteria:[{'orderColumn':'ADMIN_CATEGORY_TABLE_NAME','orderDir':'ASC'},{'orderColumn':'ADMIN_CATEGORY_TABLE_CODE','orderDir':'ASC'}],
-				isEditModalOpen: false, isDeleteModalOpen: false, errors:{}};
+				isDeleteModalOpen: false, errors:null, warns:null, successes:null};
 		this.onListLimitChange = this.onListLimitChange.bind(this);
 		this.onSearchClick = this.onSearchClick.bind(this);
+		this.onSearchChange = this.onSearchChange.bind(this);
 		this.onPaginationClick = this.onPaginationClick.bind(this);
 		this.onColumnSort = this.onColumnSort.bind(this);
-		this.openEditModal = this.openEditModal.bind(this);
 		this.openDeleteModal = this.openDeleteModal.bind(this);
 		this.closeModal = this.closeModal.bind(this);
-		this.onSaveCategory = this.onSaveCategory.bind(this);
-		this.onDeleteCategory = this.onDeleteCategory.bind(this);
+		this.onSave = this.onSave.bind(this);
+		this.onModify = this.onModify.bind(this);
+		this.onDelete = this.onDelete.bind(this);
 		this.inputChange = this.inputChange.bind(this);
 	}
 
@@ -107,46 +108,34 @@ class CategoryContainer extends Component {
 		};
 	}
 	
-	onSaveCategory() {
+	onSave() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'CategoryContainer::onSaveCategory',msg:"test"});
 
-			if (this.props.category.selected != null && this.props.category.selected.name != "" && this.props.category.selected.code != "" ){
-				this.setState({isEditModalOpen:false,isDeleteModalOpen:false});
+			let errors = utils.validateFormFields(this.props.users.appForms.ADMIN_USER_FORM,this.props.users.inputFields);
+			
+			if (errors.isValid){
 				let searchCriteria = {'searchValue':this.state['CATEGORY_SEARCH_input'],'searchColumn':'CATEGORY_TABLE_NAME'};
-				this.props.actions.saveCategory(this.props.category.selected,this.props.category.listStart,this.props.category.listLimit,searchCriteria,this.state.orderCriteria);
+				this.props.actions.saveCategory(this.props.category.inputFields,this.props.category.listStart,this.props.category.listLimit,searchCriteria,this.state.orderCriteria);
 			} else {
-				let errors = {};
-				if (this.props.category.selected == null || this.props.category.selected.name == null || this.props.category.selected.name == "" ){
-					errors.CATEGORY_NAME_input = "Missing!";
-				}
-				if (this.props.category.selected == null || this.props.category.selected.code == null || this.props.category.selected.code == "") {
-					errors.CATEGORY_CODE_input = "Missing!";
-				}
 				this.setState({errors:errors});
 			}
 		};
 	}
 	
-	onDeleteCategory(id) {
+	onModify(id) {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'CategoryContainer::onModify',msg:"test"+id});
+			this.props.actions.category(id);
+		};
+	}
+	
+	onDelete(id) {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'CategoryContainer::onDeleteCategory',msg:"test"+id});
 			this.setState({isEditModalOpen:false,isDeleteModalOpen:false});
 			let searchCriteria = {'searchValue':this.state['CATEGORY_SEARCH_input'],'searchColumn':'CATEGORY_TABLE_NAME'};
 			this.props.actions.deleteLanguage(id,this.props.category.listStart,this.props.category.listLimit,searchCriteria,this.state.orderCriteria);
-		};
-	}
-	
-	openEditModal(id) {
-		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'CategoryContainer::openEditModal',msg:"id " + id});
-			this.setState({isEditModalOpen:true});
-			this.props.actions.categoryPage();
-			if (id != null) {
-				this.props.actions.category(id);
-			} else {
-				this.props.actions.clearCategory();
-			}
 		};
 	}
 	
@@ -158,7 +147,7 @@ class CategoryContainer extends Component {
 	
 	closeModal() {
 		return (event) => {
-			this.setState({isEditModalOpen:false,isDeleteModalOpen:false,errors:{}});
+			this.setState({isDeleteModalOpen:false,errors:null,warns:null});
 		};
 	}
 	
@@ -171,7 +160,20 @@ class CategoryContainer extends Component {
 
 	render() {
 		fuLogger.log({level:'TRACE',loc:'CategoryContainer::render',msg:"Hi there"});
-		if (this.props.category.items != null) {
+		if (this.props.category.isModifyOpen) {
+			return (
+				<CategoryModifyView
+				containerState={this.state}
+				category={this.props.category.selected}
+				inputFields={this.props.category.inputFields}
+				appPrefs={this.props.appPrefs}
+				userAppForms={this.props.category.appForms}
+				onSave={this.onSave}
+				onCancel={this.onCancel}
+				inputChange={this.inputChange}
+				/>
+			);
+		} else if (this.props.category.items != null) {
 			return (
 				<CategoryView 
 				containerState={this.state}
@@ -182,11 +184,10 @@ class CategoryContainer extends Component {
 				onSearchClick={this.onSearchClick}
 				onPaginationClick={this.onPaginationClick}
 				onColumnSort={this.onColumnSort}
-				openEditModal={this.openEditModal}
 				openDeleteMOdal={this.openDeleteModal}
 				closeModal={this.closeModal}
-				onSaveCategory={this.onSaveCategory}
-				onDeleteCategory={this.onDeleteCategory}
+				onModify={this.onModify}
+				onDelete={this.onDelete}
 				inputChange={this.inputChange}
 				/>
 					
@@ -199,6 +200,7 @@ class CategoryContainer extends Component {
 
 CategoryContainer.propTypes = {
 	appPrefs: PropTypes.object,
+	appGlobal: PropTypes.object,
 	actions: PropTypes.object,
 	category: PropTypes.object
 };

@@ -70,7 +70,7 @@ export function list({listStart,listLimit,searchCriteria,orderCriteria,info,user
 	};
 }
 
-export function saveRole(inputFields,listStart,listLimit,searchCriteria,orderCriteria) {
+export function saveRole({inputFields,listStart,listLimit,searchCriteria,orderCriteria,user}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
@@ -84,7 +84,7 @@ export function saveRole(inputFields,listStart,listLimit,searchCriteria,orderCri
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Save Successful"]));
+	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,info:["Save Successful"],user}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
 	    		}
@@ -98,7 +98,7 @@ export function saveRole(inputFields,listStart,listLimit,searchCriteria,orderCri
 }
 
 
-export function deleteRole(id,listStart,listLimit,searchCriteria,orderCriteria) {
+export function deleteRole({id,listStart,listLimit,searchCriteria,orderCriteria,user}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
@@ -111,7 +111,7 @@ export function deleteRole(id,listStart,listLimit,searchCriteria,orderCriteria) 
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch(list(listStart,listLimit,searchCriteria,orderCriteria));
+	    		dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,user}));
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}

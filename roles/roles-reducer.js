@@ -61,11 +61,17 @@ export default function rolesReducer(state = {}, action) {
 					} else {
 						let result = "";
 						if (appForms.ADMIN_ROLE_FORM[i].value != null && appForms.ADMIN_ROLE_FORM[i].value != ""){
-							let formValue = JSON.parse(appForms.ADMIN_ROLE_FORM[i].value);
-							for (let j = 0; j < formValue.options.length; j++) {
-								if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
-									result = formValue.options[j].value;
+							if (appForms.ADMIN_ROLE_FORM[i].value.includes("{")) {
+								let formValue = JSON.parse(appForms.ADMIN_ROLE_FORM[i].value);
+								if (formValue.options != null) {
+									for (let j = 0; j < formValue.options.length; j++) {
+										if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
+											result = formValue.options[j].value;
+										}
+									}
 								}
+							} else {
+								result = appForms.ADMIN_ROLE_FORM[i].value;
 							}
 						}
 						inputFields[appForms.ADMIN_ROLE_FORM[i].name] = result;
@@ -135,11 +141,17 @@ export default function rolesReducer(state = {}, action) {
 					} else {
 						let result = "";
 						if (appForms.ADMIN_USER_ROLE_FORM[i].value != null && appForms.ADMIN_USER_ROLE_FORM[i].value != ""){
-							let formValue = JSON.parse(appForms.ADMIN_USER_ROLE_FORM[i].value);
-							for (let j = 0; j < formValue.options.length; j++) {
-								if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
-									result = formValue.options[j].value;
+							if (appForms.ADMIN_USER_ROLE_FORM[i].value.includes("{")) {
+								let formValue = JSON.parse(appForms.ADMIN_USER_ROLE_FORM[i].value);
+								if (formValue.options != null) {
+									for (let j = 0; j < formValue.options.length; j++) {
+										if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
+											result = formValue.options[j].value;
+										}
+									}
 								}
+							} else {
+								result = appForms.ADMIN_USER_ROLE_FORM[i].value;
 							}
 						}
 						inputFields[appForms.ADMIN_USER_ROLE_FORM[i].name] = result;
