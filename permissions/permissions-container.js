@@ -19,8 +19,7 @@ import RolePermissionsModifyView from '../../adminView/permissions/role-permissi
 class PermissionsContainer extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {pageName:"ADMIN_PERMISSION",orderCriteria:[{'orderColumn':'ADMIN_PERMISSION_TABLE_NAME','orderDir':'ASC'},{'orderColumn':'ADMIN_PERMISSION_TABLE_CODE','orderDir':'ASC'}],
-				isDeleteModalOpen: false, errors:null, warns:null, successes:null};
+		this.state = {pageName:"ADMIN_PERMISSION", isDeleteModalOpen: false, errors:null, warns:null, successes:null};
 		this.onListLimitChange = this.onListLimitChange.bind(this);
 		this.onSearchClick = this.onSearchClick.bind(this);
 		this.onSearchChange = this.onSearchChange.bind(this);
@@ -51,24 +50,20 @@ class PermissionsContainer extends Component {
 			let value = 20;
 			if (this.props.codeType === 'NATIVE') {
 				value = event.nativeEvent.text;
-				this.setState({[fieldName]:parseInt(event.nativeEvent.text)});
 			} else {
 				value = event.target.value;
-				this.setState({[fieldName]:parseInt(event.target.value)});
 			}
 
-			let listStart = 0;
 			let listLimit = parseInt(value);
-			let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_NAME'};
-			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,role:this.props.permissions.parent});
+			this.props.actions.listLimit({listStart:this.props.permissions.listStart,listLimit,searchCriteria:this.props.permissions.searchCriteria,
+				orderCriteria:this.props.permissions.orderCriteria,role:this.props.permissions.parent});
 		};
 	}
 
 	onPaginationClick(value) {
 		return(event) => {
 			fuLogger.log({level:'TRACE',loc:'PermissionContainer::onPaginationClick',msg:"fieldName "+ value});
-			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_PERMISSION_ListLimit');
-			let listStart = 0;
+			let listStart = this.props.permissions.listStart;
 			let segmentValue = 1;
 			let oldValue = 1;
 			if (this.state["ADMIN_PERMISSION_PAGINATION"] != null && this.state["ADMIN_PERMISSION_PAGINATION"] != ""){
@@ -81,11 +76,11 @@ class PermissionsContainer extends Component {
 			} else {
 				segmentValue = value;
 			}
-			listStart = ((segmentValue - 1) * listLimit);
+			listStart = ((segmentValue - 1) * this.props.permissions.listLimit);
 			this.setState({"ADMIN_PERMISSION_PAGINATION":segmentValue});
 
-			let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_NAME'};
-			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,role:this.props.permissions.parent});
+			this.props.actions.list({listStart,listLimit:this.props.permissions.listLimit,searchCriteria:this.props.permissions.searchCriteria,
+				orderCriteria:this.props.permissions.orderCriteria,role:this.props.permissions.parent});
 		};
 	}
 
@@ -108,11 +103,10 @@ class PermissionsContainer extends Component {
 				event.preventDefault();
 				fieldName = event.target.id;
 			}
-			let listStart = 0;
-			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_PERMISSION_ListLimit');
 			let searchCriteria = [{'searchValue':this.state[fieldName+'_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_NAME'},
 				{'searchValue':this.state[fieldName+'_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_CODE'}];
-			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,role:this.props.permissions.parent});
+			this.props.actions.search({listStart:this.props.permissions.listStart,listLimit:this.props.permissions.listLimit,searchCriteria,
+				orderCriteria:this.state.orderCriteria,role:this.props.permissions.parent});
 		};
 	}
 
@@ -128,8 +122,9 @@ class PermissionsContainer extends Component {
 			let errors = utils.validateFormFields(this.props.permissions.appForms.ADMIN_PERMISSION_FORM,this.props.permissions.inputFields, this.props.appPrefs.appGlobal.LANGUAGES);
 			
 			if (errors.isValid){
-				let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_NAME'};
-				this.props.actions.savePermission(this.props.permissions.inputFields,this.props.permissions.listStart,this.props.permissions.listLimit,searchCriteria,this.state.orderCriteria);
+				this.props.actions.savePermission({inputFields:this.props.permissions.inputFields,listStart:this.props.permissions.listStart,
+					listLimit:this.props.permissions.listLimit,searchCriteria:this.props.permissions.searchCriteria,
+					orderCriteria:this.props.permissions.orderCriteria,role:this.props.permissions.parent});
 			} else {
 				this.setState({errors:errors.errorMap});
 			}
@@ -151,8 +146,8 @@ class PermissionsContainer extends Component {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PermissionContainer::onDeletePermission',msg:"test"+item.id});
 			this.setState({isDeleteModalOpen:false});
-			let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_NAME'};
-			this.props.actions.deletePermission(item.id,this.props.permissions.listStart,this.props.permissions.listLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.deletePermission({id:item.id,listStart:this.props.permissions.listStart,listLimit:this.props.permissions.listLimit,
+				searchCriteria:this.props.permissions.searchCriteria,orderCriteria:this.props.permissions.orderCriteria,role:this.props.permissions.parent});
 		};
 	}
 	
@@ -171,8 +166,8 @@ class PermissionsContainer extends Component {
 	onCancel() {
 		return (event) => {
 			//fuLogger.log({level:'TRACE',loc:'UsersContainer::onCancel',msg:"test"});
-			let listStart = 0;
-			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_PERMISSION_ListLimit');
+			let listStart = this.props.permissions.listStart;
+			let listLimit = this.props.permissions.listLimit;
 			let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_NAME'};
 			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,role:this.props.permissions.parent});
 		};
@@ -281,6 +276,7 @@ class PermissionsContainer extends Component {
 				onRolePermissionModify={this.onRolePermissionModify}
 				inputChange={this.inputChange}
 				goBack={this.goBack}
+				session={this.props.session}
 				/>
 					
 			);
@@ -297,7 +293,7 @@ PermissionsContainer.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  return {appPrefs:state.appPrefs, permissions:state.permissions};
+  return {appPrefs:state.appPrefs, permissions:state.permissions, session:state.session};
 }
 
 function mapDispatchToProps(dispatch) {

@@ -70,6 +70,13 @@ export function list({listStart,listLimit,searchCriteria,orderCriteria,info,user
 	};
 }
 
+export function listLimit({listStart,listLimit,searchCriteria,orderCriteria,info,user}) {
+	return function(dispatch) {
+		 dispatch({ type:"ROLES_LISTLIMIT",listLimit});
+		 dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,user}));
+	 };
+}
+
 export function saveRole({inputFields,listStart,listLimit,searchCriteria,orderCriteria,user}) {
 	return function(dispatch) {
 		let requestParams = {};
@@ -111,7 +118,11 @@ export function deleteRole({id,listStart,listLimit,searchCriteria,orderCriteria,
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,user}));
+	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
+	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,user}));
+	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
+	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
+	    		}	
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}

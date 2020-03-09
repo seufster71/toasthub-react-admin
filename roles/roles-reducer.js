@@ -173,6 +173,9 @@ export default function rolesReducer(state = {}, action) {
 				return state;
 			}
 		}
+		case 'ROLES_LISTLIMIT': {
+			return reducerUtils.updateListLimit(state,action);
+		}
     	default:
     		return state;
 	}

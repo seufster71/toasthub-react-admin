@@ -93,6 +93,9 @@ export default function usersReducer(state = {}, action) {
 		        return state;
 		    }
 		}
+		case 'USERS_LISTLIMIT': {
+			return reducerUtils.updateListLimit(state,action);
+		}
 		default:
 			return state;
 	}

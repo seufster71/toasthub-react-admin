@@ -50,24 +50,22 @@ class RolesContainer extends Component {
 			let value = 20;
 			if (this.props.codeType === 'NATIVE') {
 				value = event.nativeEvent.text;
-				this.setState({[fieldName]:parseInt(event.nativeEvent.text)});
 			} else {
 				value = event.target.value;
-				this.setState({[fieldName]:parseInt(event.target.value)});
 			}
 
-			let listStart = 0;
+			let listStart = this.props.roles.listStart;
 			let listLimit = parseInt(value);
 			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
-			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
+			this.props.actions.listLimit({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
 		};
 	}
 
 	onPaginationClick(value) {
 		return(event) => {
 			fuLogger.log({level:'TRACE',loc:'RoleContainer::onPaginationClick',msg:"fieldName "+ value});
-			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_ROLE_ListLimit');
-			let listStart = 0;
+			let listLimit = this.props.roles.listLimit;
+			let listStart = this.props.roles.listStart;
 			let segmentValue = 1;
 			let oldValue = 1;
 			if (this.state["ADMIN_ROLE_PAGINATION"] != null && this.state["ADMIN_ROLE_PAGINATION"] != ""){
@@ -107,8 +105,8 @@ class RolesContainer extends Component {
 				event.preventDefault();
 				fieldName = event.target.id;
 			}
-			let listStart = 0;
-			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_ROLE_ListLimit');
+			let listStart = this.props.roles.listStart;
+			let listLimit = this.props.roles.listLimit;
 			let searchCriteria = {'searchValue':this.state[fieldName+'_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
 			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
 		};
@@ -176,8 +174,8 @@ class RolesContainer extends Component {
 	onCancel() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'RoleContainer::onCancel',msg:"test"});
-			let listStart = 0;
-			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_ROLE_ListLimit');
+			let listStart = this.props.roles.listStart;
+			let listLimit = this.props.roles.listLimit;
 			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_BOTH'};
 			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
 		};

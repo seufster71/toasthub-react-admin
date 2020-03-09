@@ -44,25 +44,22 @@ class UsersContainer extends Component {
 			let value = 20;
 			if (this.props.codeType === 'NATIVE') {
 				value = event.nativeEvent.text;
-				this.setState({[fieldName]:parseInt(event.nativeEvent.text)});
 			} else {
 				value = event.target.value;
-				this.setState({[fieldName]:parseInt(event.target.value)});
 			}
 
-			let listStart = 0;
+			let listStart = this.props.users.listStart;
 			let listLimit = parseInt(value);
-//			fuLogger.log({level:'TRACE',loc:'UsersContainer::onListLimitChange',msg:"listLimit " + listLimit});
 			let searchCriteria = {'searchValue':this.state['ADMIN_USER_SEARCH_input'],'searchColumn':'ADMIN_USER_TABLE_BOTH'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.listLimit({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria});
 		};
 	}
 
 	onPaginationClick(value) {
 		return(event) => {
 			fuLogger.log({level:'TRACE',loc:'UsersContainer::onPaginationClick',msg:"fieldName "+ value});
-			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_USER_ListLimit');
-			let listStart = 0;
+			let listLimit = this.props.users.listLimit;
+			let listStart = this.props.users.listSTart;
 			let segmentValue = 1;
 			let oldValue = 1;
 			if (this.state["ADMIN_USER_PAGINATION"] != null && this.state["ADMIN_USER_PAGINATION"] != ""){
@@ -79,7 +76,7 @@ class UsersContainer extends Component {
 			this.setState({"ADMIN_USER_PAGINATION":segmentValue});
 
 			let searchCriteria = {'searchValue':this.state['ADMIN_USER_SEARCH_input'],'searchColumn':'ADMIN_USER_TABLE_BOTH'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria});
 		};
 	}
 
@@ -103,10 +100,10 @@ class UsersContainer extends Component {
 				fieldName = event.target.id;
 			}
 		//	fuLogger.log({level:'TRACE',loc:'UsersContainer::onSearchClick',msg:"the state " + JSON.stringify(this.state)});
-			let listStart = 0;
-			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_USER_ListLimit');
+			let listStart = this.props.users.listStart;
+			let listLimit = this.props.users.listLimit;
 			let searchCriteria = {'searchValue':this.state[fieldName+'_input'],'searchColumn':'ADMIN_USER_TABLE_BOTH'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria});
 		};
 	}
 
@@ -123,7 +120,7 @@ class UsersContainer extends Component {
 			
 			if (errors.isValid){
 				let searchCriteria = {'searchValue':this.state['ADMIN_USERS_SEARCH_input'],'searchColumn':'ADMIN_USER_TABLE_FIRSTNAME'};
-				this.props.actions.saveUser(this.props.users.inputFields,this.props.users.listStart,this.props.users.listLimit,searchCriteria,this.state.orderCriteria);
+				this.props.actions.saveUser({inputFields:this.props.users.inputFields,listStart:this.props.users.listStart,listLimit:this.props.users.listLimit,searchCriteria,orderCriteria:this.state.orderCriteria});
 			} else {
 				this.setState({errors:errors.errorMap});
 			}
@@ -143,7 +140,7 @@ class UsersContainer extends Component {
 			this.setState({isDeleteModalOpen:false});
 			let searchCriteria = {'searchValue':this.state['ADMIN_USERS_SEARCH_input'],'searchColumn':'ADMIN_USER_TABLE_FIRSTNAME'};
 			if (item != null && item.id != "") {
-				this.props.actions.deleteUser(item.id,this.props.users.listStart,this.props.users.listLimit,searchCriteria,this.state.orderCriteria);
+				this.props.actions.deleteUser({id:item.id,listStart:this.props.users.listStart,listLimit:this.props.users.listLimit,searchCriteria,orderCriteria:this.state.orderCriteria});
 			}
 		};
 	}
@@ -170,10 +167,10 @@ class UsersContainer extends Component {
 	onCancel() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'UsersContainer::onCancel',msg:"test"});
-			let listStart = 0;
-			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_USER_ListLimit');
+			let listStart = this.props.users.listStart;
+			let listLimit = this.props.users;listLimit;
 			let searchCriteria = {'searchValue':this.state['ADMIN_USER_SEARCH_input'],'searchColumn':'ADMIN_USER_TABLE_BOTH'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria});
 		};
 	}
 	

@@ -71,7 +71,21 @@ export function list({listStart,listLimit,searchCriteria,orderCriteria,info,role
 	};
 }
 
-export function savePermission(inputFields,listStart,listLimit,searchCriteria,orderCriteria) {
+export function listLimit({listStart,listLimit,searchCriteria,orderCriteria,info,role}) {
+	return function(dispatch) {
+		 dispatch({ type:"PERMISSIONS_LISTLIMIT",listLimit});
+		 dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,role}));
+	 };
+}
+
+export function search({listStart,listLimit,searchCriteria,orderCriteria,info,role}) {
+	return function(dispatch) {
+		 dispatch({ type:"PERMISSIONS_SEARCH",searchCriteria});
+		 dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,role}));
+	 };
+}
+
+export function savePermission({inputFields,listStart,listLimit,searchCriteria,orderCriteria,role}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
@@ -85,7 +99,7 @@ export function savePermission(inputFields,listStart,listLimit,searchCriteria,or
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,info:["Save Successful"]}));
+	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,info:["Save Successful"],role}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
 	    		}
@@ -99,7 +113,7 @@ export function savePermission(inputFields,listStart,listLimit,searchCriteria,or
 }
 
 
-export function deletePermission(id,listStart,listLimit,searchCriteria,orderCriteria) {
+export function deletePermission({id,listStart,listLimit,searchCriteria,orderCriteria,role}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
@@ -112,7 +126,11 @@ export function deletePermission(id,listStart,listLimit,searchCriteria,orderCrit
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch(list({listStart,listLimit,searchCriteria,orderCriteria}));
+	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){
+	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,role}));
+	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
+	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
+	    		}
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
