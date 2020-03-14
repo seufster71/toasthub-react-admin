@@ -14,8 +14,8 @@ export default function permissionsReducer(state = {}, action) {
     				items: reducerUtils.getItems(action),
     				listLimit: reducerUtils.getListLimit(action),
     				listStart: reducerUtils.getListStart(action),
-    				orderCriteria: [{'orderColumn':'ADMIN_PERMISSION_TABLE_NAME','orderDir':'ASC'},{'orderColumn':'ADMIN_PERMISSION_TABLE_CODE','orderDir':'ASC'}],
-    				searchCriteria: {'searchValue':'','searchColumn':'ADMIN_PERMISSION_TABLE_NAME'},
+    				orderCriteria: [{'orderColumn':'ADMIN_PERMISSION_TABLE_NAME','orderDir':'ASC'}],
+    				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_PERMISSION_TABLE_NAME'}],
     				selected: null,
     				isModifyOpen: false,
     				isRolePermissionOpen: false
@@ -176,6 +176,9 @@ export default function permissionsReducer(state = {}, action) {
 		}
 		case 'PERMISSIONS_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
+		}
+		case 'PERMISSIONS_ORDERBY': { 
+			return reducerUtils.updateOrderBy(state,action);
 		}
     	default:
     		return state;

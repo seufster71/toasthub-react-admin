@@ -24,7 +24,7 @@ class PermissionsContainer extends Component {
 		this.onSearchClick = this.onSearchClick.bind(this);
 		this.onSearchChange = this.onSearchChange.bind(this);
 		this.onPaginationClick = this.onPaginationClick.bind(this);
-		this.onColumnSort = this.onColumnSort.bind(this);
+		this.onOrderBy = this.onOrderBy.bind(this);
 		this.openDeleteModal = this.openDeleteModal.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 		this.onSave = this.onSave.bind(this);
@@ -94,25 +94,49 @@ class PermissionsContainer extends Component {
 		};
 	}
 
-	onSearchClick(e) {
+	onSearchClick(fieldName) {
 		return (event) => {
-			let fieldName = "";
-			if (this.props.codeType === 'NATIVE') {
-				fieldName = e;
+			let searchCriteria = [];
+			if (fieldName === 'ADMIN_PERMISSION-SEARCHBY') {
+				for (let o = 0; o < event.length; o++) {
+					let option = {};
+					option.searchValue = this.state['ADMIN_PERMISSION-SEARCH'];
+					option.searchColumn = event[o].value;
+					searchCriteria.push(option);
+				}
 			} else {
-				event.preventDefault();
-				fieldName = event.target.id;
+				for (let i = 0; i < this.props.permissions.searchCriteria.length; i++) {
+					let option = {};
+					option.searchValue = this.state['ADMIN_PERMISSION-SEARCH'];
+					option.searchColumn = this.props.permissions.searchCriteria[i].searchColumn;
+					searchCriteria.push(option);
+				}
 			}
-			let searchCriteria = [{'searchValue':this.state[fieldName+'_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_NAME'},
-				{'searchValue':this.state[fieldName+'_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_CODE'}];
-			this.props.actions.search({listStart:this.props.permissions.listStart,listLimit:this.props.permissions.listLimit,searchCriteria,
-				orderCriteria:this.state.orderCriteria,role:this.props.permissions.parent});
+
+			this.props.actions.search({listStart:this.props.permissions.listStart,listLimit:this.props.permissions.listLimit,searchCriteria:searchCriteria,
+				orderCriteria:this.props.permissions.orderCriteria,role:this.props.permissions.parent});
 		};
 	}
 
-	onColumnSort(id) {
+	onOrderBy(selectedOption) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'PermissionContainer::onColumnSort',msg:"id " + id});
+			fuLogger.log({level:'TRACE',loc:'PermissionContainer::onOrderBy',msg:"id " + selectedOption});
+			let orderCriteria = [];
+			for (let o = 0; o < event.length; o++) {
+				let option = {};
+				if (event[o].label.includes("ASC")) {
+					option.orderColumn = event[o].value;
+					option.orderDir = "ASC";
+				} else if (event[o].label.includes("DESC")){
+					option.orderColumn = event[o].value;
+					option.orderDir = "DESC";
+				} else {
+					option.orderColumn = event[o].value;
+				}
+				orderCriteria.push(option);
+			}
+			this.props.actions.orderBy({listStart:this.props.permissions.listStart,listLimit:this.props.permissions.listLimit,searchCriteria:this.props.permissions.searchCriteria,
+				orderCriteria:orderCriteria,role:this.props.permissions.parent});
 		};
 	}
 	
@@ -166,10 +190,8 @@ class PermissionsContainer extends Component {
 	onCancel() {
 		return (event) => {
 			//fuLogger.log({level:'TRACE',loc:'UsersContainer::onCancel',msg:"test"});
-			let listStart = this.props.permissions.listStart;
-			let listLimit = this.props.permissions.listLimit;
-			let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_NAME'};
-			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,role:this.props.permissions.parent});
+			this.props.actions.list({listStart:this.props.permissions.ListStart,listLimit:this.props.permissions.listLimit,searchCriteria:this.props.permissions.searchCriteria,
+				orderCriteria:this.props.permissions.orderCriteria,role:this.props.permissions.parent});
 		};
 	}
 	
@@ -212,9 +234,8 @@ class PermissionsContainer extends Component {
 			let errors = utils.validateFormFields(this.props.permissions.appForms.ADMIN_ROLE_PERMISSION_FORM,this.props.permissions.inputFields, this.props.appPrefs.appGlobal.LANGUAGES);
 			
 			if (errors.isValid){
-				let searchCriteria = {'searchValue':this.state['ADMIN_PERMISSION_SEARCH_input'],'searchColumn':'ADMIN_PERMISSION_TABLE_NAME'};
 				this.props.actions.saveRolePermission({inputFields:this.props.permissions.inputFields,listStart:this.props.permissions.listStart,
-					listLimit:this.props.permissions.listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,
+					listLimit:this.props.permissions.listLimit,searchCriteria:this.props.permissions.searchCriteria,orderCriteria:this.props.permissions.orderCriteria,
 					role:this.props.permissions.parent,permissionId:this.props.permissions.selected.permissionId});
 			} else {
 				this.setState({errors:errors.errorMap});
@@ -268,7 +289,7 @@ class PermissionsContainer extends Component {
 				onSearchChange={this.onSearchChange}
 				onSearchClick={this.onSearchClick}
 				onPaginationClick={this.onPaginationClick}
-				onColumnSort={this.onColumnSort}
+				onOrderBy={this.onOrderBy}
 				openDeleteModal={this.openDeleteModal}
 				closeModal={this.closeModal}
 				onModify={this.onModify}

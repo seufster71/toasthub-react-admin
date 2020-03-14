@@ -250,6 +250,13 @@ export function inputChange(field,value) {
 	 };
 }
 
+export function orderBy({listStart,listLimit,searchCriteria,orderCriteria,info,role}) {
+	 return function(dispatch) {
+		 dispatch({ type:"PERMISSIONS_ORDERBY",orderCriteria});
+		 dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,role}));
+	 };
+}
+
 export function clearPermission() {
 	return function(dispatch) {
 		dispatch({ type:"PERMISSIONS_CLEAR_PERMISSION"});
