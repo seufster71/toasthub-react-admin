@@ -30,16 +30,32 @@ export function init() {
 	};
 }
 
-export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
+export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
 		requestParams.service = "LANGUAGE_SVC";
-		requestParams.listStart = listStart;
-		requestParams.listLimit = listLimit;
-		requestParams.searchCriteria = searchCriteria;
-		requestParams.orderCriteria = orderCriteria;
-		let prefChange = {"page":"languages","orderCriteria":orderCriteria,"listStart":listStart,"listLimit":listLimit};
+		if (listStart != null) {
+			requestParams.listStart = listStart;
+		} else {
+			requestParams.listStart = state.listStart;
+		}
+		if (listLimit != null) {
+			requestParams.listLimit = listLimit;
+		} else {
+			requestParams.listLimit = state.listLimit;
+		}
+		if (searchCriteria != null) {
+			requestParams.searchCriteria = searchCriteria;
+		} else {
+			requestParams.searchCriteria = state.searchCriteria;
+		}
+		if (orderCriteria != null) {
+			requestParams.orderCriteria = orderCriteria;
+		} else {
+			requestParams.orderCriteria = state.orderCriteria;
+		}
+		let prefChange = {"page":"languages","orderCriteria":requestParams.orderCriteria,"listStart":requestParams.listStart,"listLimit":requestParams.listLimit};
 		dispatch({type:"LANGUAGE_PREF_CHANGE", prefChange});
 		let params = {};
 		params.requestParams = requestParams;
@@ -61,12 +77,26 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 	};
 }
 
-export function saveLanguage(inputFields,listStart,listLimit,searchCriteria,orderCriteria) {
+export function listLimit({state,listLimit}) {
+	return function(dispatch) {
+		 dispatch({ type:"LANGUAGES_LISTLIMIT",listLimit});
+		 dispatch(list({state,listLimit}));
+	 };
+}
+
+export function search({state,searchCriteria}) {
+	return function(dispatch) {
+		 dispatch({ type:"LANGUAGES_SEARCH",searchCriteria});
+		 dispatch(list({state,searchCriteria,listStart:0}));
+	 };
+}
+
+export function saveLanguage({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
 	    requestParams.service = "LANGUAGE_SVC";
-	    requestParams.inputFields = inputFields;
+	    requestParams.inputFields = state.inputFields;
 
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -75,7 +105,7 @@ export function saveLanguage(inputFields,listStart,listLimit,searchCriteria,orde
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Save Successful"]));
+	    			dispatch(list({state,info:["Save Successful"]}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
 	    		}
@@ -89,7 +119,7 @@ export function saveLanguage(inputFields,listStart,listLimit,searchCriteria,orde
 }
 
 
-export function deleteLanguage(id,listStart,listLimit,searchCriteria,orderCriteria) {
+export function deleteLanguage({state,id}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
@@ -102,7 +132,11 @@ export function deleteLanguage(id,listStart,listLimit,searchCriteria,orderCriter
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch(list(listStart,listLimit,searchCriteria,orderCriteria));
+	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
+	    			dispatch(list({state,info:["Delete Successful"]}));
+	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
+	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
+	    		}
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -164,6 +198,13 @@ export function inputChange(field,value) {
 		 params.field = field;
 		 params.value = value;
 		 dispatch({ type:"LANGUAGES_INPUT_CHANGE",params});
+	 };
+}
+
+export function orderBy({state,orderCriteria}) {
+	 return function(dispatch) {
+		 dispatch({ type:"LANGUAGES_ORDERBY",orderCriteria});
+		 dispatch(list({state,orderCriteria}));
 	 };
 }
 

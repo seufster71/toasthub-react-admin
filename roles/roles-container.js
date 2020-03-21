@@ -17,13 +17,12 @@ import utils from '../../core/common/utils';
 class RolesContainer extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {pageName:"ADMIN_ROLE",orderCriteria:[{'orderColumn':'ADMIN_ROLE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_ROLE_TABLE_CODE','orderDir':'ASC'}],
-			isDeleteModalOpen: false, errors:null, warns:null, successes:null};
+		this.state = {pageName:"ADMIN_ROLE",isDeleteModalOpen: false, errors:null, warns:null, successes:null};
 		this.onListLimitChange = this.onListLimitChange.bind(this);
 		this.onSearchClick = this.onSearchClick.bind(this);
 		this.onSearchChange = this.onSearchChange.bind(this);
 		this.onPaginationClick = this.onPaginationClick.bind(this);
-		this.onColumnSort = this.onColumnSort.bind(this);
+		this.onOrderBy = this.onOrderBy.bind(this);
 		this.openDeleteModal = this.openDeleteModal.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 		this.onSave = this.onSave.bind(this);
@@ -54,17 +53,14 @@ class RolesContainer extends Component {
 				value = event.target.value;
 			}
 
-			let listStart = this.props.roles.listStart;
 			let listLimit = parseInt(value);
-			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
-			this.props.actions.listLimit({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
+			this.props.actions.listLimit({state:this.props.roles,listLimit});
 		};
 	}
 
 	onPaginationClick(value) {
 		return(event) => {
 			fuLogger.log({level:'TRACE',loc:'RoleContainer::onPaginationClick',msg:"fieldName "+ value});
-			let listLimit = this.props.roles.listLimit;
 			let listStart = this.props.roles.listStart;
 			let segmentValue = 1;
 			let oldValue = 1;
@@ -78,43 +74,79 @@ class RolesContainer extends Component {
 			} else {
 				segmentValue = value;
 			}
-			listStart = ((segmentValue - 1) * listLimit);
+			listStart = ((segmentValue - 1) * this.props.roles.listLimit);
 			this.setState({"ADMIN_ROLE_PAGINATION":segmentValue});
 
-			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
-			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
+			this.props.actions.list({state:this.props.roles,listStart});
 		};
 	}
 
 	onSearchChange(fieldName) {
 		return (event) => {
-			if (this.props.codeType === 'NATIVE') {
-				this.setState({[fieldName]:event.nativeEvent.text});
+			if (event.type === 'keypress' && event.key === 'Enter') {
+				this.searchClick(fieldName,event);
 			} else {
-				this.setState({[fieldName]:event.target.value});
+				if (this.props.codeType === 'NATIVE') {
+					this.setState({[fieldName]:event.nativeEvent.text});
+				} else {
+					this.setState({[fieldName]:event.target.value});
+				}
 			}
 		};
 	}
 
-	onSearchClick(e) {
+	onSearchClick(fieldName) {
 		return (event) => {
-			let fieldName = "";
-			if (this.props.codeType === 'NATIVE') {
-				fieldName = e;
-			} else {
-				event.preventDefault();
-				fieldName = event.target.id;
-			}
-			let listStart = this.props.roles.listStart;
-			let listLimit = this.props.roles.listLimit;
-			let searchCriteria = {'searchValue':this.state[fieldName+'_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
-			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
+			this.searchClick(fieldName,event);
 		};
 	}
+	
+	searchClick(fieldName,event) {
+		let searchCriteria = [];
+		if (fieldName === 'ADMIN_ROLE-SEARCHBY') {
+			if (event != null) {
+				for (let o = 0; o < event.length; o++) {
+					let option = {};
+					option.searchValue = this.state['ADMIN_ROLE-SEARCH'];
+					option.searchColumn = event[o].value;
+					searchCriteria.push(option);
+				}
+			}
+		} else {
+			for (let i = 0; i < this.props.roles.searchCriteria.length; i++) {
+				let option = {};
+				option.searchValue = this.state['ADMIN_ROLE-SEARCH'];
+				option.searchColumn = this.props.roles.searchCriteria[i].searchColumn;
+				searchCriteria.push(option);
+			}
+		}
 
-	onColumnSort(id) {
+		this.props.actions.search({state:this.props.roles,searchCriteria});
+	}
+
+	onOrderBy(selectedOption) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onColumnSort',msg:"id " + id});
+			fuLogger.log({level:'TRACE',loc:'RoleContainer::onOrderBy',msg:"id " + selectedOption});
+			let orderCriteria = [];
+			if (event != null) {
+				for (let o = 0; o < event.length; o++) {
+					let option = {};
+					if (event[o].label.includes("ASC")) {
+						option.orderColumn = event[o].value;
+						option.orderDir = "ASC";
+					} else if (event[o].label.includes("DESC")){
+						option.orderColumn = event[o].value;
+						option.orderDir = "DESC";
+					} else {
+						option.orderColumn = event[o].value;
+					}
+					orderCriteria.push(option);
+				}
+			} else {
+				let option = {orderColumn:"ADMIN_ROLE_TABLE_NAME",orderDir:"ASC"};
+				orderCriteria.push(option);
+			}
+			this.props.actions.orderBy({state:this.props.roles,orderCriteria});
 		};
 	}
 	
@@ -124,8 +156,7 @@ class RolesContainer extends Component {
 			let errors = utils.validateFormFields(this.props.roles.appForms.ADMIN_ROLE_FORM, this.props.roles.inputFields, this.props.appPrefs.appGlobal.LANGUAGES);
 			
 			if (errors.isValid){
-				let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
-				this.props.actions.saveRole({inputFields:this.props.roles.inputFields,listStart:this.props.roles.listStart,searchCriteria:this.props.roles.listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
+				this.props.actions.saveRole({state:this.props.roles});
 			} else {
 				this.setState({errors:errors.errorMap});
 			}
@@ -147,8 +178,7 @@ class RolesContainer extends Component {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'RoleContainer::onDelete',msg:"test"+item.id});
 			this.setState({isDeleteModalOpen:false});
-			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_TITLE'};
-			this.props.actions.deleteRole({id:item.id,listStart:this.props.roles.listStart,listLimit:this.props.roles.listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
+			this.props.actions.deleteRole({state:this.props.roles,id:item.id});
 		};
 	}
 	
@@ -174,31 +204,13 @@ class RolesContainer extends Component {
 	onCancel() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'RoleContainer::onCancel',msg:"test"});
-			let listStart = this.props.roles.listStart;
-			let listLimit = this.props.roles.listLimit;
-			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_BOTH'};
-			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,user:this.props.roles.parent});
+			this.props.actions.list({state:this.props.roles});
 		};
 	}
 	
 	inputChange(fieldName,switchValue) {
 		return (event) => {
-			let	value = null;
-			if (this.props.codeType === 'NATIVE') {
-				value = event.nativeEvent.text;
-			} else {
-				if (event != null) {
-					if (event.target != null) {
-						value = event.target.value;
-					} else {
-						value = event;
-					}
-				}
-			}
-			if (switchValue != null) {
-				value = switchValue;
-			}
-			this.props.actions.inputChange(fieldName,value);
+			utils.inputChange(this.props,fieldName,switchValue);
 		};
 	}
 
@@ -220,9 +232,7 @@ class RolesContainer extends Component {
 			
 			if (errors.isValid){
 				let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_NAME'};
-				this.props.actions.saveRolePermission({inputFields:this.props.roles.inputFields,listStart:this.props.roles.listStart,
-					listLimit:this.props.roles.listLimit,searchCriteria,orderCriteria:this.state.orderCriteria,
-					user:this.props.roles.parent,roleId:this.props.roles.selected.roleId});
+				this.props.actions.saveRolePermission({state:this.props.roles});
 			} else {
 				this.setState({errors:errors.errorMap});
 			}
@@ -269,13 +279,13 @@ class RolesContainer extends Component {
 			return (
 				<RolesView 
 				containerState={this.state}
-				roles={this.props.roles}
+				items={this.props.roles}
 				appPrefs={this.props.appPrefs}
 				onListLimitChange={this.onListLimitChange}
 				onSearchChange={this.onSearchChange}
 				onSearchClick={this.onSearchClick}
 				onPaginationClick={this.onPaginationClick}
-				onColumnSort={this.onColumnSort}
+				onOrderBy={this.onOrderBy}
 				openDeleteModal={this.openDeleteModal}
 				closeModal={this.closeModal}
 				onModify={this.onModify}
@@ -284,6 +294,7 @@ class RolesContainer extends Component {
 				onUserRoleModify={this.onUserRoleModify}
 				inputChange={this.inputChange}
 				goBack={this.goBack}
+				session={this.props.session}
 				/>
 					
 			);
@@ -300,7 +311,7 @@ RolesContainer.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  return {appPrefs:state.appPrefs, roles:state.roles};
+  return {appPrefs:state.appPrefs, roles:state.roles, session:state.session};
 }
 
 function mapDispatchToProps(dispatch) {

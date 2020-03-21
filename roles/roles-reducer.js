@@ -14,6 +14,8 @@ export default function rolesReducer(state = {}, action) {
     				items: reducerUtils.getItems(action),
     				listLimit: reducerUtils.getListLimit(action),
     				listStart: reducerUtils.getListStart(action),
+    				orderCriteria: [{'orderColumn':'ADMIN_ROLE_TABLE_NAME','orderDir':'ASC'}],
+    				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_ROLE_TABLE_NAME'}],
     				selected: null,
     				isModifyOpen: false,
     				isUserRoleOpen: false
@@ -175,6 +177,12 @@ export default function rolesReducer(state = {}, action) {
 		}
 		case 'ROLES_LISTLIMIT': {
 			return reducerUtils.updateListLimit(state,action);
+		}
+		case 'ROLES_SEARCH': { 
+			return reducerUtils.updateSearch(state,action);
+		}
+		case 'ROLES_ORDERBY': { 
+			return reducerUtils.updateOrderBy(state,action);
 		}
     	default:
     		return state;

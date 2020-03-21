@@ -16,13 +16,12 @@ import utils from '../../core/common/utils';
 class UsersContainer extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {pageName:"ADMIN_USER",orderCriteria:[{'orderColumn':'ADMIN_USER_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_USER_TABLE_CODE','orderDir':'ASC'}],
-			isDeleteModalOpen: false, errors:null, warns:null, successes:null};
+		this.state = {pageName:"ADMIN_USER",isDeleteModalOpen: false, errors:null, warns:null, successes:null};
 		this.onListLimitChange = this.onListLimitChange.bind(this);
 		this.onSearchClick = this.onSearchClick.bind(this);
 		this.onSearchChange = this.onSearchChange.bind(this);
 		this.onPaginationClick = this.onPaginationClick.bind(this);
-		this.onColumnSort = this.onColumnSort.bind(this);
+		this.onOrderBy = this.onOrderBy.bind(this);
 		this.openDeleteModal = this.openDeleteModal.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 		this.onSave = this.onSave.bind(this);
@@ -48,18 +47,15 @@ class UsersContainer extends Component {
 				value = event.target.value;
 			}
 
-			let listStart = this.props.users.listStart;
 			let listLimit = parseInt(value);
-			let searchCriteria = {'searchValue':this.state['ADMIN_USER_SEARCH_input'],'searchColumn':'ADMIN_USER_TABLE_BOTH'};
-			this.props.actions.listLimit({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria});
+			this.props.actions.listLimit({state:this.props.users,listLimit});
 		};
 	}
 
 	onPaginationClick(value) {
 		return(event) => {
 			fuLogger.log({level:'TRACE',loc:'UsersContainer::onPaginationClick',msg:"fieldName "+ value});
-			let listLimit = this.props.users.listLimit;
-			let listStart = this.props.users.listSTart;
+			let listStart = this.props.users.listStart;
 			let segmentValue = 1;
 			let oldValue = 1;
 			if (this.state["ADMIN_USER_PAGINATION"] != null && this.state["ADMIN_USER_PAGINATION"] != ""){
@@ -72,44 +68,79 @@ class UsersContainer extends Component {
 			} else {
 				segmentValue = value;
 			}
-			listStart = ((segmentValue - 1) * listLimit);
+			listStart = ((segmentValue - 1) * this.props.users.listLimit);
 			this.setState({"ADMIN_USER_PAGINATION":segmentValue});
-
-			let searchCriteria = {'searchValue':this.state['ADMIN_USER_SEARCH_input'],'searchColumn':'ADMIN_USER_TABLE_BOTH'};
-			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria});
+			
+			this.props.actions.list({state:this.props.users,listStart});
 		};
 	}
 
 	onSearchChange(fieldName) {
 		return (event) => {
-			if (this.props.codeType === 'NATIVE') {
-				this.setState({[fieldName]:event.nativeEvent.text});
+			if (event.type === 'keypress' && event.key === 'Enter') {
+				this.searchClick(fieldName,event);
 			} else {
-				this.setState({[fieldName]:event.target.value});
+				if (this.props.codeType === 'NATIVE') {
+					this.setState({[fieldName]:event.nativeEvent.text});
+				} else {
+					this.setState({[fieldName]:event.target.value});
+				}
 			}
 		};
 	}
 
-	onSearchClick(e) {
+	onSearchClick(fieldName) {
 		return (event) => {
-			let fieldName = "";
-			if (this.props.codeType === 'NATIVE') {
-				fieldName = e;
-			} else {
-				event.preventDefault();
-				fieldName = event.target.id;
-			}
-		//	fuLogger.log({level:'TRACE',loc:'UsersContainer::onSearchClick',msg:"the state " + JSON.stringify(this.state)});
-			let listStart = this.props.users.listStart;
-			let listLimit = this.props.users.listLimit;
-			let searchCriteria = {'searchValue':this.state[fieldName+'_input'],'searchColumn':'ADMIN_USER_TABLE_BOTH'};
-			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria});
+			this.searchClick(fieldName,event);
 		};
 	}
+	
+	searchClick(fieldName,event) {
+		let searchCriteria = [];
+		if (fieldName === 'ADMIN_USER-SEARCHBY') {
+			if (event != null) {
+				for (let o = 0; o < event.length; o++) {
+					let option = {};
+					option.searchValue = this.state['ADMIN_USER-SEARCH'];
+					option.searchColumn = event[o].value;
+					searchCriteria.push(option);
+				}
+			}
+		} else {
+			for (let i = 0; i < this.props.users.searchCriteria.length; i++) {
+				let option = {};
+				option.searchValue = this.state['ADMIN_USER-SEARCH'];
+				option.searchColumn = this.props.users.searchCriteria[i].searchColumn;
+				searchCriteria.push(option);
+			}
+		}
 
-	onColumnSort(id) {
+		this.props.actions.search({state:this.props.users,searchCriteria});
+	}
+
+	onOrderBy(selectedOption) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'UsersContainer::onColumnSort',msg:"id " + id});
+			fuLogger.log({level:'TRACE',loc:'UserContainer::onOrderBy',msg:"id " + selectedOption});
+			let orderCriteria = [];
+			if (event != null) {
+				for (let o = 0; o < event.length; o++) {
+					let option = {};
+					if (event[o].label.includes("ASC")) {
+						option.orderColumn = event[o].value;
+						option.orderDir = "ASC";
+					} else if (event[o].label.includes("DESC")){
+						option.orderColumn = event[o].value;
+						option.orderDir = "DESC";
+					} else {
+						option.orderColumn = event[o].value;
+					}
+					orderCriteria.push(option);
+				}
+			} else {
+				let option = {orderColumn:"ADMIN_USER_TABLE_NAME",orderDir:"ASC"};
+				orderCriteria.push(option);
+			}
+			this.props.actions.orderBy({state:this.props.users,orderCriteria});
 		};
 	}
 	
@@ -119,16 +150,19 @@ class UsersContainer extends Component {
 			let errors = utils.validateFormFields(this.props.users.appForms.ADMIN_USER_FORM,this.props.users.inputFields);
 			
 			if (errors.isValid){
-				let searchCriteria = {'searchValue':this.state['ADMIN_USERS_SEARCH_input'],'searchColumn':'ADMIN_USER_TABLE_FIRSTNAME'};
-				this.props.actions.saveUser({inputFields:this.props.users.inputFields,listStart:this.props.users.listStart,listLimit:this.props.users.listLimit,searchCriteria,orderCriteria:this.state.orderCriteria});
+				this.props.actions.saveUser({state:this.props.users});
 			} else {
 				this.setState({errors:errors.errorMap});
 			}
 		};
 	}
 	
-	onModify(id) {
+	onModify(item) {
 		return (event) => {
+			let id = null;
+			if (item != null && item.id != null) {
+				id = item.id;
+			}
 			fuLogger.log({level:'TRACE',loc:'UsersContainer::onModify',msg:"test"+id});
 			this.props.actions.user(id);
 		};
@@ -138,16 +172,15 @@ class UsersContainer extends Component {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'UsersContainer::onDelete',msg:"test"});
 			this.setState({isDeleteModalOpen:false});
-			let searchCriteria = {'searchValue':this.state['ADMIN_USERS_SEARCH_input'],'searchColumn':'ADMIN_USER_TABLE_FIRSTNAME'};
 			if (item != null && item.id != "") {
-				this.props.actions.deleteUser({id:item.id,listStart:this.props.users.listStart,listLimit:this.props.users.listLimit,searchCriteria,orderCriteria:this.state.orderCriteria});
+				this.props.actions.deleteUser({state:this.props.users,id:item.id});
 			}
 		};
 	}
 	
-	openDeleteModal(id,name) {
+	openDeleteModal(item) {
 		return (event) => {
-		    this.setState({isDeleteModalOpen:true,selectedUserId:id,selectedUserName:name});
+		    this.setState({isDeleteModalOpen:true,selected:item});
 		}
 	}
 	
@@ -167,10 +200,7 @@ class UsersContainer extends Component {
 	onCancel() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'UsersContainer::onCancel',msg:"test"});
-			let listStart = this.props.users.listStart;
-			let listLimit = this.props.users;listLimit;
-			let searchCriteria = {'searchValue':this.state['ADMIN_USER_SEARCH_input'],'searchColumn':'ADMIN_USER_TABLE_BOTH'};
-			this.props.actions.list({listStart,listLimit,searchCriteria,orderCriteria:this.state.orderCriteria});
+			this.props.actions.list({state:this.props.users});
 		};
 	}
 	
@@ -238,7 +268,7 @@ class UsersContainer extends Component {
 			return (
 				<UsersModifyView
 				containerState={this.state}
-				user={this.props.users.selectedUser}
+				item={this.props.users.selected}
 				inputFields={this.props.users.inputFields}
 				appPrefs={this.props.appPrefs}
 				userAppForms={this.props.users.appForms}
@@ -252,19 +282,21 @@ class UsersContainer extends Component {
 			return (
 				<UsersView
 				containerState={this.state}
-				users={this.props.users}
+				items={this.props.users}
 				appPrefs={this.props.appPrefs}
 				onListLimitChange={this.onListLimitChange}
 				onSearchChange={this.onSearchChange}
 				onSearchClick={this.onSearchClick}
 				onPaginationClick={this.onPaginationClick}
-				onColumnSort={this.onColumnSort}
+				onOrderBy={this.onOrderBy}
 				openDeleteModal={this.openDeleteModal}
 				closeModal={this.closeModal}
 				onModify={this.onModify}
 				onDelete={this.onDelete}
 				onEditRoles={this.onEditRoles}
-				inputChange={this.inputChange}/>
+				inputChange={this.inputChange}
+				session={this.props.session}
+				/>
 			);
 		} else {
 			return (<div> Loading... </div>);
@@ -280,7 +312,7 @@ UsersContainer.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  return {appPrefs:state.appPrefs, users:state.users};
+  return {appPrefs:state.appPrefs, users:state.users, session:state.session};
 }
 
 function mapDispatchToProps(dispatch) {

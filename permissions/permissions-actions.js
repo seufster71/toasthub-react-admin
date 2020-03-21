@@ -37,19 +37,35 @@ export function init(role) {
 	};
 }
 
-export function list({listStart,listLimit,searchCriteria,orderCriteria,info,role}) {
+export function list({state,listLimit,listStart,searchCriteria,orderCriteria,info}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
 		requestParams.service = "PERMISSIONS_SVC";
-		requestParams.listStart = listStart;
-		requestParams.listLimit = listLimit;
-		requestParams.searchCriteria = searchCriteria;
-		requestParams.orderCriteria = orderCriteria;
-		if (role != null) {
-			requestParams.roleId = role.id;
+		if (listStart != null) {
+			requestParams.listStart = listStart;
+		} else {
+			requestParams.listStart = state.listStart;
 		}
-		let prefChange = {"page":"permissions","orderCriteria":orderCriteria,"listStart":listStart,"listLimit":listLimit};
+		if (listLimit != null) {
+			requestParams.listLimit = listLimit;
+		} else {
+			requestParams.listLimit = state.listLimit;
+		}
+		if (searchCriteria != null) {
+			requestParams.searchCriteria = searchCriteria;
+		} else {
+			requestParams.searchCriteria = state.searchCriteria;
+		}
+		if (orderCriteria != null) {
+			requestParams.orderCriteria = orderCriteria;
+		} else {
+			requestParams.orderCriteria = state.orderCriteria;
+		}
+		if (state.parent != null) {
+			requestParams.roleId = state.parent.id;
+		}
+		let prefChange = {"page":"permissions","orderCriteria":requestParams.orderCriteria,"listStart":requestParams.listStart,"listLimit":requestParams.listLimit};
 		dispatch({type:"PERMISSION_PREF_CHANGE", prefChange});
 		let params = {};
 		params.requestParams = requestParams;
@@ -71,26 +87,26 @@ export function list({listStart,listLimit,searchCriteria,orderCriteria,info,role
 	};
 }
 
-export function listLimit({listStart,listLimit,searchCriteria,orderCriteria,info,role}) {
+export function listLimit({state,listLimit}) {
 	return function(dispatch) {
 		 dispatch({ type:"PERMISSIONS_LISTLIMIT",listLimit});
-		 dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,role}));
+		 dispatch(list({state,listLimit}));
 	 };
 }
 
-export function search({listStart,listLimit,searchCriteria,orderCriteria,info,role}) {
+export function search({state,searchCriteria}) {
 	return function(dispatch) {
 		 dispatch({ type:"PERMISSIONS_SEARCH",searchCriteria});
-		 dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,role}));
+		 dispatch(list({state,searchCriteria,listStart:0}));
 	 };
 }
 
-export function savePermission({inputFields,listStart,listLimit,searchCriteria,orderCriteria,role}) {
+export function savePermission({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
 	    requestParams.service = "PERMISSIONS_SVC";
-	    requestParams.inputFields = inputFields;
+	    requestParams.inputFields = state.inputFields;
 
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -99,7 +115,7 @@ export function savePermission({inputFields,listStart,listLimit,searchCriteria,o
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,info:["Save Successful"],role}));
+	    			dispatch(list({state,info:["Save Successful"]}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
 	    		}
@@ -113,7 +129,7 @@ export function savePermission({inputFields,listStart,listLimit,searchCriteria,o
 }
 
 
-export function deletePermission({id,listStart,listLimit,searchCriteria,orderCriteria,role}) {
+export function deletePermission({state,id}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
@@ -127,7 +143,7 @@ export function deletePermission({id,listStart,listLimit,searchCriteria,orderCri
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){
-	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,role}));
+	    			dispatch(list({state,info:["Delete Successful"]}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
 	    		}
@@ -212,14 +228,14 @@ export function rolePermission({rolePermissionId, permissionId}) {
 	};
 }
 
-export function saveRolePermission({inputFields,listStart,listLimit,searchCriteria,orderCriteria,role,permissionId}) {
+export function saveRolePermission({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "ROLE_PERMISSION_SAVE";
 	    requestParams.service = "PERMISSIONS_SVC";
-	    requestParams.inputFields = inputFields;
-	    requestParams.roleId = role.id;
-	    requestParams.permissionId = permissionId
+	    requestParams.inputFields = state.inputFields;
+	    requestParams.roleId = state.parent.id;
+	    requestParams.permissionId = state.selected.permissionId
 
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -228,7 +244,7 @@ export function saveRolePermission({inputFields,listStart,listLimit,searchCriter
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,info:["Save Successful"],role}));
+	    			dispatch(list({state,info:["Save Successful"]}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
 	    		}
@@ -250,10 +266,10 @@ export function inputChange(field,value) {
 	 };
 }
 
-export function orderBy({listStart,listLimit,searchCriteria,orderCriteria,info,role}) {
+export function orderBy({state,orderCriteria}) {
 	 return function(dispatch) {
 		 dispatch({ type:"PERMISSIONS_ORDERBY",orderCriteria});
-		 dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,role}));
+		 dispatch(list({state,orderCriteria}));
 	 };
 }
 

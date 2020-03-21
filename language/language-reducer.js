@@ -14,6 +14,8 @@ export default function languagesReducer(state = {}, action) {
 					items: reducerUtils.getItems(action),
 					listLimit: reducerUtils.getListLimit(action),
 					listStart: reducerUtils.getListStart(action),
+					orderCriteria: [{'orderColumn':'ADMIN_LANGUAGE_TABLE_TITLE','orderDir':'ASC'}],
+    				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_LANGUAGE_TABLE_TITLE'}],
 					selected: null,
 					isModifyOpen: false
 				});
@@ -72,15 +74,16 @@ export default function languagesReducer(state = {}, action) {
 			}
 		}
 		case 'LANGUAGES_INPUT_CHANGE': {
-			if (action.params != null) {
-				let inputFields = Object.assign({}, state.inputFields);
-				inputFields[action.params.field] = action.params.value;
-				let clone = Object.assign({}, state);
-				clone.inputFields = inputFields;
-				return clone;
-			} else {
-		        return state;
-		    }
+			return reducerUtils.updateInputChange(state,action);
+		}
+		case 'USERS_LISTLIMIT': {
+			return reducerUtils.updateListLimit(state,action);
+		}
+		case 'USERS_SEARCH': { 
+			return reducerUtils.updateSearch(state,action);
+		}
+		case 'USERS_ORDERBY': { 
+			return reducerUtils.updateOrderBy(state,action);
 		}
 		default:
 			return state;

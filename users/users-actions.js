@@ -20,9 +20,6 @@ export function init() {
     return callService(params).then( (responseJson) => {
     	if (responseJson != null && responseJson.protocalError == null){
     		dispatch({ type: "LOAD_INIT_USERS", responseJson });
-    		//if (info != null) {
-	        //	  dispatch({type:'SHOW_STATUS',info:info});  
-	        //}
 		} else {
 			actionUtils.checkConnectivity(responseJson,dispatch);
 		}
@@ -33,16 +30,32 @@ export function init() {
   };
 }
 
-export function list({listStart,listLimit,searchCriteria,orderCriteria,info}) {
+export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
 		requestParams.service = "USERS_SVC";
-		requestParams.listStart = listStart;
-		requestParams.listLimit = listLimit;
-		requestParams.searchCriteria = searchCriteria;
-		requestParams.orderCriteria = orderCriteria;
-		let userPrefChange = {"page":"users","orderCriteria":orderCriteria,"listStart":listStart,"listLimit":listLimit};
+		if (listStart != null) {
+			requestParams.listStart = listStart;
+		} else {
+			requestParams.listStart = state.listStart;
+		}
+		if (listLimit != null) {
+			requestParams.listLimit = listLimit;
+		} else {
+			requestParams.listLimit = state.listLimit;
+		}
+		if (searchCriteria != null) {
+			requestParams.searchCriteria = searchCriteria;
+		} else {
+			requestParams.searchCriteria = state.searchCriteria;
+		}
+		if (orderCriteria != null) {
+			requestParams.orderCriteria = orderCriteria;
+		} else {
+			requestParams.orderCriteria = state.orderCriteria;
+		}
+		let userPrefChange = {"page":"users","orderCriteria":requestParams.orderCriteria,"listStart":requestParams.listStart,"listLimit":requestParams.listLimit};
 		dispatch({type:"USER_PREF_CHANGE", userPrefChange});
 		let params = {};
 		params.requestParams = requestParams;
@@ -64,19 +77,26 @@ export function list({listStart,listLimit,searchCriteria,orderCriteria,info}) {
 	};
 }
 
-export function listLimit({listStart,listLimit,searchCriteria,orderCriteria,info}) {
+export function listLimit({state,listLimit}) {
 	return function(dispatch) {
 		 dispatch({ type:"USERS_LISTLIMIT",listLimit});
-		 dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,info}));
+		 dispatch(list({state,listLimit}));
 	 };
 }
 
-export function saveUser({inputFields,listStart,listLimit,searchCriteria,orderCriteria}) {
+export function search({state,searchCriteria}) {
+	return function(dispatch) {
+		 dispatch({ type:"USERS_SEARCH",searchCriteria});
+		 dispatch(list({state,searchCriteria,listStart:0}));
+	 };
+}
+
+export function saveUser({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
 	    requestParams.service = "USERS_SVC";
-	    requestParams.inputFields = inputFields;
+	    requestParams.inputFields = state.inputFields;
 
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -85,7 +105,7 @@ export function saveUser({inputFields,listStart,listLimit,searchCriteria,orderCr
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,info:["Save Successful"]}));
+	    			dispatch(list({state,info:["Save Successful"]}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
 	    		}
@@ -99,7 +119,7 @@ export function saveUser({inputFields,listStart,listLimit,searchCriteria,orderCr
 }
 
 
-export function deleteUser({id,listStart,listLimit,searchCriteria,orderCriteria}) {
+export function deleteUser({state,id}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
@@ -112,7 +132,11 @@ export function deleteUser({id,listStart,listLimit,searchCriteria,orderCriteria}
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch(list({listStart,listLimit,searchCriteria,orderCriteria}));
+	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
+	    			dispatch(list({state,info:["Delete Successful"]}));
+	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
+	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
+	    		}
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -177,10 +201,11 @@ export function inputChange(field,value) {
 	 };
 }
 
-export function permissionsChange(permissions) {
-	return function(dispatch) {
-		dispatch({ type:"USERS_PERMISSION_CHANGE",permissions});
-	};
+export function orderBy({state,orderCriteria}) {
+	 return function(dispatch) {
+		 dispatch({ type:"USERS_ORDERBY",orderCriteria});
+		 dispatch(list({state,orderCriteria}));
+	 };
 }
 
 export function clearUser() {

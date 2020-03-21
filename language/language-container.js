@@ -18,13 +18,12 @@ import utils from '../../core/common/utils';
 class LanguageContainer extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {pageName:"ADMIN_LANGUAGE",orderCriteria:[{'orderColumn':'ADMIN_LANGUAGE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_LANGUAGE_TABLE_CODE','orderDir':'ASC'}],
-			isDeleteModalOpen: false, errors:null, warns:null, successes:null};
+		this.state = {pageName:"ADMIN_LANGUAGE",isDeleteModalOpen: false, errors:null, warns:null, successes:null};
 		this.onListLimitChange = this.onListLimitChange.bind(this);
 		this.onSearchClick = this.onSearchClick.bind(this);
 		this.onSearchChange = this.onSearchChange.bind(this);
 		this.onPaginationClick = this.onPaginationClick.bind(this);
-		this.onColumnSort = this.onColumnSort.bind(this);
+		this.onOrderBy = this.onOrderBy.bind(this);
 		this.openDeleteModal = this.openDeleteModal.bind(this);
 		this.closeModal = this.closeModal.bind(this);
 		this.onSave = this.onSave.bind(this);
@@ -43,24 +42,19 @@ class LanguageContainer extends Component {
 			let value = 20;
 			if (this.props.codeType === 'NATIVE') {
 				value = event.nativeEvent.text;
-				this.setState({[fieldName]:parseInt(event.nativeEvent.text)});
 			} else {
 				value = event.target.value;
-				this.setState({[fieldName]:parseInt(event.target.value)});
 			}
 
-			let listStart = 0;
 			let listLimit = parseInt(value);
-			let searchCriteria = {'searchValue':this.state['ADMIN_LANGUAGE_SEARCH_input'],'searchColumn':'ADMIN_LANGUAGE_TABLE_BOTH'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.listLimit({state:this.props.languages,listLimit});
 		};
 	}
 
 	onPaginationClick(value) {
 		return(event) => {
 			fuLogger.log({level:'TRACE',loc:'LanguageContainer::onPaginationClick',msg:"fieldName "+ value});
-			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_LANGUAGE_ListLimit');
-			let listStart = 0;
+			let listStart = this.props.languages.listStart;
 			let segmentValue = 1;
 			let oldValue = 1;
 			if (this.state["ADMIN_LANGUAGE_PAGINATION"] != null && this.state["ADMIN_LANGUAGE_PAGINATION"] != ""){
@@ -73,43 +67,79 @@ class LanguageContainer extends Component {
 			} else {
 				segmentValue = value;
 			}
-			listStart = ((segmentValue - 1) * listLimit);
+			listStart = ((segmentValue - 1) * this.props.languages.listLimit);
 			this.setState({"ADMIN_LANGUAGE_PAGINATION":segmentValue});
 
-			let searchCriteria = {'searchValue':this.state['ADMIN_LANGUAGE_SEARCH_input'],'searchColumn':'ADMIN_LANGUAGE_TABLE_BOTH'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.list({state:this.props.languages,listStart});
 		};
 	}
 
 	onSearchChange(fieldName) {
 		return (event) => {
-			if (this.props.codeType === 'NATIVE') {
-				this.setState({[fieldName]:event.nativeEvent.text});
+			if (event.type === 'keypress' && event.key === 'Enter') {
+				this.searchClick(fieldName,event);
 			} else {
-				this.setState({[fieldName]:event.target.value});
+				if (this.props.codeType === 'NATIVE') {
+					this.setState({[fieldName]:event.nativeEvent.text});
+				} else {
+					this.setState({[fieldName]:event.target.value});
+				}
 			}
 		};
 	}
 
-	onSearchClick(e) {
+	onSearchClick(fieldName) {
 		return (event) => {
-			let fieldName = "";
-			if (this.props.codeType === 'NATIVE') {
-				fieldName = e;
-			} else {
-				event.preventDefault();
-				fieldName = event.target.id;
-			}
-			let listStart = 0;
-			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_LANGUAGE_ListLimit');
-			let searchCriteria = {'searchValue':this.state[fieldName+'_input'],'searchColumn':'ADMIN_LANGUAGE_TABLE_BOTH'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
+			this.searchClick(fieldName,event);
 		};
 	}
 
-	onColumnSort(id) {
+	searchClick(fieldName,event) {
+		let searchCriteria = [];
+		if (fieldName === 'ADMIN_LANGUAGE-SEARCHBY') {
+			if (event != null) {
+				for (let o = 0; o < event.length; o++) {
+					let option = {};
+					option.searchValue = this.state['ADMIN_LANGUAGE-SEARCH'];
+					option.searchColumn = event[o].value;
+					searchCriteria.push(option);
+				}
+			}
+		} else {
+			for (let i = 0; i < this.props.languages.searchCriteria.length; i++) {
+				let option = {};
+				option.searchValue = this.state['ADMIN_LANGUAGE-SEARCH'];
+				option.searchColumn = this.props.languages.searchCriteria[i].searchColumn;
+				searchCriteria.push(option);
+			}
+		}
+
+		this.props.actions.search({state:this.props.languages,searchCriteria});
+	}
+
+	onOrderBy(selectedOption) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'LanguageContainer::onColumnSort',msg:"id " + id});
+			fuLogger.log({level:'TRACE',loc:'LanguageContainer::onOrderBy',msg:"id " + selectedOption});
+			let orderCriteria = [];
+			if (event != null) {
+				for (let o = 0; o < event.length; o++) {
+					let option = {};
+					if (event[o].label.includes("ASC")) {
+						option.orderColumn = event[o].value;
+						option.orderDir = "ASC";
+					} else if (event[o].label.includes("DESC")){
+						option.orderColumn = event[o].value;
+						option.orderDir = "DESC";
+					} else {
+						option.orderColumn = event[o].value;
+					}
+					orderCriteria.push(option);
+				}
+			} else {
+				let option = {orderColumn:"ADMIN_LANGUAGE_TABLE_NAME",orderDir:"ASC"};
+				orderCriteria.push(option);
+			}
+			this.props.actions.orderBy({state:this.props.languages,orderCriteria});
 		};
 	}
 	
@@ -119,33 +149,37 @@ class LanguageContainer extends Component {
 			let errors = utils.validateFormFields(this.props.languages.appForms.ADMIN_LANGUAGE_FORM, this.props.languages.inputFields, this.props.appPrefs.appGlobal.LANGUAGES);
 			
 			if (errors.isValid){
-				let searchCriteria = {'searchValue':this.state['ADMIN_LANGUAGE_SEARCH_input'],'searchColumn':'ADMIN_LANGUAGE_TABLE_NAME'};
-				this.props.actions.saveLanguage(this.props.languages.inputFields,this.props.languages.listStart,this.props.languages.listLimit,searchCriteria,this.state.orderCriteria);
+				this.props.actions.saveLanguage({state:this.props.languages});
 			} else {
 				this.setState({errors:errors.errorMap});
 			}
 		};
 	}
 	
-	onModify(id) {
+	onModify(item) {
 		return (event) => {
+			let id = null;
+			if (item != null && item.id != null) {
+				id = item.id;
+			}
 			fuLogger.log({level:'TRACE',loc:'LanguageContainer::onModify',msg:"test"+id});
 			this.props.actions.language(id);
 		};
 	}
 	
-	onDelete(id) {
+	onDelete(item) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'LanguageContainer::onDelete',msg:"test"+id});
+			fuLogger.log({level:'TRACE',loc:'LanguageContainer::onDelete',msg:"test"});
 			this.setState({isDeleteModalOpen:false});
-			let searchCriteria = {'searchValue':this.state['ADMIN_LANGUAGE_SEARCH_input'],'searchColumn':'ADMIN_LANGUAGE_TABLE_NAME'};
-			this.props.actions.deleteLanguage(id,this.props.languages.listStart,this.props.languages.listLimit,searchCriteria,this.state.orderCriteria);
+			if (item != null && item.id != "") {
+				this.props.actions.deleteLanguage({state:this.props.languages,id:item.id});
+			}
 		};
 	}
 	
-	openDeleteModal(id,name) {
+	openDeleteModal(item) {
 		return (event) => {
-		    this.setState({isDeleteModalOpen:true,selectedId:id,selectedName:name});
+		    this.setState({isDeleteModalOpen:true,selected:item});
 		}
 	}
 	
@@ -158,25 +192,13 @@ class LanguageContainer extends Component {
 	onCancel() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'LanguageContainer::onCancel',msg:"test"});
-			let listStart = 0;
-			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_LANGUAGE_ListLimit');
-			let searchCriteria = {'searchValue':this.state['ADMIN_LANGUAGE_SEARCH_input'],'searchColumn':'ADMIN_LANGUAGE_TABLE_BOTH'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.list({state:this.props.languages});
 		};
 	}
 	
-	inputChange(fieldName) {
+	inputChange(fieldName,switchValue) {
 		return (event) => {
-			let	value = null;
-			if (this.props.codeType === 'NATIVE') {
-				value = event.nativeEvent.text;
-			} else {
-				value = event.target.value;
-			}
-			if (switchValue != null) {
-				value = switchValue;
-			}
-			this.props.actions.inputChange(fieldName,value);
+			utils.inputChange(this.props,fieldName,switchValue);
 		};
 	}
 
@@ -199,18 +221,19 @@ class LanguageContainer extends Component {
 			return (
 				<LanguageView 
 				containerState={this.state}
-				languages={this.props.languages}
+				items={this.props.languages}
 				appPrefs={this.props.appPrefs}
 				onListLimitChange={this.onListLimitChange}
 				onSearchChange={this.onSearchChange}
 				onSearchClick={this.onSearchClick}
 				onPaginationClick={this.onPaginationClick}
-				onColumnSort={this.onColumnSort}
-				openDeleteMOdal={this.openDeleteModal}
+				onOrderBy={this.onOrderBy}
+				openDeleteModal={this.openDeleteModal}
 				closeModal={this.closeModal}
 				onModify={this.onModify}
 				onDelete={this.onDelete}
 				inputChange={this.inputChange}
+				session={this.props.session}
 				/>	
 			);
 		} else {
@@ -226,7 +249,7 @@ LanguageContainer.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  return {appPrefs:state.appPrefs, languages:state.languages};
+  return {appPrefs:state.appPrefs, languages:state.languages, session:state.session};
 }
 
 function mapDispatchToProps(dispatch) {

@@ -36,19 +36,35 @@ export function init(user) {
 	};
 }
 
-export function list({listStart,listLimit,searchCriteria,orderCriteria,info,user}) {
+export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
 		requestParams.service = "ROLES_SVC";
-		requestParams.listStart = listStart;
-		requestParams.listLimit = listLimit;
-		requestParams.searchCriteria = searchCriteria;
-		requestParams.orderCriteria = orderCriteria;
-		if (user != null) {
-			requestParams.userId = user.id;
+		if (listStart != null) {
+			requestParams.listStart = listStart;
+		} else {
+			requestParams.listStart = state.listStart;
 		}
-		let prefChange = {"page":"roles","orderCriteria":orderCriteria,"listStart":listStart,"listLimit":listLimit};
+		if (listLimit != null) {
+			requestParams.listLimit = listLimit;
+		} else {
+			requestParams.listLimit = state.listLimit;
+		}
+		if (searchCriteria != null) {
+			requestParams.searchCriteria = searchCriteria;
+		} else {
+			requestParams.searchCriteria = state.searchCriteria;
+		}
+		if (orderCriteria != null) {
+			requestParams.orderCriteria = orderCriteria;
+		} else {
+			requestParams.orderCriteria = state.orderCriteria;
+		}
+		if (state.parent != null) {
+			requestParams.userId = state.parent.id;
+		}
+		let prefChange = {"page":"roles","orderCriteria":requestParams.orderCriteria,"listStart":requestParams.listStart,"listLimit":requestParams.listLimit};
 		dispatch({type:"ROLE_PREF_CHANGE", prefChange});
 		let params = {};
 		params.requestParams = requestParams;
@@ -70,19 +86,26 @@ export function list({listStart,listLimit,searchCriteria,orderCriteria,info,user
 	};
 }
 
-export function listLimit({listStart,listLimit,searchCriteria,orderCriteria,info,user}) {
+export function listLimit({state,listLimit}) {
 	return function(dispatch) {
 		 dispatch({ type:"ROLES_LISTLIMIT",listLimit});
-		 dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,user}));
+		 dispatch(list({state,listLimit}));
 	 };
 }
 
-export function saveRole({inputFields,listStart,listLimit,searchCriteria,orderCriteria,user}) {
+export function search({state,searchCriteria}) {
+	return function(dispatch) {
+		 dispatch({ type:"ROLES_SEARCH",searchCriteria});
+		 dispatch(list({state,searchCriteria,listStart:0}));
+	 };
+}
+
+export function saveRole({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
 	    requestParams.service = "ROLES_SVC";
-	    requestParams.inputFields = inputFields;
+	    requestParams.inputFields = state.inputFields;
 
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -91,7 +114,7 @@ export function saveRole({inputFields,listStart,listLimit,searchCriteria,orderCr
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,info:["Save Successful"],user}));
+	    			dispatch(list({state,info:["Save Successful"]}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
 	    		}
@@ -105,7 +128,7 @@ export function saveRole({inputFields,listStart,listLimit,searchCriteria,orderCr
 }
 
 
-export function deleteRole({id,listStart,listLimit,searchCriteria,orderCriteria,user}) {
+export function deleteRole({state,id}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
@@ -119,7 +142,7 @@ export function deleteRole({id,listStart,listLimit,searchCriteria,orderCriteria,
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,user}));
+	    			dispatch(list({state,info:["Delete Successful"]}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
 	    		}	
@@ -204,14 +227,14 @@ export function userRole({userRoleId, roleId}) {
 	};
 }
 
-export function saveRolePermission({inputFields,listStart,listLimit,searchCriteria,orderCriteria,user,roleId}) {
+export function saveRolePermission({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "USER_ROLE_SAVE";
 	    requestParams.service = "ROLES_SVC";
-	    requestParams.inputFields = inputFields;
-	    requestParams.userId = user.id;
-	    requestParams.roleId = roleId
+	    requestParams.inputFields = state.inputFields;
+	    requestParams.userId = state.parent.id;
+	    requestParams.roleId = state.selected.roleId
 
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -220,7 +243,7 @@ export function saveRolePermission({inputFields,listStart,listLimit,searchCriter
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list({listStart,listLimit,searchCriteria,orderCriteria,info:["Save Successful"],user}));
+	    			dispatch(list({state,info:["Save Successful"]}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
 	    		}
@@ -239,6 +262,13 @@ export function inputChange(field,value) {
 		 params.field = field;
 		 params.value = value;
 		 dispatch({ type:"ROLES_INPUT_CHANGE",params});
+	 };
+}
+
+export function orderBy({state,orderCriteria}) {
+	 return function(dispatch) {
+		 dispatch({ type:"ROLES_ORDERBY",orderCriteria});
+		 dispatch(list({state,orderCriteria}));
 	 };
 }
 

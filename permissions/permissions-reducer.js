@@ -65,9 +65,11 @@ export default function permissionsReducer(state = {}, action) {
 						if (appForms.ADMIN_PERMISSION_FORM[i].value != null && appForms.ADMIN_PERMISSION_FORM[i].value != ""){
 							if (appForms.ADMIN_PERMISSION_FORM[i].value.includes("{")) {
 								let formValue = JSON.parse(appForms.ADMIN_PERMISSION_FORM[i].value);
-								for (let j = 0; j < formValue.options.length; j++) {
-									if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
-										result = formValue.options[j].value;
+								if (formValue.options != null) {
+									for (let j = 0; j < formValue.options.length; j++) {
+										if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
+											result = formValue.options[j].value;
+										}
 									}
 								}
 							} else {
@@ -143,11 +145,13 @@ export default function permissionsReducer(state = {}, action) {
 						if (appForms.ADMIN_ROLE_PERMISSION_FORM[i].value != null && appForms.ADMIN_ROLE_PERMISSION_FORM[i].value != ""){
 							if (appForms.ADMIN_ROLE_PERMISSION_FORM[i].value.includes("{")) {
 								let formValue = JSON.parse(appForms.ADMIN_ROLE_PERMISSION_FORM[i].value);
-								for (let j = 0; j < formValue.options.length; j++) {
-									if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
-										result = formValue.options[j].value;
+								if (formValue.options != null) {
+									for (let j = 0; j < formValue.options.length; j++) {
+										if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
+											result = formValue.options[j].value;
+										}
 									}
-								} 
+								}
 							} else {
 								result = appForms.ADMIN_ROLE_PERMISSION_FORM[i].value;
 							}
