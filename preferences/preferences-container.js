@@ -18,22 +18,24 @@ import utils from '../../core/common/utils';
 class PreferencesContainer extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {pageName:"ADMIN_PREFERENCE",orderCriteria:[{'orderColumn':'ADMIN_PREFERENCE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_PREFERENCE_TABLE_CODE','orderDir':'ASC'}],
-									isAddModalOpen: false, isDeleteModalOpen: false, isFilterModalOpen: false, isDeleteModalOpen: false, selectedId:null, openedItems:null};
-		this.onPageLimitChange = this.onPageLimitChange.bind(this);
+		this.state = {pageName:"ADMIN_PREFERENCE",isDeleteModalOpen: false, errors:null, warns:null, successes:null};
+		this.onListLimitChange = this.onListLimitChange.bind(this);
 		this.onSearchClick = this.onSearchClick.bind(this);
 		this.onSearchChange = this.onSearchChange.bind(this);
 		this.onPaginationClick = this.onPaginationClick.bind(this);
+		this.onOrderBy = this.onOrderBy.bind(this);
 		this.onFilterClick = this.onFilterClick.bind(this);
 		this.onSaveFilter = this.onSaveFilter.bind(this);
 		this.onClearFilter = this.onClearFilter.bind(this);
-		this.onSavePreference = this.onSavePreference.bind(this);
-		this.onDeletePreference = this.onDeletePreference.bind(this);
-		this.onAddModal = this.onAddModal.bind(this);
-		this.onDeleteModal = this.onDeleteModal.bind(this);
-		this.onCloseModal = this.onCloseModal.bind(this);
+		this.onSave = this.onSave.bind(this);
+		this.onDelete = this.onDelete.bind(this);
+		this.onModify = this.onModify.bind(this);
+		this.openDeleteModal = this.openDeleteModal.bind(this);
+		this.closeModal = this.closeModal.bind(this);
 		this.onClickTabItem = this.onClickTabItem.bind(this);
 		this.onToggleItem = this.onToggleItem.bind(this);
+		this.inputChange = this.inputChange.bind(this);
+		this.onCancel = this.onCancel.bind(this);
 	}
 
 	componentDidMount() {
@@ -44,8 +46,7 @@ class PreferencesContainer extends Component {
 		} else if (this.props.history.location.pathname === "/admin-prefadmin") {
 			category = "ADMIN";
 		}
-		let orderCriteria = this.state.orderCriteria;
-		this.props.actions.init(orderCriteria,category);
+		this.props.actions.init(category);
 	}
 	
 	componentDidUpdate() {
@@ -55,30 +56,24 @@ class PreferencesContainer extends Component {
 		
 	}
 
-	onPageLimitChange(fieldName) {
+	onListLimitChange(fieldName) {
 		return (event) => {
 			let value = 20;
 			if (this.props.codeType === 'NATIVE') {
 				value = event.nativeEvent.text;
-				this.setState({[fieldName]:parseInt(event.nativeEvent.text)});
 			} else {
 				value = event.target.value;
-				this.setState({[fieldName]:parseInt(event.target.value)});
 			}
 
-			let pageStart = 0;
 			let pageLimit = parseInt(value);
-//			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onPageLimitChange',msg:"pageLimit " + pageLimit});
-			let searchCriteria = {'searchValue':this.state['ADMIN_PREFERENCE_SEARCH_input'],'searchColumn':'ADMIN_PREFERENCE_TABLE_DESC'};
-			this.props.actions.list(pageStart,pageLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.listLimit({state:this.props.preferences,listLimit});
 		};
 	}
 
 	onPaginationClick(value) {
 		return(event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onPaginationClick',msg:"fieldName "+ value});
-			let pageLimit = utils.getPageLimit(this.props.appPrefs,this.state,'ADMIN_PREFERENCE_PAGELIMIT');
-			let pageStart = 0;
+			let listStart = this.props.preferences.listStart;
 			let segmentValue = 1;
 			let oldValue = 1;
 			if (this.state["ADMIN_PREFERENCE_PAGINATION"] != null && this.state["ADMIN_PREFERENCE_PAGINATION"] != ""){
@@ -91,38 +86,79 @@ class PreferencesContainer extends Component {
 			} else {
 				segmentValue = value;
 			}
-			pageStart = ((segmentValue - 1) * pageLimit);
+			listStart = ((segmentValue - 1) * this.props.preferences.listLimit);
 			this.setState({"ADMIN_PREFERENCE_PAGINATION":segmentValue});
 
-			let searchCriteria = {'searchValue':this.state['ADMIN_PREFERENCE_SEARCH_input'],'searchColumn':'ADMIN_PREFERENCE_TABLE_DESC'};
-			this.props.actions.list(pageStart,pageLimit,searchCriteria,this.state.orderCriteria);
+			this.props.actions.list({state:this.props.preferences,listStart});
 		};
 	}
 
 	onSearchChange(fieldName) {
 		return (event) => {
-			if (this.props.codeType === 'NATIVE') {
-				this.setState({[fieldName]:event.nativeEvent.text});
+			if (event.type === 'keypress' && event.key === 'Enter') {
+				this.searchClick(fieldName,event);
 			} else {
-				this.setState({[fieldName]:event.target.value});
+				if (this.props.codeType === 'NATIVE') {
+					this.setState({[fieldName]:event.nativeEvent.text});
+				} else {
+					this.setState({[fieldName]:event.target.value});
+				}
 			}
 		};
 	}
 
-	onSearchClick(e) {
+	onSearchClick(fieldName) {
 		return (event) => {
-			let fieldName = "";
-			if (this.props.codeType === 'NATIVE') {
-				fieldName = e;
-			} else {
-				event.preventDefault();
-				fieldName = event.target.id;
+			this.searchClick(fieldName,event);
+		};
+	}
+	
+	searchClick(fieldName,event) {
+		let searchCriteria = [];
+		if (fieldName === 'ADMIN_PREFERENCE-SEARCHBY') {
+			if (event != null) {
+				for (let o = 0; o < event.length; o++) {
+					let option = {};
+					option.searchValue = this.state['ADMIN_PREFERENCE-SEARCH'];
+					option.searchColumn = event[o].value;
+					searchCriteria.push(option);
+				}
 			}
-		//	fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onSearchClick',msg:"the state " + JSON.stringify(this.state)});
-			let pageStart = 0;
-			let pageLimit = utils.getPageLimit(this.props.appPrefs,this.state,'ADMIN_PREFERENCE_PAGELIMIT');
-			let searchCriteria = {'searchValue':this.state[fieldName+'_input'],'searchColumn':'ADMIN_PREFERENCE_TABLE_DESC'};
-			this.props.actions.list(pageStart,pageLimit,searchCriteria,this.state.orderCriteria);
+		} else {
+			for (let i = 0; i < this.props.preferences.searchCriteria.length; i++) {
+				let option = {};
+				option.searchValue = this.state['ADMIN_PREFERENCE-SEARCH'];
+				option.searchColumn = this.props.preferences.searchCriteria[i].searchColumn;
+				searchCriteria.push(option);
+			}
+		}
+
+		this.props.actions.search({state:this.props.preferences,searchCriteria});
+	}
+	
+	onOrderBy(selectedOption) {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PreferenceContainer::onOrderBy',msg:"id " + selectedOption});
+			let orderCriteria = [];
+			if (event != null) {
+				for (let o = 0; o < event.length; o++) {
+					let option = {};
+					if (event[o].label.includes("ASC")) {
+						option.orderColumn = event[o].value;
+						option.orderDir = "ASC";
+					} else if (event[o].label.includes("DESC")){
+						option.orderColumn = event[o].value;
+						option.orderDir = "DESC";
+					} else {
+						option.orderColumn = event[o].value;
+					}
+					orderCriteria.push(option);
+				}
+			} else {
+				let option = {orderColumn:"ADMIN_PREFERENCE_TABLE_NAME",orderDir:"ASC"};
+				orderCriteria.push(option);
+			}
+			this.props.actions.orderBy({state:this.props.preferences,orderCriteria});
 		};
 	}
 
@@ -146,41 +182,63 @@ class PreferencesContainer extends Component {
 	}
 
 
-	onSavePreference() {
+	onSave() {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onSavePreference',msg:JSON.stringify(this.state)});
-			this.closeModal();
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onSavePreference',msg:"test"});
+			let errors = utils.validateFormFields(this.props.preferences.appForms.ADMIN_PERFERENCE_FORM, this.props.preferences.inputFields, this.props.appPrefs.appGlobal.LANGUAGES);
+			
+			if (errors.isValid){
+				this.props.actions.savePreference({state:this.props.preferences});
+			} else {
+				this.setState({errors:errors.errorMap});
+			}
 		};
 	}
 
-	onDeletePreference() {
+	onModify(item) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onDeletePreference',msg:JSON.stringify(this.state)});
-			this.closeModal();
+			let id = null;
+			if (item != null && item.id != null) {
+				id = item.id;
+			}
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onModify',msg:"item id "+id});
+			this.props.actions.role(id);
+		};
+	}
+	
+	onDelete(item) {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onDelete',msg:"item id " + item.id});
+			this.setState({isDeleteModalOpen:false});
+			this.props.actions.deleteRole({state:this.props.preferences,id:item.id});
 		};
 	}
 
-	onAddModal() {
+	openDeleteModal(item) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onAddModal',msg:JSON.stringify(this.state)});
-			this.setState({isAddModalOpen:true});
+			this.setState({isDeleteModalOpen:true,selected:item});
 		};
 	}
 
-	onDeleteModal() {
+	closeModal() {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onDeleteModal',msg:JSON.stringify(this.state)});
-			this.setState({isDeleteModalOpen:true});
+			this.setState({isDeleteModalOpen:false,errors:null,warns:null});
 		};
 	}
 
-	onCloseModal() {
+	onCancel() {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onCloseModal',msg:JSON.stringify(this.state)});
-			this.setState({isAddModalOpen:false,isDeleteModalOpen:false,isFilterModalOpen:false,isDeleteModalOpen:false});
+			fuLogger.log({level:'TRACE',loc:'PreferenceContainer::onCancel',msg:"test"});
+			this.props.actions.list({state:this.props.preferences});
 		};
 	}
-
+	
+	inputChange(fieldName,switchValue) {
+		return (event) => {
+			utils.inputChange(this.props,fieldName,switchValue);
+		};
+	}
+	
 	onClickTabItem(itemId,tabId) {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onClickTabItem',msg:JSON.stringify(this.state)});
@@ -206,22 +264,23 @@ class PreferencesContainer extends Component {
       return (
 				<PreferencesView
 				containerState={this.state}
-				preferences={this.props.preferences}
+				items={this.props.preferences}
 				appPrefs={this.props.appPrefs}
-				onPageLimitChange={this.onPageLimitChange}
+				onListLimitChange={this.onListLimitChange}
 				onSearchChange={this.onSearchChange}
 				onSearchClick={this.onSearchClick}
 				onPaginationClick={this.onPaginationClick}
+				onOrderBy={this.onOrderBy}
 				onFilterClick={this.onFilterClick}
 				onSaveFilter={this.onSaveFilter}
 				onClearFilter={this.onClearFilter}
-				onSavePreference={this.onSavePreference}
-				onDeletePreference={this.onDeletePreference}
-				onAddModal={this.onAddModal}
-				onDeleteModal={this.onDeleteModal}
-				onCloseModal={this.onCloseModal}
+				onDelete={this.onDelete}
+				onModify={this.onModify}
+				openDeleteModal={this.openDeleteModal}
+				closeModal={this.closeModal}
 				onClickTabItem={this.onClickTabItem}
-				onToggleItem={this.onToggleItem}/>
+				onToggleItem={this.onToggleItem}
+				inputChange={this.inputChange}/>
 			);
 		} else {
 			return (<div> Loading </div>);
