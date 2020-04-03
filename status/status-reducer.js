@@ -17,10 +17,10 @@ export default function languagesReducer(state = {}, action) {
 const processInit = (state,action) => {
 	if (action.responseJson != null && action.responseJson.params != null) {
 		return Object.assign({}, state, {
-			appForms: Object.assign({}, state.appForms, reducerUtils.getAppForms(action)),
-			appTexts: Object.assign({}, state.appTexts, reducerUtils.getAppTexts(action)),
-			appLabels: Object.assign({}, state.appLabels, reducerUtils.getAppLabels(action)),
-			appOptions: Object.assign({}, state.appOptions, reducerUtils.getAppOptions(action)),
+			prefForms: Object.assign({}, state.prefForms, reducerUtils.getPrefForms(action)),
+			prefTexts: Object.assign({}, state.prefTexts, reducerUtils.getPrefTexts(action)),
+			prefLabels: Object.assign({}, state.prefLabels, reducerUtils.getPrefLabels(action)),
+			prefOptions: Object.assign({}, state.prefOptions, reducerUtils.getPrefOptions(action)),
 			columns: reducerUtils.getColumns(action),
 			itemCount: reducerUtils.getItemCount(action),
 			items: reducerUtils.getItems(action),

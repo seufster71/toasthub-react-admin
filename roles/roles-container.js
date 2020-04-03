@@ -1,6 +1,18 @@
 /*
-* Author Edward Seufert
-*/
+ * Copyright (C) 2016 The ToastHub Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 'use-strict';
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
@@ -153,7 +165,7 @@ class RolesContainer extends Component {
 	onSave() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'RoleContainer::onSave',msg:"test"});
-			let errors = utils.validateFormFields(this.props.roles.appForms.ADMIN_ROLE_FORM, this.props.roles.inputFields, this.props.appPrefs.appGlobal.LANGUAGES);
+			let errors = utils.validateFormFields(this.props.roles.prefForms.ADMIN_ROLE_FORM, this.props.roles.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
 			
 			if (errors.isValid){
 				this.props.actions.saveRole({state:this.props.roles});
@@ -228,7 +240,7 @@ class RolesContainer extends Component {
 	onUserRoleSave() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'RoleContainer::onUserRoleSave',msg:"test"});
-			let errors = utils.validateFormFields(this.props.roles.appForms.ADMIN_USER_ROLE_FORM,this.props.roles.inputFields, this.props.appPrefs.appGlobal.LANGUAGES);
+			let errors = utils.validateFormFields(this.props.roles.prefForms.ADMIN_USER_ROLE_FORM,this.props.roles.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
 			
 			if (errors.isValid){
 				let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_NAME'};
@@ -255,7 +267,7 @@ class RolesContainer extends Component {
 				item={this.props.roles.selected}
 				inputFields={this.props.roles.inputFields}
 				appPrefs={this.props.appPrefs}
-				itemAppForms={this.props.roles.appForms}
+				itemPrefForms={this.props.roles.prefForms}
 				onSave={this.onSave}
 				onCancel={this.onCancel}
 				onReturn={this.onCancel}
@@ -269,7 +281,7 @@ class RolesContainer extends Component {
 				item={this.props.roles.selected}
 				inputFields={this.props.roles.inputFields}
 				appPrefs={this.props.appPrefs}
-				itemAppForms={this.props.roles.appForms}
+				itemPrefForms={this.props.roles.prefForms}
 				onSave={this.onUserRoleSave}
 				onCancel={this.onCancel}
 				onReturn={this.onCancel}
@@ -279,7 +291,7 @@ class RolesContainer extends Component {
 			return (
 				<RolesView 
 				containerState={this.state}
-				items={this.props.roles}
+				rolesState={this.props.roles}
 				appPrefs={this.props.appPrefs}
 				onListLimitChange={this.onListLimitChange}
 				onSearchChange={this.onSearchChange}

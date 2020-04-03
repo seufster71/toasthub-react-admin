@@ -52,7 +52,6 @@ UserMgmtContainer.propTypes = {
 	appMenus: PropTypes.object,
 	appPrefs: PropTypes.object,
 	lang: PropTypes.string,
-	appGlobal: PropTypes.object,
 	actions: PropTypes.object,
 	history: PropTypes.object
 };

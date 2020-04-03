@@ -32,7 +32,6 @@ class ChangeRequestsContainer extends Component {
 ChangeRequestsContainer.propTypes = {
 	appPrefs: PropTypes.object,
 	lang: PropTypes.string,
-	appGlobal: PropTypes.object,
 	actions: PropTypes.object
 };
 

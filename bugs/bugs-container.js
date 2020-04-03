@@ -37,7 +37,6 @@ class BugsContainer extends Component {
 BugsContainer.propTypes = {
 	appPrefs: PropTypes.object,
 	lang: PropTypes.string,
-	appGlobal: PropTypes.object,
 	actions: PropTypes.object,
 	bugs: PropTypes.object
 };

@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2016 The ToastHub Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import reducerUtils from '../../core/common/reducer-utils';
 
 export default function permissionsReducer(state = {}, action) {
@@ -6,9 +21,9 @@ export default function permissionsReducer(state = {}, action) {
     	case 'LOAD_INIT_PERMISSIONS': {
     		if (action.responseJson != null && action.responseJson.params != null) {
     			return Object.assign({}, state, {
-    				appTexts: Object.assign({}, state.appTexts, reducerUtils.getAppTexts(action)),
-    				appLabels: Object.assign({}, state.appLabels, reducerUtils.getAppLabels(action)),
-    				appOptions: Object.assign({}, state.appOptions, reducerUtils.getAppOptions(action)),
+    				prefTexts: Object.assign({}, state.prefTexts, reducerUtils.getPrefTexts(action)),
+    				prefLabels: Object.assign({}, state.prefLabels, reducerUtils.getPrefLabels(action)),
+    				prefOptions: Object.assign({}, state.prefOptions, reducerUtils.getPrefOptions(action)),
     				columns: reducerUtils.getColumns(action),
     				itemCount: reducerUtils.getItemCount(action),
     				items: reducerUtils.getItems(action),
@@ -43,28 +58,28 @@ export default function permissionsReducer(state = {}, action) {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
-				let appForms = reducerUtils.getAppForms(action);
-				for (let i = 0; i < appForms.ADMIN_PERMISSION_FORM.length; i++) {
-					let classModel = JSON.parse(appForms.ADMIN_PERMISSION_FORM[i].classModel);
+				let prefForms = reducerUtils.getPrefForms(action);
+				for (let i = 0; i < prefForms.ADMIN_PERMISSION_FORM.length; i++) {
+					let classModel = JSON.parse(prefForms.ADMIN_PERMISSION_FORM[i].classModel);
 					if (action.responseJson.params.item != null && action.responseJson.params.item.hasOwnProperty(classModel.field)) {
 						if (classModel.defaultClazz != null) {
-							inputFields[appForms.ADMIN_PERMISSION_FORM[i].name+"-DEFAULT"] = action.responseJson.params.item[classModel.field].defaultText;
+							inputFields[prefForms.ADMIN_PERMISSION_FORM[i].name+"-DEFAULT"] = action.responseJson.params.item[classModel.field].defaultText;
 						}
 						if (classModel.textClazz != null) {
 							for (let j = 0; j < action.responseJson.params.item[classModel.field].langTexts.length; j++) {
-								inputFields[appForms.ADMIN_PERMISSION_FORM[i].name+"-TEXT-"+action.responseJson.params.item[classModel.field].langTexts[j].lang] = action.responseJson.params.item[classModel.field].langTexts[j].text;
+								inputFields[prefForms.ADMIN_PERMISSION_FORM[i].name+"-TEXT-"+action.responseJson.params.item[classModel.field].langTexts[j].lang] = action.responseJson.params.item[classModel.field].langTexts[j].text;
 							}
 						}
 						if (classModel.type == "Object") {
-							inputFields[appForms.ADMIN_PERMISSION_FORM[i].name] = "Object";
+							inputFields[prefForms.ADMIN_PERMISSION_FORM[i].name] = "Object";
 						} else {
-							inputFields[appForms.ADMIN_PERMISSION_FORM[i].name] = action.responseJson.params.item[classModel.field];
+							inputFields[prefForms.ADMIN_PERMISSION_FORM[i].name] = action.responseJson.params.item[classModel.field];
 						}
 					} else {
 						let result = "";
-						if (appForms.ADMIN_PERMISSION_FORM[i].value != null && appForms.ADMIN_PERMISSION_FORM[i].value != ""){
-							if (appForms.ADMIN_PERMISSION_FORM[i].value.includes("{")) {
-								let formValue = JSON.parse(appForms.ADMIN_PERMISSION_FORM[i].value);
+						if (prefForms.ADMIN_PERMISSION_FORM[i].value != null && prefForms.ADMIN_PERMISSION_FORM[i].value != ""){
+							if (prefForms.ADMIN_PERMISSION_FORM[i].value.includes("{")) {
+								let formValue = JSON.parse(prefForms.ADMIN_PERMISSION_FORM[i].value);
 								if (formValue.options != null) {
 									for (let j = 0; j < formValue.options.length; j++) {
 										if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
@@ -73,10 +88,10 @@ export default function permissionsReducer(state = {}, action) {
 									}
 								}
 							} else {
-								result = appForms.ADMIN_PERMISSION_FORM[i].value;
+								result = prefForms.ADMIN_PERMISSION_FORM[i].value;
 							}
 						}
-						inputFields[appForms.ADMIN_PERMISSION_FORM[i].name] = result;
+						inputFields[prefForms.ADMIN_PERMISSION_FORM[i].name] = result;
 					}
 				}
 				// add id if this is existing item
@@ -84,7 +99,7 @@ export default function permissionsReducer(state = {}, action) {
 					inputFields.itemId = action.responseJson.params.item.id;
 				}
 				return Object.assign({}, state, {
-					appForms: Object.assign({}, state.appForms, reducerUtils.getAppForms(action)),
+					prefForms: Object.assign({}, state.prefForms, reducerUtils.getPrefForms(action)),
 					selected : action.responseJson.params.item,
 					inputFields : inputFields,
 					applicationSelectList : action.responseJson.params.applicationSelectList,
@@ -123,28 +138,28 @@ export default function permissionsReducer(state = {}, action) {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
-				let appForms = reducerUtils.getAppForms(action);
-				for (let i = 0; i < appForms.ADMIN_ROLE_PERMISSION_FORM.length; i++) {
-					let classModel = JSON.parse(appForms.ADMIN_ROLE_PERMISSION_FORM[i].classModel);
+				let prefForms = reducerUtils.getPrefForms(action);
+				for (let i = 0; i < prefForms.ADMIN_ROLE_PERMISSION_FORM.length; i++) {
+					let classModel = JSON.parse(prefForms.ADMIN_ROLE_PERMISSION_FORM[i].classModel);
 					if (action.responseJson.params.item != null && action.responseJson.params.item.hasOwnProperty(classModel.field)) {
 						if (classModel.defaultClazz != null) {
-							inputFields[appForms.ADMIN_ROLE_PERMISSION_FORM[i].name+"-DEFAULT"] = action.responseJson.params.item[classModel.field].defaultText;
+							inputFields[prefForms.ADMIN_ROLE_PERMISSION_FORM[i].name+"-DEFAULT"] = action.responseJson.params.item[classModel.field].defaultText;
 						}
 						if (classModel.textClazz != null) {
 							for (let j = 0; j < action.responseJson.params.item[classModel.field].langTexts.length; j++) {
-								inputFields[appForms.ADMIN_ROLE_PERMISSION_FORM[i].name+"-TEXT-"+action.responseJson.params.item[classModel.field].langTexts[j].lang] = action.responseJson.params.item[classModel.field].langTexts[j].text;
+								inputFields[prefForms.ADMIN_ROLE_PERMISSION_FORM[i].name+"-TEXT-"+action.responseJson.params.item[classModel.field].langTexts[j].lang] = action.responseJson.params.item[classModel.field].langTexts[j].text;
 							}
 						}
 						if (classModel.type == "Object") {
-							inputFields[appForms.ADMIN_ROLE_PERMISSION_FORM[i].name] = "Object";
+							inputFields[prefForms.ADMIN_ROLE_PERMISSION_FORM[i].name] = "Object";
 						} else {
-							inputFields[appForms.ADMIN_ROLE_PERMISSION_FORM[i].name] = action.responseJson.params.item[classModel.field];
+							inputFields[prefForms.ADMIN_ROLE_PERMISSION_FORM[i].name] = action.responseJson.params.item[classModel.field];
 						}
 					} else {
 						let result = "";
-						if (appForms.ADMIN_ROLE_PERMISSION_FORM[i].value != null && appForms.ADMIN_ROLE_PERMISSION_FORM[i].value != ""){
-							if (appForms.ADMIN_ROLE_PERMISSION_FORM[i].value.includes("{")) {
-								let formValue = JSON.parse(appForms.ADMIN_ROLE_PERMISSION_FORM[i].value);
+						if (prefForms.ADMIN_ROLE_PERMISSION_FORM[i].value != null && prefForms.ADMIN_ROLE_PERMISSION_FORM[i].value != ""){
+							if (prefForms.ADMIN_ROLE_PERMISSION_FORM[i].value.includes("{")) {
+								let formValue = JSON.parse(prefForms.ADMIN_ROLE_PERMISSION_FORM[i].value);
 								if (formValue.options != null) {
 									for (let j = 0; j < formValue.options.length; j++) {
 										if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
@@ -153,10 +168,10 @@ export default function permissionsReducer(state = {}, action) {
 									}
 								}
 							} else {
-								result = appForms.ADMIN_ROLE_PERMISSION_FORM[i].value;
+								result = prefForms.ADMIN_ROLE_PERMISSION_FORM[i].value;
 							}
 						}
-						inputFields[appForms.ADMIN_ROLE_PERMISSION_FORM[i].name] = result;
+						inputFields[prefForms.ADMIN_ROLE_PERMISSION_FORM[i].name] = result;
 					}
 				}
 				// add id if this is existing item
@@ -166,7 +181,7 @@ export default function permissionsReducer(state = {}, action) {
 					action.responseJson.params.item = {permissionId:action.responseJson.params.permissionId};
 				}
 				return Object.assign({}, state, {
-					appForms: Object.assign({}, state.appForms, reducerUtils.getAppForms(action)),
+					prefForms: Object.assign({}, state.prefForms, reducerUtils.getPrefForms(action)),
 					selected : action.responseJson.params.item,
 					inputFields : inputFields,
 					isRolePermissionOpen: true

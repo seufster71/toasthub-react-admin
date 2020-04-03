@@ -112,7 +112,7 @@ class CategoryContainer extends Component {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'CategoryContainer::onSaveCategory',msg:"test"});
 
-			let errors = utils.validateFormFields(this.props.users.appForms.ADMIN_USER_FORM,this.props.users.inputFields);
+			let errors = utils.validateFormFields(this.props.users.prefForms.ADMIN_USER_FORM,this.props.users.inputFields);
 			
 			if (errors.isValid){
 				let searchCriteria = {'searchValue':this.state['CATEGORY_SEARCH_input'],'searchColumn':'CATEGORY_TABLE_NAME'};
@@ -167,7 +167,7 @@ class CategoryContainer extends Component {
 				category={this.props.category.selected}
 				inputFields={this.props.category.inputFields}
 				appPrefs={this.props.appPrefs}
-				userAppForms={this.props.category.appForms}
+				prefForms={this.props.category.prefForms}
 				onSave={this.onSave}
 				onCancel={this.onCancel}
 				inputChange={this.inputChange}
@@ -200,7 +200,6 @@ class CategoryContainer extends Component {
 
 CategoryContainer.propTypes = {
 	appPrefs: PropTypes.object,
-	appGlobal: PropTypes.object,
 	actions: PropTypes.object,
 	category: PropTypes.object
 };

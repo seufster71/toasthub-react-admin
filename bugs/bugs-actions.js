@@ -10,9 +10,9 @@ export function initBugs() {
     let requestParams = {};
     requestParams.action = "INIT";
     requestParams.service = "BUGS_SVC";
-    requestParams.appForms = new Array("ADMIN_BUGS_FORM");
-    requestParams.appTexts = new Array("ADMIN_BUGS_PAGE");
-    requestParams.appLabels = new Array("ADMIN_BUGS_TABLE");
+    requestParams.prefForms = new Array("ADMIN_BUGS_PAGE");
+    requestParams.prefTexts = new Array("ADMIN_BUGS_PAGE");
+    requestParams.prefLabels = new Array("ADMIN_BUGS_PAGE");
     let params = {};
     params.requestParams = requestParams;
     params.URI = '/api/admin/callService';

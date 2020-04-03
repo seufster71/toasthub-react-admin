@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2016 The ToastHub Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import callService from '../../core/api/api-call';
 import actionUtils from '../../core/common/action-utils';
 
@@ -8,20 +24,22 @@ import actionUtils from '../../core/common/action-utils';
 // thunks
 export function init(category) {
 	return function(dispatch) {
+		let orderCriteria = [{'orderColumn':'ADMIN_PREFERENCE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_PREFERENCE_TABLE_TITLE','orderDir':'ASC'}];
+		let searchCriteria = [{'searchValue':'','searchColumn':'ADMIN_PREFERENCE_TABLE_TITLE'}];
 		let requestParams = {};
-	    requestParams.action = "INIT";
+	    requestParams.action = "LIST";
 	    requestParams.service = "APPPAGE_SVC";
-	    requestParams.appForms = new Array("ADMIN_PREFERENCE_FORM");
-	    requestParams.appTexts = new Array("ADMIN_PREFERENCE_PAGE");
-	    requestParams.appLabels = new Array("ADMIN_PREFERENCE_TABLE");
-	    requestParams.category = category;
+	    requestParams.prefForms = new Array("ADMIN_PREFERENCE_PAGE");
+	    requestParams.prefTexts = new Array("ADMIN_PREFERENCE_PAGE");
+	    requestParams.prefLabels = new Array("ADMIN_PREFERENCE_PAGE");
+	    requestParams.orderCriteria = orderCriteria;
 	    let params = {};
 	    params.requestParams = requestParams;
 	    params.URI = '/api/admin/callService';
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: "LOAD_INIT_PREFERENCE", responseJson });
+	    		dispatch({ type: "LOAD_INIT_PREFERENCE", responseJson, orderCriteria, searchCriteria });
 	    	} else {
 				actionUtils.checkConnectivity(responseJson,dispatch);
 			}
@@ -96,7 +114,7 @@ export function savePreference({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
-	    requestParams.service = "PREFERENCES_SVC";
+	    requestParams.service = "APPPAGE_SVC";
 	    requestParams.inputFields = state.inputFields;
 
 	    let params = {};
@@ -124,7 +142,7 @@ export function deletePreference({state,id}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
-	    requestParams.service = "PREFERENCES_SVC";
+	    requestParams.service = "APPPAGE_SVC";
 	    requestParams.itemId = id;
 	    
 	    let params = {};
@@ -151,8 +169,8 @@ export function preference(id) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
-	    requestParams.service = "PREFERENCES_SVC";
-	    requestParams.appForms = new Array("ADMIN_PREFERENCE_FORM");
+	    requestParams.service = "APPPAGE_SVC";
+	    requestParams.prefForms = new Array("ADMIN_PREFERENCE_PAGE");
 	    if (id != null) {
 	    	requestParams.itemId = id;
 	    }
@@ -193,4 +211,54 @@ export function clearPreference() {
 	return function(dispatch) {
 		dispatch({ type:"PREFERENCES_CLEAR_PREFERENCE"});
 	};
+}
+
+export function goBack() {
+	 return function(dispatch) {
+		 dispatch({ type:"PREFERENCES_GOBACK"});
+	 };
+}
+
+export function openSubView({item,viewType}) {
+	 return function(dispatch) {
+		 let requestParams = {};
+		    requestParams.action = "LIST";
+		    if (viewType === "FORM") {
+		    	requestParams.service = "PREF_FORMFIELD_SVC";
+		    	requestParams.prefTexts = new Array("ADMIN_FORMFIELD_PAGE");
+		    	requestParams.prefLabels = new Array("ADMIN_FORMFIELD_PAGE");
+		    } else if (viewType === "LABEL") {
+		    	requestParams.service = "PREF_LABEL_SVC";
+		    	requestParams.prefTexts = new Array("ADMIN_LABEL_PAGE");
+		    	requestParams.prefLabels = new Array("ADMIN_LABEL_PAGE");
+		    } else if (viewType === "TEXT") {
+		    	requestParams.service = "PREF_TEXT_SVC";
+		    	requestParams.prefTexts = new Array("ADMIN_TEXT_PAGE");
+		    	requestParams.prefLabels = new Array("ADMIN_TEXT_PAGE");
+		    } else if (viewType === "OPTION") {
+		    	requestParams.service = "PREF_OPTION_SVC";
+		    	requestParams.prefTexts = new Array("ADMIN_OPTION_PAGE");
+		    	requestParams.prefLabels = new Array("ADMIN_OPTION_PAGE");
+		    }
+		    requestParams.parentId = item.id;
+
+		    let params = {};
+		    params.requestParams = requestParams;
+		    params.URI = '/api/admin/callService';
+
+		    return callService(params).then( (responseJson) => {
+		    	if (responseJson != null && responseJson.protocalError == null){
+		    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
+		    			dispatch({ type: 'PREFERENCE_SUBVIEW_LIST',responseJson, item, viewType});
+		    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
+		    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
+		    		}
+		    	} else {
+		    		actionUtils.checkConnectivity(responseJson,dispatch);
+		    	}
+		    }).catch(error => {
+		    	throw(error);
+		    });
+		 dispatch({ type:"PREFERENCES_TOGGLE_ITEM",itemId});
+	 };
 }

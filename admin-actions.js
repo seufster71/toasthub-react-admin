@@ -8,7 +8,7 @@ export function initAdmin() {
       let requestParams = {};
       requestParams.action = "INIT";
       requestParams.service = "ADMIN_SVC";
-      requestParams.appTexts = new Array("ADMIN_PAGE");
+      requestParams.prefTexts = new Array("ADMIN_PAGE");
       requestParams.menuNames = new Array("ADMIN_MENU_TOP");
       let params = {};
       params.requestParams = requestParams;

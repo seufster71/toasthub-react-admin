@@ -1,6 +1,18 @@
 /*
-* Author Edward Seufert
-*/
+ * Copyright (C) 2016 The ToastHub Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 'use-strict';
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
@@ -146,7 +158,7 @@ class LanguageContainer extends Component {
 	onSave() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'LanguageContainer::onSave',msg:"test"});
-			let errors = utils.validateFormFields(this.props.languages.appForms.ADMIN_LANGUAGE_FORM, this.props.languages.inputFields, this.props.appPrefs.appGlobal.LANGUAGES);
+			let errors = utils.validateFormFields(this.props.languages.perfForms.ADMIN_LANGUAGE_FORM, this.props.languages.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
 			
 			if (errors.isValid){
 				this.props.actions.saveLanguage({state:this.props.languages});
@@ -211,7 +223,7 @@ class LanguageContainer extends Component {
 				item={this.props.languages.selected}
 				inputFields={this.props.languages.inputFields}
 				appPrefs={this.props.appPrefs}
-				itemAppForms={this.props.languages.appForms}
+				itemPrefForms={this.props.languages.prefForms}
 				onSave={this.onSave}
 				onCancel={this.onCancel}
 				onReturn={this.onCancel}

@@ -1,6 +1,18 @@
 /*
-* Author Edward Seufert
-*/
+ * Copyright (C) 2016 The ToastHub Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 'use-strict';
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
@@ -147,7 +159,7 @@ class UsersContainer extends Component {
 	onSave() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'UsersContainer::onSave',msg:"test"});
-			let errors = utils.validateFormFields(this.props.users.appForms.ADMIN_USER_FORM,this.props.users.inputFields);
+			let errors = utils.validateFormFields(this.props.users.prefForms.ADMIN_USER_FORM,this.props.users.inputFields);
 			
 			if (errors.isValid){
 				this.props.actions.saveUser({state:this.props.users});
@@ -271,7 +283,7 @@ class UsersContainer extends Component {
 				item={this.props.users.selected}
 				inputFields={this.props.users.inputFields}
 				appPrefs={this.props.appPrefs}
-				userAppForms={this.props.users.appForms}
+				itemPrefForms={this.props.users.prefForms}
 				onSave={this.onSave}
 				onCancel={this.onCancel}
 				onReturn={this.onCancel}
@@ -306,9 +318,9 @@ class UsersContainer extends Component {
 
 UsersContainer.propTypes = {
 	appPrefs: PropTypes.object,
-	appGlobal: PropTypes.object,
 	actions: PropTypes.object,
-	users: PropTypes.object
+	users: PropTypes.object,
+	session: PropTypes.object
 };
 
 function mapStateToProps(state, ownProps) {

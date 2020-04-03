@@ -1,6 +1,18 @@
 /*
-* Author Edward Seufert
-*/
+ * Copyright (C) 2016 The ToastHub Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 'use-strict';
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
@@ -10,6 +22,8 @@ import {withRouter} from "react-router";
 import * as preferencesActions from './preferences-actions';
 import fuLogger from '../../core/common/fu-logger';
 import PreferencesView from '../../adminView/preferences/preferences-view';
+import PreferenceSubView from '../../adminView/preferences/preference-subview';
+import PreferenceModifyView from '../../adminView/preferences/preference-modify-view';
 import utils from '../../core/common/utils';
 
 /*
@@ -32,28 +46,18 @@ class PreferencesContainer extends Component {
 		this.onModify = this.onModify.bind(this);
 		this.openDeleteModal = this.openDeleteModal.bind(this);
 		this.closeModal = this.closeModal.bind(this);
-		this.onClickTabItem = this.onClickTabItem.bind(this);
-		this.onToggleItem = this.onToggleItem.bind(this);
+		this.openFormView = this.openFormView.bind(this);
+		this.openLabelView = this.openLabelView.bind(this);
+		this.openTextView = this.openTextView.bind(this);
+		this.openOptionView = this.openOptionView.bind(this);
 		this.inputChange = this.inputChange.bind(this);
 		this.onCancel = this.onCancel.bind(this);
+		this.goBack = this.goBack.bind(this);
 	}
 
 	componentDidMount() {
 		fuLogger.log({level:'TRACE',loc:'PreferenceContainer::componentDidMount',msg:"path "+ this.props.history.location.pathname });
-		let category = "PUBLIC";
-		if (this.props.history.location.pathname === "/admin-prefmember") {
-			category = "MEMBER";
-		} else if (this.props.history.location.pathname === "/admin-prefadmin") {
-			category = "ADMIN";
-		}
-		this.props.actions.init(category);
-	}
-	
-	componentDidUpdate() {
-		fuLogger.log({level:'TRACE',loc:'PreferenceContainer::componentDidUpdate',msg:"path "+ this.props.history.location.pathname});
-		// check to see if category has changed if so reload.
-		
-		
+		this.props.actions.init();
 	}
 
 	onListLimitChange(fieldName) {
@@ -185,7 +189,7 @@ class PreferencesContainer extends Component {
 	onSave() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onSavePreference',msg:"test"});
-			let errors = utils.validateFormFields(this.props.preferences.appForms.ADMIN_PERFERENCE_FORM, this.props.preferences.inputFields, this.props.appPrefs.appGlobal.LANGUAGES);
+			let errors = utils.validateFormFields(this.props.preferences.prefForms.ADMIN_PERFERENCE_FORM, this.props.preferences.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
 			
 			if (errors.isValid){
 				this.props.actions.savePreference({state:this.props.preferences});
@@ -202,7 +206,7 @@ class PreferencesContainer extends Component {
 				id = item.id;
 			}
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onModify',msg:"item id "+id});
-			this.props.actions.role(id);
+			this.props.actions.preference(id);
 		};
 	}
 	
@@ -239,32 +243,62 @@ class PreferencesContainer extends Component {
 		};
 	}
 	
-	onClickTabItem(itemId,tabId) {
+	openFormView(item) {
 		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onClickTabItem',msg:JSON.stringify(this.state)});
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openFormView',msg:"id "+item.id});
+			this.props.actions.openSubView({item,viewType:"FORM"});
 		};
 	}
-
-	onToggleItem(itemId) {
+	
+	openLabelView(item) {
 		return (event) => {
-			if (this.state.openedItems != null && this.state.openedItems[itemId] != null) {
-				let openedItems = {...this.state.openedItems};
-				delete openedItems[itemId];
-				this.setState({openedItems});
-			} else {
-				this.setState({openedItems:{ ...this.state.openedItems,[itemId]:{activeTab:"Fields"}}});
-			}
-			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onToggleItem',msg:JSON.stringify(this.state)});
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openLabelView',msg:"id "+item.id});
+			this.props.actions.openSubView({item,viewType:"LABEL"});
 		};
+	}
+	
+	openTextView(item) {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openTextView',msg:"id "+item.id});
+			this.props.actions.openSubView({item,viewType:"TEXT"});
+		};
+	}
+	
+	openOptionView(item) {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openOptionView',msg:"id "+item.id});
+			this.props.actions.openSubView({item,viewType:"OPTION"});
+		};
+	}
+	
+	goBack() {
+		return (event) => {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::goBack',msg:"test"});
+			this.props.actions.goBack();
+		}
 	}
 
   render() {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"test " + JSON.stringify(this.state)});
-		if (this.props.preferences.items != null) {
-      return (
-				<PreferencesView
+		if (this.props.preferences.isModifyOpen) {
+			return (
+				<PreferenceModifyView
 				containerState={this.state}
-				items={this.props.preferences}
+				item={this.props.preferences.selected}
+				inputFields={this.props.preferences.inputFields}
+				appPrefs={this.props.appPrefs}
+				itemPrefForms={this.props.preferences.prefForms}
+				onSave={this.onSave}
+				onCancel={this.onCancel}
+				onReturn={this.onCancel}
+				inputChange={this.inputChange}
+				/>
+			);
+		} else if (this.props.preferences.isSubViewOpen) {
+			return (
+				<PreferenceSubView
+				containerState={this.state}
+				preferenceState={this.props.preferenceSubView}
 				appPrefs={this.props.appPrefs}
 				onListLimitChange={this.onListLimitChange}
 				onSearchChange={this.onSearchChange}
@@ -278,9 +312,34 @@ class PreferencesContainer extends Component {
 				onModify={this.onModify}
 				openDeleteModal={this.openDeleteModal}
 				closeModal={this.closeModal}
-				onClickTabItem={this.onClickTabItem}
-				onToggleItem={this.onToggleItem}
-				inputChange={this.inputChange}/>
+				inputChange={this.inputChange}
+				goBack={this.goBack}
+				session={this.props.session}/>
+				);
+		} else if (this.props.preferences.items != null) {
+			return (
+				<PreferencesView
+				containerState={this.state}
+				preferenceState={this.props.preferences}
+				appPrefs={this.props.appPrefs}
+				onListLimitChange={this.onListLimitChange}
+				onSearchChange={this.onSearchChange}
+				onSearchClick={this.onSearchClick}
+				onPaginationClick={this.onPaginationClick}
+				onOrderBy={this.onOrderBy}
+				onFilterClick={this.onFilterClick}
+				onSaveFilter={this.onSaveFilter}
+				onClearFilter={this.onClearFilter}
+				onDelete={this.onDelete}
+				onModify={this.onModify}
+				openDeleteModal={this.openDeleteModal}
+				closeModal={this.closeModal}
+				inputChange={this.inputChange}
+				openFormView={this.openFormView}
+				openLabelView={this.openLabelView}
+				openTextView={this.openTextView}
+				openOptionView={this.openOptionView}
+				session={this.props.session}/>
 			);
 		} else {
 			return (<div> Loading </div>);
@@ -290,14 +349,13 @@ class PreferencesContainer extends Component {
 
 PreferencesContainer.propTypes = {
 	appPrefs: PropTypes.object,
-	appGlobal: PropTypes.object,
 	actions: PropTypes.object,
 	codeType: PropTypes.string,
 	preferences: PropTypes.object
 };
 
 function mapStateToProps(state, ownProps) {
-  return {appPrefs:state.appPrefs, preferences:state.preferences};
+  return {appPrefs:state.appPrefs, preferences:state.preferences, session:state.session, preferenceSubView:state.preferenceSubView};
 }
 
 function mapDispatchToProps(dispatch) {

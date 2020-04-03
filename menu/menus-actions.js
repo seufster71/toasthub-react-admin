@@ -11,9 +11,9 @@ export function init() {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "MENU_SVC";
-		requestParams.appForms = new Array("ADMIN_MENU_FORM");
-		requestParams.appTexts = new Array("ADMIN_MENU_PAGE");
-		requestParams.appLabels = new Array("ADMIN_MENU_TABLE");
+		requestParams.prefForms = new Array("ADMIN_MENU_PAGE");
+		requestParams.prefTexts = new Array("ADMIN_MENU_PAGE");
+		requestParams.prefLabels = new Array("ADMIN_MENU_PAGE");
 		requestParams.category = "MEMBER";
 		let params = {};
 		params.requestParams = requestParams;

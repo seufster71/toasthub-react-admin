@@ -32,7 +32,6 @@ class SystemContainer extends Component {
 SystemContainer.propTypes = {
 	appPrefs: PropTypes.object,
 	lang: PropTypes.string,
-	appGlobal: PropTypes.object,
 	actions: PropTypes.object
 };
 
