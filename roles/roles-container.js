@@ -165,7 +165,7 @@ class RolesContainer extends Component {
 	onSave() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'RoleContainer::onSave',msg:"test"});
-			let errors = utils.validateFormFields(this.props.roles.prefForms.ADMIN_ROLE_FORM, this.props.roles.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
+			let errors = utils.validateFormFields(this.props.roles.prefForms.ADMIN_ROLE_PAGE, this.props.roles.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
 			
 			if (errors.isValid){
 				this.props.actions.saveRole({state:this.props.roles});

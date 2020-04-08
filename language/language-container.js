@@ -158,7 +158,7 @@ class LanguageContainer extends Component {
 	onSave() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'LanguageContainer::onSave',msg:"test"});
-			let errors = utils.validateFormFields(this.props.languages.perfForms.ADMIN_LANGUAGE_FORM, this.props.languages.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
+			let errors = utils.validateFormFields(this.props.languages.perfForms.ADMIN_LANGUAGE_PAGE, this.props.languages.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
 			
 			if (errors.isValid){
 				this.props.actions.saveLanguage({state:this.props.languages});

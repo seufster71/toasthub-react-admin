@@ -162,7 +162,11 @@ class PreferencesContainer extends Component {
 				let option = {orderColumn:"ADMIN_PREFERENCE_TABLE_NAME",orderDir:"ASC"};
 				orderCriteria.push(option);
 			}
-			this.props.actions.orderBy({state:this.props.preferences,orderCriteria});
+			if (this.props.preferenceSubView.viewType != null) {
+				this.props.actions.orderBy({state:this.props.preferences,orderCriteria,viewType:this.props.preferenceSubView.viewType});
+			} else {
+				this.props.actions.orderBy({state:this.props.preferences,orderCriteria});
+			}
 		};
 	}
 
@@ -189,7 +193,7 @@ class PreferencesContainer extends Component {
 	onSave() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onSavePreference',msg:"test"});
-			let errors = utils.validateFormFields(this.props.preferences.prefForms.ADMIN_PERFERENCE_FORM, this.props.preferences.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
+			let errors = utils.validateFormFields(this.props.preferences.prefForms.ADMIN_PREFERENCE_PAGE, this.props.preferences.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES, "FORM1");
 			
 			if (errors.isValid){
 				this.props.actions.savePreference({state:this.props.preferences});
@@ -206,7 +210,12 @@ class PreferencesContainer extends Component {
 				id = item.id;
 			}
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onModify',msg:"item id "+id});
-			this.props.actions.preference(id);
+			let viewType = null;
+			if (this.props.preferences.isSubViewOpen && this.props.preferenceSubView != null) {
+				viewType = this.props.preferenceSubView.viewType;
+			}
+			this.props.actions.preference({id,viewType});
+			
 		};
 	}
 	
@@ -214,7 +223,7 @@ class PreferencesContainer extends Component {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onDelete',msg:"item id " + item.id});
 			this.setState({isDeleteModalOpen:false});
-			this.props.actions.deleteRole({state:this.props.preferences,id:item.id});
+			this.props.actions.deletePreference({state:this.props.preferences,id:item.id});
 		};
 	}
 
@@ -233,7 +242,11 @@ class PreferencesContainer extends Component {
 	onCancel() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferenceContainer::onCancel',msg:"test"});
-			this.props.actions.list({state:this.props.preferences});
+			if (this.props.preferenceSubView.viewType != null) {
+				this.props.actions.list({state:this.props.preferences,viewType:this.props.preferenceSubView.viewType});
+			} else {
+				this.props.actions.list({state:this.props.preferences});
+			}
 		};
 	}
 	
@@ -246,28 +259,28 @@ class PreferencesContainer extends Component {
 	openFormView(item) {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openFormView',msg:"id "+item.id});
-			this.props.actions.openSubView({item,viewType:"FORM"});
+			this.props.actions.list({state:this.props.preferences,item,viewType:"FORM"});
 		};
 	}
 	
 	openLabelView(item) {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openLabelView',msg:"id "+item.id});
-			this.props.actions.openSubView({item,viewType:"LABEL"});
+			this.props.actions.list({state:this.props.preferences,item,viewType:"LABEL"});
 		};
 	}
 	
 	openTextView(item) {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openTextView',msg:"id "+item.id});
-			this.props.actions.openSubView({item,viewType:"TEXT"});
+			this.props.actions.list({state:this.props.preferences,item,viewType:"TEXT"});
 		};
 	}
 	
 	openOptionView(item) {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openOptionView',msg:"id "+item.id});
-			this.props.actions.openSubView({item,viewType:"OPTION"});
+			this.props.actions.list({state:this.props.preferences,item,viewType:"OPTION"});
 		};
 	}
 	
@@ -280,18 +293,29 @@ class PreferencesContainer extends Component {
 
   render() {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"test " + JSON.stringify(this.state)});
-		if (this.props.preferences.isModifyOpen) {
+		let inputFields = this.props.preferences.inputFields;
+		let prefForms = this.props.preferences.prefForms;
+		let selected = this.props.preferences.selected;
+		let viewType = null;
+		if (this.props.preferenceSubView.isModifyOpen) {
+			inputFields = this.props.preferenceSubView.inputFields;
+			prefForms = this.props.preferenceSubView.prefForms;
+			selected = this.props.preferenceSubView.selected;
+			viewType = this.props.preferenceSubView.viewType;
+		}
+		if (this.props.preferences.isModifyOpen || this.props.preferenceSubView.isModifyOpen) {
 			return (
 				<PreferenceModifyView
 				containerState={this.state}
-				item={this.props.preferences.selected}
-				inputFields={this.props.preferences.inputFields}
+				item={selected}
+				inputFields={inputFields}
 				appPrefs={this.props.appPrefs}
-				itemPrefForms={this.props.preferences.prefForms}
+				itemPrefForms={prefForms}
 				onSave={this.onSave}
 				onCancel={this.onCancel}
 				onReturn={this.onCancel}
 				inputChange={this.inputChange}
+				viewType={viewType}
 				/>
 			);
 		} else if (this.props.preferences.isSubViewOpen) {

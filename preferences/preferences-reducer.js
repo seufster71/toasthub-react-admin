@@ -47,8 +47,7 @@ export default function preferencesReducer(state = {}, action) {
     		    	listLimit: reducerUtils.getListLimit(action),
     		    	listStart: reducerUtils.getListStart(action),
     		    	selected: null,
-    				isModifyOpen: false,
-    				isUserRoleOpen: false
+    				isModifyOpen: false
     		    });
     		} else {
     		    return state;
@@ -59,7 +58,8 @@ export default function preferencesReducer(state = {}, action) {
 				// load inputFields
 				let inputFields = {};
 				let prefForms = reducerUtils.getPrefForms(action);
-				inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_PREFERENCE_FORM,inputFields);
+				inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_PREFERENCE_PAGE,inputFields);
+
 				// add id if this is existing item
 				if (action.responseJson.params.item != null) {
 					inputFields.itemId = action.responseJson.params.item.id;

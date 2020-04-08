@@ -40,6 +40,35 @@ export default function preferenceSubViewReducer(state = {}, action) {
 				return state;
 			}
 		}
+		case 'PREFERENCES_SUBVIEW_PREFERENCE': {
+			if (action.responseJson !=  null && action.responseJson.params != null) {
+				// load inputFields
+				let inputFields = {};
+				let prefForms = reducerUtils.getPrefForms(action);
+				if (action.viewType === "FORM") {
+					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_FORMFIELD_PAGE,inputFields);
+				} else if (action.viewType === "LABEL") {
+					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_LABEL_PAGE,inputFields);
+				} else if (action.viewType === "TEXT") {
+					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_TEXT_PAGE,inputFields);
+				} else if (action.viewType === "OPTION") {
+					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_OPTION_PAGE,inputFields);
+				}
+				
+				// add id if this is existing item
+				if (action.responseJson.params.item != null) {
+					inputFields.itemId = action.responseJson.params.item.id;
+				}
+				return Object.assign({}, state, {
+					prefForms: Object.assign({}, state.prefForms, reducerUtils.getPrefForms(action)),
+					selected : action.responseJson.params.item,
+					inputFields : inputFields,
+					isModifyOpen: true
+				});
+			} else {
+				return state;
+			}
+		}
     	default:
     		return state;
 	}

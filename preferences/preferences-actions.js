@@ -28,8 +28,7 @@ export function init(category) {
 		let searchCriteria = [{'searchValue':'','searchColumn':'ADMIN_PREFERENCE_TABLE_TITLE'}];
 		let requestParams = {};
 	    requestParams.action = "LIST";
-	    requestParams.service = "APPPAGE_SVC";
-	    requestParams.prefForms = new Array("ADMIN_PREFERENCE_PAGE");
+	    requestParams.service = "PREF_SVC";
 	    requestParams.prefTexts = new Array("ADMIN_PREFERENCE_PAGE");
 	    requestParams.prefLabels = new Array("ADMIN_PREFERENCE_PAGE");
 	    requestParams.orderCriteria = orderCriteria;
@@ -50,11 +49,36 @@ export function init(category) {
 	};
 }
 
-export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info}) {
+export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info,item,viewType}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "LIST";
-	    requestParams.service = "APPPAGE_SVC";
+	    if (viewType != null) {
+		    if (viewType === "FORM") {
+				requestParams.service = "PREF_FORMFIELD_SVC";
+				requestParams.prefTexts = new Array("ADMIN_FORMFIELD_PAGE");
+				requestParams.prefLabels = new Array("ADMIN_FORMFIELD_PAGE");
+			} else if (viewType === "LABEL") {
+				requestParams.service = "PREF_LABEL_SVC";
+				requestParams.prefTexts = new Array("ADMIN_LABEL_PAGE");
+				requestParams.prefLabels = new Array("ADMIN_LABEL_PAGE");
+			} else if (viewType === "TEXT") {
+				requestParams.service = "PREF_TEXT_SVC";
+				requestParams.prefTexts = new Array("ADMIN_TEXT_PAGE");
+				requestParams.prefLabels = new Array("ADMIN_TEXT_PAGE");
+			} else if (viewType === "OPTION") {
+				requestParams.service = "PREF_OPTION_SVC";
+				requestParams.prefTexts = new Array("ADMIN_OPTION_PAGE");
+				requestParams.prefLabels = new Array("ADMIN_OPTION_PAGE");
+			}
+		    if (state.selected != null) {
+		    	requestParams.parentId = state.selected.id;
+		    } else {
+		    	requestParams.parentId = item.id;
+		    }
+	    } else {
+	    	requestParams.service = "PREF_SVC";
+	    }
 	    if (listStart != null) {
 			requestParams.listStart = listStart;
 		} else {
@@ -82,11 +106,23 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 	    params.URI = '/api/admin/callService';
 
 	    return callService(params).then( (responseJson) => {
-	      if (responseJson != null && responseJson.error == null){
-	    	  dispatch({ type: "LOAD_LIST_PREFERENCE", responseJson });
-				if (info != null) {
-		        	  dispatch({type:'SHOW_STATUS',info:info});  
-		        }
+	      if (responseJson != null && responseJson.protocalError == null){
+	    	  if (viewType != null) {
+	    		  if(responseJson.status != null && responseJson.status == "ACTIONFAILED"){  
+	    			  dispatch({type:'SHOW_STATUS',error:responseJson.errors});
+	    		  } else {
+	    			  dispatch({ type: 'PREFERENCE_SUBVIEW_LIST',responseJson, item, viewType});	
+	    		  }
+	    	  } else {
+	    		  if(responseJson.status != null && responseJson.status == "ACTIONFAILED"){
+	    			  dispatch({type:'SHOW_STATUS',error:responseJson.errors});
+	    		  } else {
+	    			  dispatch({ type: "LOAD_LIST_PREFERENCE", responseJson });
+	    		  }
+	    	  }
+	    	  if (info != null) {
+	    		  dispatch({type:'SHOW_STATUS',info:info});  
+		      }
 			} else {
 				actionUtils.checkConnectivity(responseJson,dispatch);
 			}
@@ -114,7 +150,7 @@ export function savePreference({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
-	    requestParams.service = "APPPAGE_SVC";
+	    requestParams.service = "PREF_SVC";
 	    requestParams.inputFields = state.inputFields;
 
 	    let params = {};
@@ -142,7 +178,7 @@ export function deletePreference({state,id}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
-	    requestParams.service = "APPPAGE_SVC";
+	    requestParams.service = "PREF_SVC";
 	    requestParams.itemId = id;
 	    
 	    let params = {};
@@ -165,12 +201,28 @@ export function deletePreference({state,id}) {
 	};
 }
 
-export function preference(id) {
+export function preference({id,viewType}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
-	    requestParams.service = "APPPAGE_SVC";
-	    requestParams.prefForms = new Array("ADMIN_PREFERENCE_PAGE");
+
+	    if (viewType === "FORM") {
+	    	requestParams.service = "PREF_FORMFIELD_SVC";
+	    	requestParams.prefForms = new Array("ADMIN_FORMFIELD_PAGE");
+	    } else if (viewType === "LABEL") {
+	    	requestParams.service = "PREF_LABEL_SVC";
+	    	requestParams.prefForms = new Array("ADMIN_LABEL_PAGE");
+	    } else if (viewType === "TEXT") {
+	    	requestParams.service = "PREF_TEXT_SVC";
+	    	requestParams.prefForms = new Array("ADMIN_TEXT_PAGE");
+	    } else if (viewType === "OPTION") {
+	    	requestParams.service = "PREF_OPTION_SVC";
+	    	requestParams.prefForms = new Array("ADMIN_OPTION_PAGE");
+	    } else {
+	    	requestParams.service = "PREF_SVC";
+		    requestParams.prefForms = new Array("ADMIN_PREFERENCE_PAGE");
+	    }
+	    
 	    if (id != null) {
 	    	requestParams.itemId = id;
 	    }
@@ -180,7 +232,11 @@ export function preference(id) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'PREFERENCES_PREFERENCE',responseJson});
+	    		if (viewType != null) {
+	    			dispatch({ type: 'PREFERENCES_SUBVIEW_PREFERENCE', responseJson, viewType});
+	    		} else {
+	    			dispatch({ type: 'PREFERENCES_PREFERENCE', responseJson});
+	    		}
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -200,10 +256,14 @@ export function inputChange(field,value) {
 	 };
 }
 
-export function orderBy({state,orderCriteria}) {
+export function orderBy({state,orderCriteria,viewType}) {
 	 return function(dispatch) {
-		 dispatch({ type:"PREFERENCES_ORDERBY",orderCriteria});
-		 dispatch(list({state,orderCriteria}));
+		 let type = "PREFERENCES_ORDERBY";
+		 if (viewType != null) {
+			 
+		 }
+		 dispatch({ type,orderCriteria});
+		 dispatch(list({state,orderCriteria,viewType}));
 	 };
 }
 
@@ -216,49 +276,5 @@ export function clearPreference() {
 export function goBack() {
 	 return function(dispatch) {
 		 dispatch({ type:"PREFERENCES_GOBACK"});
-	 };
-}
-
-export function openSubView({item,viewType}) {
-	 return function(dispatch) {
-		 let requestParams = {};
-		    requestParams.action = "LIST";
-		    if (viewType === "FORM") {
-		    	requestParams.service = "PREF_FORMFIELD_SVC";
-		    	requestParams.prefTexts = new Array("ADMIN_FORMFIELD_PAGE");
-		    	requestParams.prefLabels = new Array("ADMIN_FORMFIELD_PAGE");
-		    } else if (viewType === "LABEL") {
-		    	requestParams.service = "PREF_LABEL_SVC";
-		    	requestParams.prefTexts = new Array("ADMIN_LABEL_PAGE");
-		    	requestParams.prefLabels = new Array("ADMIN_LABEL_PAGE");
-		    } else if (viewType === "TEXT") {
-		    	requestParams.service = "PREF_TEXT_SVC";
-		    	requestParams.prefTexts = new Array("ADMIN_TEXT_PAGE");
-		    	requestParams.prefLabels = new Array("ADMIN_TEXT_PAGE");
-		    } else if (viewType === "OPTION") {
-		    	requestParams.service = "PREF_OPTION_SVC";
-		    	requestParams.prefTexts = new Array("ADMIN_OPTION_PAGE");
-		    	requestParams.prefLabels = new Array("ADMIN_OPTION_PAGE");
-		    }
-		    requestParams.parentId = item.id;
-
-		    let params = {};
-		    params.requestParams = requestParams;
-		    params.URI = '/api/admin/callService';
-
-		    return callService(params).then( (responseJson) => {
-		    	if (responseJson != null && responseJson.protocalError == null){
-		    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-		    			dispatch({ type: 'PREFERENCE_SUBVIEW_LIST',responseJson, item, viewType});
-		    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
-		    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
-		    		}
-		    	} else {
-		    		actionUtils.checkConnectivity(responseJson,dispatch);
-		    	}
-		    }).catch(error => {
-		    	throw(error);
-		    });
-		 dispatch({ type:"PREFERENCES_TOGGLE_ITEM",itemId});
 	 };
 }

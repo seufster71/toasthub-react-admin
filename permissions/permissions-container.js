@@ -166,7 +166,7 @@ class PermissionsContainer extends Component {
 	onSave() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PermissionContainer::onSave',msg:"test"});
-			let errors = utils.validateFormFields(this.props.permissions.prefForms.ADMIN_PERMISSION_FORM,this.props.permissions.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
+			let errors = utils.validateFormFields(this.props.permissions.prefForms.ADMIN_PERMISSION_PAGE,this.props.permissions.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
 			
 			if (errors.isValid){
 				this.props.actions.savePermission({state:this.props.permissions});
