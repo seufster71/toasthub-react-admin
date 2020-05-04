@@ -10,9 +10,9 @@ export function init() {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "CATEGORY_SVC";
-		requestParams.prefForms = new Array("ADMIN_CATEGORY_FORM");
-		requestParams.prefTexts = new Array("ADMIN_CATEGORY_PAGE");
-		requestParams.prefLabels = new Array("ADMIN_CATEGORY_TABLE");
+		requestParams.prefFormKeys = new Array("ADMIN_CATEGORY_FORM");
+		requestParams.prefTextKeys = new Array("ADMIN_CATEGORY_PAGE");
+		requestParams.prefLabelKeys = new Array("ADMIN_CATEGORY_TABLE");
 		let params = {};
 		params.requestParams = requestParams;
 		params.URI = '/api/admin/callService';

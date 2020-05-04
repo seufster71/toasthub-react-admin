@@ -26,8 +26,8 @@ export function init(user) {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "ROLES_SVC";
-		requestParams.prefTexts = new Array("ADMIN_ROLE_PAGE");
-		requestParams.prefLabels = new Array("ADMIN_ROLE_PAGE");
+		requestParams.prefTextKeys = new Array("ADMIN_ROLE_PAGE");
+		requestParams.prefLabelKeys = new Array("ADMIN_ROLE_PAGE");
 		if (user != null) {
 			requestParams.userId = user.id;
 			dispatch({type:"ROLES_ADD_USER", user});
@@ -196,7 +196,7 @@ export function role(id) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
 	    requestParams.service = "ROLES_SVC";
-	    requestParams.prefForms = new Array("ADMIN_ROLE_PAGE");
+	    requestParams.prefFormKeys = new Array("ADMIN_ROLE_PAGE");
 	    if (id != null) {
 	    	requestParams.itemId = id;
 	    }
@@ -221,7 +221,7 @@ export function userRole({userRoleId, roleId}) {
 	    let requestParams = {};
 	    requestParams.action = "USER_ROLE_ITEM";
 	    requestParams.service = "ROLES_SVC";
-	    requestParams.prefForms = new Array("ADMIN_ROLE_PAGE");
+	    requestParams.prefFormKeys = new Array("ADMIN_ROLE_PAGE");
 	    if (userRoleId != null) {
 	    	requestParams.itemId = userRoleId;
 	    }

@@ -57,7 +57,9 @@ class PreferencesContainer extends Component {
 
 	componentDidMount() {
 		fuLogger.log({level:'TRACE',loc:'PreferenceContainer::componentDidMount',msg:"path "+ this.props.history.location.pathname });
-		this.props.actions.init();
+		let orderCriteria = [{'orderColumn':'ADMIN_PREFERENCE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_PREFERENCE_TABLE_TITLE','orderDir':'ASC'}];
+		let searchCriteria = [{'searchValue':'','searchColumn':'ADMIN_PREFERENCE_TABLE_TITLE'}];
+		this.props.actions.init({state:this.props.preferences,orderCriteria,searchCriteria,listStart:0,listLimit:20});
 	}
 
 	onListLimitChange(fieldName) {
@@ -70,7 +72,11 @@ class PreferencesContainer extends Component {
 			}
 
 			let pageLimit = parseInt(value);
-			this.props.actions.listLimit({state:this.props.preferences,listLimit});
+			if (this.props.preferenceSubView.viewType != null) {
+				this.props.actions.listLimit({state:this.props.preferences,stateSubView:this.props.preferenceSubView,listLimit});
+			} else {
+				this.props.actions.listLimit({state:this.props.preferences,listLimit});
+			}
 		};
 	}
 
@@ -92,8 +98,11 @@ class PreferencesContainer extends Component {
 			}
 			listStart = ((segmentValue - 1) * this.props.preferences.listLimit);
 			this.setState({"ADMIN_PREFERENCE_PAGINATION":segmentValue});
-
-			this.props.actions.list({state:this.props.preferences,listStart});
+			if (this.props.preferenceSubView.viewType != null) {
+				this.props.actions.list({state:this.props.preferences,stateSubView:this.props.preferenceSubView,listStart});
+			} else {
+				this.props.actions.list({state:this.props.preferences,listStart});
+			}	
 		};
 	}
 
@@ -129,15 +138,27 @@ class PreferencesContainer extends Component {
 				}
 			}
 		} else {
-			for (let i = 0; i < this.props.preferences.searchCriteria.length; i++) {
-				let option = {};
-				option.searchValue = this.state['ADMIN_PREFERENCE-SEARCH'];
-				option.searchColumn = this.props.preferences.searchCriteria[i].searchColumn;
-				searchCriteria.push(option);
+			if (this.props.preferenceSubView.viewType != null) {
+				for (let i = 0; i < this.props.preferenceSubView.searchCriteria.length; i++) {
+					let option = {};
+					option.searchValue = this.state['ADMIN_PREFERENCE-SEARCH'];
+					option.searchColumn = this.props.preferenceSubView.searchCriteria[i].searchColumn;
+					searchCriteria.push(option);
+				}
+			} else {
+				for (let i = 0; i < this.props.preferences.searchCriteria.length; i++) {
+					let option = {};
+					option.searchValue = this.state['ADMIN_PREFERENCE-SEARCH'];
+					option.searchColumn = this.props.preferences.searchCriteria[i].searchColumn;
+					searchCriteria.push(option);
+				}
 			}
 		}
-
-		this.props.actions.search({state:this.props.preferences,searchCriteria});
+		if (this.props.preferenceSubView.viewType != null) {
+			this.props.actions.search({state:this.props.preferences,stateSubView:this.props.preferenceSubView,searchCriteria});
+		} else {
+			this.props.actions.search({state:this.props.preferences,searchCriteria});
+		}
 	}
 	
 	onOrderBy(selectedOption) {
@@ -163,7 +184,7 @@ class PreferencesContainer extends Component {
 				orderCriteria.push(option);
 			}
 			if (this.props.preferenceSubView.viewType != null) {
-				this.props.actions.orderBy({state:this.props.preferences,orderCriteria,viewType:this.props.preferenceSubView.viewType});
+				this.props.actions.orderBy({state:this.props.preferences,stateSubView:this.props.preferenceSubView,orderCriteria});
 			} else {
 				this.props.actions.orderBy({state:this.props.preferences,orderCriteria});
 			}
@@ -193,10 +214,29 @@ class PreferencesContainer extends Component {
 	onSave() {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onSavePreference',msg:"test"});
-			let errors = utils.validateFormFields(this.props.preferences.prefForms.ADMIN_PREFERENCE_PAGE, this.props.preferences.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES, "FORM1");
+			let viewType = null;
+			let errors = null;
+			if (this.props.preferenceSubView != null && this.props.preferenceSubView.viewType != null) {
+				viewType = this.props.preferenceSubView.viewType;
+				if (viewType === "FORM") {
+					errors = utils.validateFormFields(this.props.preferenceSubView.prefForms.ADMIN_FORMFIELD_PAGE, this.props.preferenceSubView.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES, "FORM-NAME");
+				} else if (viewType === "LABEL") {
+					errors = utils.validateFormFields(this.props.preferenceSubView.prefForms.ADMIN_LABEL_PAGE, this.props.preferenceSubView.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES, "FORM-NAME");
+				} else if (viewType === "TEXT") {
+					errors = utils.validateFormFields(this.props.preferenceSubView.prefForms.ADMIN_TEXT_PAGE, this.props.preferenceSubView.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES, "FORM-NAME");
+				} else if (viewType === "OPTION") {
+					errors = utils.validateFormFields(this.props.preferenceSubView.prefForms.ADMIN_OPTION_PAGE, this.props.preferenceSubView.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES, "FORM-NAME");
+				}
+			} else {
+				errors = utils.validateFormFields(this.props.preferences.prefForms.ADMIN_PREFERENCE_PAGE, this.props.preferences.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES, "FORM1");
+			}
 			
 			if (errors.isValid){
-				this.props.actions.savePreference({state:this.props.preferences});
+				if (viewType != null) {
+					this.props.actions.savePreference({state:this.props.preferences,stateSubView:this.props.preferenceSubView,parent:this.props.preferenceSubView.parent});
+				} else {
+					this.props.actions.savePreference({state:this.props.preferences,viewType});
+				}
 			} else {
 				this.setState({errors:errors.errorMap});
 			}
@@ -214,7 +254,7 @@ class PreferencesContainer extends Component {
 			if (this.props.preferences.isSubViewOpen && this.props.preferenceSubView != null) {
 				viewType = this.props.preferenceSubView.viewType;
 			}
-			this.props.actions.preference({id,viewType});
+			this.props.actions.preference({id,viewType,languages:this.props.appPrefs.prefGlobal.LANGUAGES});
 			
 		};
 	}
@@ -222,8 +262,12 @@ class PreferencesContainer extends Component {
 	onDelete(item) {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onDelete',msg:"item id " + item.id});
+			let viewType = null;
+			if (this.props.preferences.isSubViewOpen && this.props.preferenceSubView != null) {
+				viewType = this.props.preferenceSubView.viewType;
+			}
 			this.setState({isDeleteModalOpen:false});
-			this.props.actions.deletePreference({state:this.props.preferences,id:item.id});
+			this.props.actions.deletePreference({state:this.props.preferences,stateSubView:this.props.preferenceSubView,id:item.id,viewType});
 		};
 	}
 
@@ -243,7 +287,7 @@ class PreferencesContainer extends Component {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferenceContainer::onCancel',msg:"test"});
 			if (this.props.preferenceSubView.viewType != null) {
-				this.props.actions.list({state:this.props.preferences,viewType:this.props.preferenceSubView.viewType});
+				this.props.actions.list({state:this.props.preferences,stateSubView:this.props.preferenceSubView});
 			} else {
 				this.props.actions.list({state:this.props.preferences});
 			}
@@ -252,35 +296,47 @@ class PreferencesContainer extends Component {
 	
 	inputChange(fieldName,switchValue) {
 		return (event) => {
-			utils.inputChange(this.props,fieldName,switchValue);
+			let viewType = null;
+			if (this.props.preferenceSubView != null && this.props.preferenceSubView.viewType != null){
+				viewType = this.props.preferenceSubView.viewType;
+			}
+			utils.inputChange(this.props,fieldName,switchValue,viewType);
 		};
 	}
 	
 	openFormView(item) {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openFormView',msg:"id "+item.id});
-			this.props.actions.list({state:this.props.preferences,item,viewType:"FORM"});
+			let orderCriteria = [{'orderColumn':'ADMIN_FORMFIELD_TABLE_TITLE','orderDir':'ASC'}];
+			let searchCriteria = [{'searchValue':'','searchColumn':'ADMIN_FORMFIELD_TABLE_TITLE'}];
+			this.props.actions.init({state:this.props.preferences,stateSubView:this.props.preferenceSubView,item,viewType:"FORM",orderCriteria,searchCriteria,listStart:0,listLimit:20});
 		};
 	}
 	
 	openLabelView(item) {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openLabelView',msg:"id "+item.id});
-			this.props.actions.list({state:this.props.preferences,item,viewType:"LABEL"});
+			let orderCriteria = [{'orderColumn':'ADMIN_LABEL_TABLE_TITLE','orderDir':'ASC'}];
+			let searchCriteria = [{'searchValue':'','searchColumn':'ADMIN_LABEL_TABLE_TITLE'}];
+			this.props.actions.init({state:this.props.preferences,stateSubView:this.props.preferenceSubView,item,viewType:"LABEL",orderCriteria,searchCriteria,listStart:0,listLimit:20});
 		};
 	}
 	
 	openTextView(item) {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openTextView',msg:"id "+item.id});
-			this.props.actions.list({state:this.props.preferences,item,viewType:"TEXT"});
+			let orderCriteria = [{'orderColumn':'ADMIN_TEXT_TABLE_TITLE','orderDir':'ASC'}];
+			let searchCriteria = [{'searchValue':'','searchColumn':'ADMIN_TEXT_TABLE_TITLE'}];
+			this.props.actions.init({state:this.props.preferences,stateSubView:this.props.preferenceSubView,item,viewType:"TEXT",orderCriteria,searchCriteria,listStart:0,listLimit:20});
 		};
 	}
 	
 	openOptionView(item) {
 		return (event) => {
 			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openOptionView',msg:"id "+item.id});
-			this.props.actions.list({state:this.props.preferences,item,viewType:"OPTION"});
+			let orderCriteria = [{'orderColumn':'ADMIN_OPTION_TABLE_TITLE','orderDir':'ASC'}];
+			let searchCriteria = [{'searchValue':'','searchColumn':'ADMIN_OPTION_TABLE_TITLE'}];
+			this.props.actions.init({state:this.props.preferences,stateSubView:this.props.preferenceSubView,item,viewType:"OPTION",orderCriteria,searchCriteria,listStart:0,listLimit:20});
 		};
 	}
 	
@@ -304,6 +360,7 @@ class PreferencesContainer extends Component {
 			viewType = this.props.preferenceSubView.viewType;
 		}
 		if (this.props.preferences.isModifyOpen || this.props.preferenceSubView.isModifyOpen) {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"view PreferenceModifyView"});
 			return (
 				<PreferenceModifyView
 				containerState={this.state}
@@ -319,6 +376,7 @@ class PreferencesContainer extends Component {
 				/>
 			);
 		} else if (this.props.preferences.isSubViewOpen) {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"view PreferenceSubView"});
 			return (
 				<PreferenceSubView
 				containerState={this.state}
@@ -341,6 +399,7 @@ class PreferencesContainer extends Component {
 				session={this.props.session}/>
 				);
 		} else if (this.props.preferences.items != null) {
+			fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"view PreferenceView"});
 			return (
 				<PreferencesView
 				containerState={this.state}

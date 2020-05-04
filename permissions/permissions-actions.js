@@ -26,8 +26,8 @@ export function init(role) {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "PERMISSIONS_SVC";
-		requestParams.prefTexts = new Array("ADMIN_PERMISSION_PAGE");
-		requestParams.prefLabels = new Array("ADMIN_PERMISSION_PAGE");
+		requestParams.prefTextKeys = new Array("ADMIN_PERMISSION_PAGE");
+		requestParams.prefLabelKeys = new Array("ADMIN_PERMISSION_PAGE");
 		if (role != null) {
 			requestParams.roleId = role.id;
 			dispatch({type:"PERMISSIONS_ADD_ROLE", role});
@@ -197,7 +197,7 @@ export function permission(id) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
 	    requestParams.service = "PERMISSIONS_SVC";
-	    requestParams.prefForms = new Array("ADMIN_PERMISSION_PAGE");
+	    requestParams.prefFormKeys = new Array("ADMIN_PERMISSION_PAGE");
 	    if (id != null) {
 	    	requestParams.itemId = id;
 	    }
@@ -222,7 +222,7 @@ export function rolePermission({rolePermissionId, permissionId}) {
 	    let requestParams = {};
 	    requestParams.action = "ROLE_PERMISSION_ITEM";
 	    requestParams.service = "PERMISSIONS_SVC";
-	    requestParams.prefForms = new Array("ADMIN_PERMISSION_PAGE");
+	    requestParams.prefFormKeys = new Array("ADMIN_PERMISSION_PAGE");
 	    if (rolePermissionId != null) {
 	    	requestParams.itemId = rolePermissionId;
 	    }

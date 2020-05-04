@@ -104,7 +104,7 @@ export default function preferencesReducer(state = {}, action) {
 		        return state;
 		    }
 		}
-		case 'PREFERENCE_SUBVIEW_LIST': {
+		case 'PREFERENCE_SUBVIEW_INIT': {
 			if (action.item != null) {
 				 return Object.assign({}, state, {
 					 selected: action.item,

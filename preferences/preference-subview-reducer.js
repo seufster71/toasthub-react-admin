@@ -18,23 +18,35 @@ import reducerUtils from '../../core/common/reducer-utils';
 export default function preferenceSubViewReducer(state = {}, action) {
 	let myState = {};
 	switch(action.type) {
-		case 'PREFERENCE_SUBVIEW_LIST': {
+		case 'PREFERENCE_SUBVIEW_INIT': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				return Object.assign({}, state, {
-	    			prefTexts: Object.assign({}, state.prefTexts, reducerUtils.getPrefTexts(action)),
+					prefTexts: Object.assign({}, state.prefTexts, reducerUtils.getPrefTexts(action)),
 	    			prefLabels: Object.assign({}, state.prefLabels, reducerUtils.getPrefLabels(action)),
 	    			prefOptions: Object.assign({}, state.prefOptions, reducerUtils.getPrefOptions(action)),
 	    		 	columns: reducerUtils.getColumns(action),
+	    		 	itemCount: reducerUtils.getItemCount(action),
+	    		 	items: reducerUtils.getItems(action),
+	    		  	listLimit: reducerUtils.getListLimit(action),
+	    			listStart: reducerUtils.getListStart(action),
+	    			orderCriteria: action.orderCriteria,
+					searchCriteria: action.searchCriteria,
+					parent: action.item,
+					isModifyOpen: false,
+					viewType: action.viewType
+			    });
+			} else {
+				return state;
+			}
+		}
+		case 'PREFERENCE_SUBVIEW_LIST': {
+			if (action.responseJson !=  null && action.responseJson.params != null) {
+				return Object.assign({}, state, {
 	    			itemCount: reducerUtils.getItemCount(action),
 	    		 	items: reducerUtils.getItems(action),
 	    		  	listLimit: reducerUtils.getListLimit(action),
 	    			listStart: reducerUtils.getListStart(action),
-	    			orderCriteria: [{'orderColumn':'ADMIN_PREFERENCE_TABLE_NAME','orderDir':'ASC'}],
-    				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_PREFERENCE_TABLE_NAME'}],
-    				parent: action.item,
-    				isModifyOpen: false,
-    				isUserRoleOpen: false,
-    				viewType: action.viewType
+    				isModifyOpen: false
     		    });
 			} else {
 				return state;
@@ -46,13 +58,13 @@ export default function preferenceSubViewReducer(state = {}, action) {
 				let inputFields = {};
 				let prefForms = reducerUtils.getPrefForms(action);
 				if (action.viewType === "FORM") {
-					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_FORMFIELD_PAGE,inputFields);
+					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_FORMFIELD_PAGE,inputFields,action.languages);
 				} else if (action.viewType === "LABEL") {
-					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_LABEL_PAGE,inputFields);
+					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_LABEL_PAGE,inputFields,action.languages);
 				} else if (action.viewType === "TEXT") {
-					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_TEXT_PAGE,inputFields);
+					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_TEXT_PAGE,inputFields,action.languages);
 				} else if (action.viewType === "OPTION") {
-					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_OPTION_PAGE,inputFields);
+					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_OPTION_PAGE,inputFields,action.languages);
 				}
 				
 				// add id if this is existing item
@@ -68,6 +80,40 @@ export default function preferenceSubViewReducer(state = {}, action) {
 			} else {
 				return state;
 			}
+		}
+		case 'PREFERENCE_SUBVIEW_INPUT_CHANGE': {
+			if (action.params != null) {
+				let inputFields = Object.assign({}, state.inputFields);
+				inputFields[action.params.field] = action.params.value;
+				let clone = Object.assign({}, state);
+				clone.inputFields = inputFields;
+				return clone;
+			} else {
+		        return state;
+		    }
+		}
+		case 'PREFERENCES_SUBVIEW_LISTLIMIT': {
+			return reducerUtils.updateListLimit(state,action);
+		}
+		case 'PREFERENCES_SUBVIEW_SEARCH': { 
+			return reducerUtils.updateSearch(state,action);
+		}
+		case 'PREFERENCES_SUBVIEW_ORDERBY': { 
+			return reducerUtils.updateOrderBy(state,action);
+		}
+		case 'PREFERENCES_GOBACK': {
+			if (action != null) {
+				 return Object.assign({}, state, {
+					 items: null,
+					 parent: null,
+					 selected: null,
+					 inputfields: null,
+					 viewType: null,
+					 isModifyOpen: false
+				 });
+			} else {
+		        return state;
+		    }
 		}
     	default:
     		return state;

@@ -26,9 +26,9 @@ export function init() {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "SERVICE_CRAWLER_SVC";
-		requestParams.prefForms = new Array("ADMIN_SERVICE_CRAWLER_PAGE");
-		requestParams.prefTexts = new Array("ADMIN_SERVICE_CRAWLER_PAGE");
-		requestParams.prefLabels = new Array("ADMIN_SERVICE_CRAWLER_PAGE");
+		requestParams.prefFormKeys = new Array("ADMIN_SERVICE_CRAWLER_PAGE");
+		requestParams.prefTextKeys = new Array("ADMIN_SERVICE_CRAWLER_PAGE");
+		requestParams.prefLabelKeys = new Array("ADMIN_SERVICE_CRAWLER_PAGE");
 		let params = {};
 		params.requestParams = requestParams;
 		params.URI = '/api/admin/callService';

@@ -22,15 +22,39 @@ import actionUtils from '../../core/common/action-utils';
 
 
 // thunks
-export function init(category) {
+export function init({state,stateSubView,listStart,listLimit,searchCriteria,orderCriteria,info,item,viewType}) {
 	return function(dispatch) {
-		let orderCriteria = [{'orderColumn':'ADMIN_PREFERENCE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_PREFERENCE_TABLE_TITLE','orderDir':'ASC'}];
-		let searchCriteria = [{'searchValue':'','searchColumn':'ADMIN_PREFERENCE_TABLE_TITLE'}];
 		let requestParams = {};
 	    requestParams.action = "LIST";
-	    requestParams.service = "PREF_SVC";
-	    requestParams.prefTexts = new Array("ADMIN_PREFERENCE_PAGE");
-	    requestParams.prefLabels = new Array("ADMIN_PREFERENCE_PAGE");
+	    if (viewType != null) {
+		    if (viewType === "FORM") {
+				requestParams.service = "PREF_FORMFIELD_SVC";
+				requestParams.prefTextKeys = new Array("ADMIN_FORMFIELD_PAGE");
+				requestParams.prefLabelKeys = new Array("ADMIN_FORMFIELD_PAGE");
+			} else if (viewType === "LABEL") {
+				requestParams.service = "PREF_LABEL_SVC";
+				requestParams.prefTextKeys = new Array("ADMIN_LABEL_PAGE");
+				requestParams.prefLabelKeys = new Array("ADMIN_LABEL_PAGE");
+			} else if (viewType === "TEXT") {
+				requestParams.service = "PREF_TEXT_SVC";
+				requestParams.prefTextKeys = new Array("ADMIN_TEXT_PAGE");
+				requestParams.prefLabelKeys = new Array("ADMIN_TEXT_PAGE");
+			} else if (viewType === "OPTION") {
+				requestParams.service = "PREF_OPTION_SVC";
+				requestParams.prefTextKeys = new Array("ADMIN_OPTION_PAGE");
+				requestParams.prefLabelKeys = new Array("ADMIN_OPTION_PAGE");
+			}
+		    if (state.selected != null) {
+		    	requestParams.parentId = state.selected.id;
+		    } else if (item != null){
+		    	requestParams.parentId = item.id;
+		    }
+	    } else {
+	    	requestParams.service = "PREF_SVC";
+	    	requestParams.prefTextKeys = new Array("ADMIN_PREFERENCE_PAGE");
+		    requestParams.prefLabelKeys = new Array("ADMIN_PREFERENCE_PAGE");
+	    }
+	    
 	    requestParams.orderCriteria = orderCriteria;
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -38,7 +62,19 @@ export function init(category) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: "LOAD_INIT_PREFERENCE", responseJson, orderCriteria, searchCriteria });
+	    		if (viewType != null) {
+	    			if(responseJson.status != null && responseJson.status == "ACTIONFAILED"){  
+	    				dispatch({type:'SHOW_STATUS',error:responseJson.errors});
+	    			} else {
+	    				dispatch({ type: 'PREFERENCE_SUBVIEW_INIT',responseJson, item, viewType, orderCriteria, searchCriteria});	
+	    			}
+		    	} else {
+		    		if(responseJson.status != null && responseJson.status == "ACTIONFAILED"){
+		    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
+		    		} else {
+		    			dispatch({ type: "LOAD_INIT_PREFERENCE", responseJson, orderCriteria, searchCriteria });
+		    		}
+		    	}
 	    	} else {
 				actionUtils.checkConnectivity(responseJson,dispatch);
 			}
@@ -49,31 +85,28 @@ export function init(category) {
 	};
 }
 
-export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info,item,viewType}) {
+export function list({state,stateSubView,listStart,listLimit,searchCriteria,orderCriteria,info,item}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "LIST";
-	    if (viewType != null) {
-		    if (viewType === "FORM") {
+	    let page = "preferences";
+	    if (stateSubView != null && stateSubView.viewType != null) {
+		    if (stateSubView.viewType === "FORM") {
 				requestParams.service = "PREF_FORMFIELD_SVC";
-				requestParams.prefTexts = new Array("ADMIN_FORMFIELD_PAGE");
-				requestParams.prefLabels = new Array("ADMIN_FORMFIELD_PAGE");
-			} else if (viewType === "LABEL") {
+				page = "pref_formfields";
+			} else if (stateSubView.viewType === "LABEL") {
 				requestParams.service = "PREF_LABEL_SVC";
-				requestParams.prefTexts = new Array("ADMIN_LABEL_PAGE");
-				requestParams.prefLabels = new Array("ADMIN_LABEL_PAGE");
-			} else if (viewType === "TEXT") {
+				page = "pref_labels";
+			} else if (stateSubView.viewType === "TEXT") {
 				requestParams.service = "PREF_TEXT_SVC";
-				requestParams.prefTexts = new Array("ADMIN_TEXT_PAGE");
-				requestParams.prefLabels = new Array("ADMIN_TEXT_PAGE");
-			} else if (viewType === "OPTION") {
+				page = "pref_texts";
+			} else if (stateSubView.viewType === "OPTION") {
 				requestParams.service = "PREF_OPTION_SVC";
-				requestParams.prefTexts = new Array("ADMIN_OPTION_PAGE");
-				requestParams.prefLabels = new Array("ADMIN_OPTION_PAGE");
+				page = "pref_options";
 			}
 		    if (state.selected != null) {
 		    	requestParams.parentId = state.selected.id;
-		    } else {
+		    } else if (item != null){
 		    	requestParams.parentId = item.id;
 		    }
 	    } else {
@@ -82,24 +115,41 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 	    if (listStart != null) {
 			requestParams.listStart = listStart;
 		} else {
-			requestParams.listStart = state.listStart;
+			if (stateSubView != null && stateSubView.viewType != null) {
+				requestParams.listStart = stateSubView.listStart;
+			} else {
+				requestParams.listStart = state.listStart;
+			}
 		}
 		if (listLimit != null) {
 			requestParams.listLimit = listLimit;
 		} else {
-			requestParams.listLimit = state.listLimit;
+			if (stateSubView != null && stateSubView.viewType != null) {
+				requestParams.listLimit = stateSubView.listLimit;
+			} else {
+				requestParams.listLimit = state.listLimit;
+			}
 		}
 		if (searchCriteria != null) {
 			requestParams.searchCriteria = searchCriteria;
 		} else {
-			requestParams.searchCriteria = state.searchCriteria;
+			if (stateSubView != null && stateSubView.viewType != null) {
+				requestParams.searchCriteria = stateSubView.searchCriteria;
+			} else {
+				requestParams.searchCriteria = state.searchCriteria;
+			}
 		}
 		if (orderCriteria != null) {
 			requestParams.orderCriteria = orderCriteria;
 		} else {
-			requestParams.orderCriteria = state.orderCriteria;
+			if (stateSubView != null && stateSubView.viewType != null) {
+				requestParams.orderCriteria = stateSubView.orderCriteria;
+			} else {
+				requestParams.orderCriteria = state.orderCriteria;
+			}
 		}
-	    let userPrefChange = {"page":"preferences","orderCriteria":requestParams.orderCriteria,"listStart":requestParams.listStart,"listLimit":requestParams.listLimit};
+		
+	    let userPrefChange = {"page":page,"orderCriteria":requestParams.orderCriteria,"listStart":requestParams.listStart,"listLimit":requestParams.listLimit};
 	    dispatch({type:"USER_PREF_CHANGE", userPrefChange});
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -107,11 +157,11 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 
 	    return callService(params).then( (responseJson) => {
 	      if (responseJson != null && responseJson.protocalError == null){
-	    	  if (viewType != null) {
+	    	  if (stateSubView != null && stateSubView.viewType != null) {
 	    		  if(responseJson.status != null && responseJson.status == "ACTIONFAILED"){  
 	    			  dispatch({type:'SHOW_STATUS',error:responseJson.errors});
 	    		  } else {
-	    			  dispatch({ type: 'PREFERENCE_SUBVIEW_LIST',responseJson, item, viewType});	
+	    			  dispatch({ type: 'PREFERENCE_SUBVIEW_LIST',responseJson});	
 	    		  }
 	    	  } else {
 	    		  if(responseJson.status != null && responseJson.status == "ACTIONFAILED"){
@@ -132,26 +182,50 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 	};
 }
 
-export function listLimit({state,listLimit}) {
+export function listLimit({state,stateSubView,listLimit,viewType}) {
 	return function(dispatch) {
-		 dispatch({ type:"PREFERENCES_LISTLIMIT",listLimit});
-		 dispatch(list({state,listLimit}));
+		let type = "PREFERENCES_LISTLIMIT";
+		if (viewType != null) {
+			type = "PREFERENCE_SUBVIEW_LISTLIMIT";
+		}
+		dispatch({type,listLimit});
+		dispatch(list({state,stateSubView,listLimit,viewType}));
+	};
+}
+
+export function search({state,stateSubView,searchCriteria,viewType}) {
+	return function(dispatch) {
+		let type = "PREFERENCES_SEARCH";
+		if (viewType != null) {
+			type = "PREFERENCE_SUBVIEW_SEARCH";
+		}
+		dispatch({type,searchCriteria});
+		dispatch(list({state,stateSubView,searchCriteria,listStart:0,viewType}));
 	 };
 }
 
-export function search({state,searchCriteria}) {
-	return function(dispatch) {
-		 dispatch({ type:"PREFERENCES_SEARCH",searchCriteria});
-		 dispatch(list({state,searchCriteria,listStart:0}));
-	 };
-}
-
-export function savePreference({state}) {
+export function savePreference({state,stateSubView,parent}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
-	    requestParams.service = "PREF_SVC";
-	    requestParams.inputFields = state.inputFields;
+	    if (stateSubView != null && stateSubView.viewType != null) {
+		    if (stateSubView.viewType === "FORM") {
+		    	requestParams.service = "PREF_FORMFIELD_SVC";
+		    } else if (stateSubView.viewType === "LABEL") {
+		    	requestParams.service = "PREF_LABEL_SVC";
+		    } else if (stateSubView.viewType === "TEXT") {
+		    	requestParams.service = "PREF_TEXT_SVC";
+		    } else if (stateSubView.viewType === "OPTION") {
+		    	requestParams.service = "PREF_OPTION_SVC";
+		    }
+		    requestParams.inputFields = stateSubView.inputFields;
+	    } else {
+	    	requestParams.service = "PREF_SVC";
+	    	requestParams.inputFields = state.inputFields;
+	    }
+	    if (parent != null){
+	    	requestParams.parentId = parent.id;
+	    }
 
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -160,7 +234,7 @@ export function savePreference({state}) {
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list({state,info:["Save Successful"]}));
+	    			dispatch(list({state,stateSubView,info:["Save Successful"]}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
 	    		}
@@ -174,12 +248,22 @@ export function savePreference({state}) {
 }
 
 
-export function deletePreference({state,id}) {
+export function deletePreference({state,stateSubView,id,viewType}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
-	    requestParams.service = "PREF_SVC";
 	    requestParams.itemId = id;
+	    if (viewType === "FORM") {
+	    	requestParams.service = "PREF_FORMFIELD_SVC";
+	    } else if (viewType === "LABEL") {
+	    	requestParams.service = "PREF_LABEL_SVC";
+	    } else if (viewType === "TEXT") {
+	    	requestParams.service = "PREF_TEXT_SVC";
+	    } else if (viewType === "OPTION") {
+	    	requestParams.service = "PREF_OPTION_SVC";
+	    } else {
+	    	requestParams.service = "PREF_SVC";
+	    }
 	    
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -188,7 +272,7 @@ export function deletePreference({state,id}) {
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list({state,info:["Delete Successful"]}));
+	    			dispatch(list({state,stateSubView,info:["Delete Successful"]}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
 	    		}	
@@ -201,26 +285,26 @@ export function deletePreference({state,id}) {
 	};
 }
 
-export function preference({id,viewType}) {
+export function preference({id,viewType,languages}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
-
+	    
 	    if (viewType === "FORM") {
 	    	requestParams.service = "PREF_FORMFIELD_SVC";
-	    	requestParams.prefForms = new Array("ADMIN_FORMFIELD_PAGE");
+	    	requestParams.prefFormKeys = new Array("ADMIN_FORMFIELD_PAGE");
 	    } else if (viewType === "LABEL") {
 	    	requestParams.service = "PREF_LABEL_SVC";
-	    	requestParams.prefForms = new Array("ADMIN_LABEL_PAGE");
+	    	requestParams.prefFormKeys = new Array("ADMIN_LABEL_PAGE");
 	    } else if (viewType === "TEXT") {
 	    	requestParams.service = "PREF_TEXT_SVC";
-	    	requestParams.prefForms = new Array("ADMIN_TEXT_PAGE");
+	    	requestParams.prefFormKeys = new Array("ADMIN_TEXT_PAGE");
 	    } else if (viewType === "OPTION") {
 	    	requestParams.service = "PREF_OPTION_SVC";
-	    	requestParams.prefForms = new Array("ADMIN_OPTION_PAGE");
+	    	requestParams.prefFormKeys = new Array("ADMIN_OPTION_PAGE");
 	    } else {
 	    	requestParams.service = "PREF_SVC";
-		    requestParams.prefForms = new Array("ADMIN_PREFERENCE_PAGE");
+		    requestParams.prefFormKeys = new Array("ADMIN_PREFERENCE_PAGE");
 	    }
 	    
 	    if (id != null) {
@@ -233,7 +317,7 @@ export function preference({id,viewType}) {
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if (viewType != null) {
-	    			dispatch({ type: 'PREFERENCES_SUBVIEW_PREFERENCE', responseJson, viewType});
+	    			dispatch({ type: 'PREFERENCES_SUBVIEW_PREFERENCE', responseJson, viewType, languages});
 	    		} else {
 	    			dispatch({ type: 'PREFERENCES_PREFERENCE', responseJson});
 	    		}
@@ -247,23 +331,27 @@ export function preference({id,viewType}) {
 }
 
 
-export function inputChange(field,value) {
+export function inputChange(field,value,viewType) {
 	 return function(dispatch) {
 		 let params = {};
 		 params.field = field;
 		 params.value = value;
-		 dispatch({ type:"PREFERENCES_INPUT_CHANGE",params});
+		 if (viewType != null){
+			 dispatch({ type:"PREFERENCE_SUBVIEW_INPUT_CHANGE",params});
+		 } else {
+			 dispatch({ type:"PREFERENCES_INPUT_CHANGE",params});
+		 }
 	 };
 }
 
-export function orderBy({state,orderCriteria,viewType}) {
+export function orderBy({state,stateSubView,orderCriteria,viewType}) {
 	 return function(dispatch) {
 		 let type = "PREFERENCES_ORDERBY";
 		 if (viewType != null) {
-			 
+			 type = "PREFERENCE_SUBVIEW_ORDERBY";
 		 }
-		 dispatch({ type,orderCriteria});
-		 dispatch(list({state,orderCriteria,viewType}));
+		 dispatch({type,orderCriteria});
+		 dispatch(list({state,stateSubView,orderCriteria,viewType}));
 	 };
 }
 
@@ -276,5 +364,12 @@ export function clearPreference() {
 export function goBack() {
 	 return function(dispatch) {
 		 dispatch({ type:"PREFERENCES_GOBACK"});
+	 };
+}
+
+export function subViewInit({state,stateSubView,listStart,listLimit,searchCriteria,orderCriteria,info,item,viewType}) {
+	 return function(dispatch) {
+		 dispatch({type:"PREFERENCE_SUBVIEW_INIT",orderCriteria,searchCriteria,item,viewType});
+		 dispatch(list({state,stateSubView,listStart,listLimit,searchCriteria,orderCriteria,item,viewType}));
 	 };
 }

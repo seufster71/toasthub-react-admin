@@ -11,9 +11,9 @@ export function init() {
     let requestParams = {};
     requestParams.action = "INIT";
     requestParams.service = "STATUS_SVC";
-    requestParams.prefForms = new Array("ADMIN_STATUS_FORM");
-    requestParams.prefTexts = new Array("ADMIN_STATUS_PAGE");
-    requestParams.prefLabels = new Array("ADMIN_STATUS_TABLE");
+    requestParams.prefFormKeys = new Array("ADMIN_STATUS_FORM");
+    requestParams.prefTextKeys = new Array("ADMIN_STATUS_PAGE");
+    requestParams.prefLabelKeys = new Array("ADMIN_STATUS_TABLE");
     let params = {};
     params.requestParams = requestParams;
     params.URI = '/api/admin/callService';

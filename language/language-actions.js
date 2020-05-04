@@ -187,7 +187,7 @@ export function language(id) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
 	    requestParams.service = "LANGUAGE_SVC";
-	    requestParams.prefForms = new Array("ADMIN_LANGUAGE_PAGE");
+	    requestParams.prefFormKeys = new Array("ADMIN_LANGUAGE_PAGE");
 	    if (id != null) {
 	    	requestParams.itemId = id;
 	    }
