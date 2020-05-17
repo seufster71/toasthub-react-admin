@@ -72,14 +72,14 @@ class AdminContainer extends Component {
           <Switch>
             <Route exact path="/admin" component={DashboardContainer}/>
             <PrivateRoute path="/admin-bugs" component={BugsContainer} permissions={myPermissions} code="AB" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-buglanes" component={BugsContainer} permissions={myPermissions} code="ABLA" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-buglist" component={BugsContainer} permissions={myPermissions} code="ABLI" pathto="/access-denied"/>
             <PrivateRoute path="/admin-changerequests" component={ChangeRequestsContainer} permissions={myPermissions} code="ACR" pathto="/access-denied"/>
             <PrivateRoute path="/admin-users" component={UsersContainer} permissions={myPermissions} code="AU" pathto="/access-denied"/>
             <PrivateRoute path="/admin-roles" component={RolesContainer} permissions={myPermissions} code="AR" pathto="/access-denied"/>
             <PrivateRoute path="/admin-permissions" component={PermissionsContainer} permissions={myPermissions} code="AP" pathto="/access-denied"/>
             <PrivateRoute path="/admin-prefmgmt" component={PrefMgmtContainer} permissions={myPermissions} code="APR" pathto="/access-denied"/>
             <PrivateRoute path="/admin-prefpublic" component={PreferencesContainer} permissions={myPermissions} code="APRP" pathto="/access-denied"/>
-            <PrivateRoute path="/admin-prefmember" component={PreferencesContainer} permissions={myPermissions} code="APRP" pathto="/access-denied"/>
-            <PrivateRoute path="/admin-prefadmin" component={PreferencesContainer} permissions={myPermissions} code="APRP" pathto="/access-denied"/>
             <PrivateRoute path="/admin-language" component={LanguageContainer} permissions={myPermissions} code="AL" pathto="/access-denied"/>
             <PrivateRoute path="/admin-category" component={CategoryContainer} permissions={myPermissions} code="AC" pathto="/access-denied"/>
             <PrivateRoute path="/admin-status" component={StatusContainer} permissions={myPermissions} code="AS" pathto="/access-denied"/>

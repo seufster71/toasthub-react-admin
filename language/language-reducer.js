@@ -111,13 +111,13 @@ export default function languagesReducer(state = {}, action) {
 		case 'LANGUAGES_INPUT_CHANGE': {
 			return reducerUtils.updateInputChange(state,action);
 		}
-		case 'USERS_LISTLIMIT': {
+		case 'LANGUAGES_LISTLIMIT': {
 			return reducerUtils.updateListLimit(state,action);
 		}
-		case 'USERS_SEARCH': { 
+		case 'LANGUAGES_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
-		case 'USERS_ORDERBY': { 
+		case 'LANGUAGES_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}
 		default:

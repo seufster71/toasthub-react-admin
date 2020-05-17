@@ -233,7 +233,7 @@ class LanguageContainer extends Component {
 			return (
 				<LanguageView 
 				containerState={this.state}
-				items={this.props.languages}
+				langState={this.props.languages}
 				appPrefs={this.props.appPrefs}
 				onListLimitChange={this.onListLimitChange}
 				onSearchChange={this.onSearchChange}

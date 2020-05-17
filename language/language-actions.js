@@ -26,8 +26,8 @@ export function init() {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "LANGUAGE_SVC";
-		requestParams.prefTexts = new Array("ADMIN_LANGUAGE_PAGE");
-		requestParams.prefLabels = new Array("ADMIN_LANGUAGE_PAGE");
+		requestParams.prefTextKeys = new Array("ADMIN_LANGUAGE_PAGE");
+		requestParams.prefLabelKeys = new Array("ADMIN_LANGUAGE_PAGE");
 		let params = {};
 		params.requestParams = requestParams;
 		params.URI = '/api/admin/callService';
@@ -221,10 +221,4 @@ export function orderBy({state,orderCriteria}) {
 		 dispatch({ type:"LANGUAGES_ORDERBY",orderCriteria});
 		 dispatch(list({state,orderCriteria}));
 	 };
-}
-
-export function clearLanguage() {
-	return function(dispatch) {
-		dispatch({ type:"LANGUAGES_CLEAR_LANGUAGE"});
-	};
 }
