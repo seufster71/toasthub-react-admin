@@ -30,22 +30,6 @@ class RolesContainer extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {pageName:"ADMIN_ROLE",isDeleteModalOpen: false, errors:null, warns:null, successes:null};
-		this.onListLimitChange = this.onListLimitChange.bind(this);
-		this.onSearchClick = this.onSearchClick.bind(this);
-		this.onSearchChange = this.onSearchChange.bind(this);
-		this.onPaginationClick = this.onPaginationClick.bind(this);
-		this.onOrderBy = this.onOrderBy.bind(this);
-		this.openDeleteModal = this.openDeleteModal.bind(this);
-		this.closeModal = this.closeModal.bind(this);
-		this.onSave = this.onSave.bind(this);
-		this.onModify = this.onModify.bind(this);
-		this.onDelete = this.onDelete.bind(this);
-		this.onEditPermissions = this.onEditPermissions.bind(this);
-		this.inputChange = this.inputChange.bind(this);
-		this.onCancel = this.onCancel.bind(this);
-		this.onUserRoleModify = this.onUserRoleModify.bind(this);
-		this.onUserRoleSave = this.onUserRoleSave.bind(this);
-		this.goBack = this.goBack.bind(this);
 	}
 
 	componentDidMount() {
@@ -56,64 +40,54 @@ class RolesContainer extends Component {
 		}
 	}
 
-	onListLimitChange(fieldName) {
-		return (event) => {
-			let value = 20;
-			if (this.props.codeType === 'NATIVE') {
-				value = event.nativeEvent.text;
-			} else {
-				value = event.target.value;
-			}
+	onListLimitChange = (fieldName, event) => {
+		let value = 20;
+		if (this.props.codeType === 'NATIVE') {
+			value = event.nativeEvent.text;
+		} else {
+			value = event.target.value;
+		}
 
-			let listLimit = parseInt(value);
-			this.props.actions.listLimit({state:this.props.roles,listLimit});
-		};
+		let listLimit = parseInt(value);
+		this.props.actions.listLimit({state:this.props.roles,listLimit});
 	}
 
-	onPaginationClick(value) {
-		return(event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onPaginationClick',msg:"fieldName "+ value});
-			let listStart = this.props.roles.listStart;
-			let segmentValue = 1;
-			let oldValue = 1;
-			if (this.state["ADMIN_ROLE_PAGINATION"] != null && this.state["ADMIN_ROLE_PAGINATION"] != ""){
-				oldValue = this.state["ADMIN_ROLE_PAGINATION"];
-			}
-			if (value === "prev") {
-				segmentValue = oldValue - 1;
-			} else if (value === "next") {
-				segmentValue = oldValue + 1;
-			} else {
-				segmentValue = value;
-			}
-			listStart = ((segmentValue - 1) * this.props.roles.listLimit);
-			this.setState({"ADMIN_ROLE_PAGINATION":segmentValue});
+	onPaginationClick = (value) => {
+		fuLogger.log({level:'TRACE',loc:'RoleContainer::onPaginationClick',msg:"fieldName "+ value});
+		let listStart = this.props.roles.listStart;
+		let segmentValue = 1;
+		let oldValue = 1;
+		if (this.state["ADMIN_ROLE_PAGINATION"] != null && this.state["ADMIN_ROLE_PAGINATION"] != ""){
+			oldValue = this.state["ADMIN_ROLE_PAGINATION"];
+		}
+		if (value === "prev") {
+			segmentValue = oldValue - 1;
+		} else if (value === "next") {
+			segmentValue = oldValue + 1;
+		} else {
+			segmentValue = value;
+		}
+		listStart = ((segmentValue - 1) * this.props.roles.listLimit);
+		this.setState({"ADMIN_ROLE_PAGINATION":segmentValue});
 
-			this.props.actions.list({state:this.props.roles,listStart});
-		};
+		this.props.actions.list({state:this.props.roles,listStart});
 	}
 
-	onSearchChange(fieldName) {
-		return (event) => {
-			if (event.type === 'keypress' && event.key === 'Enter') {
+	onSearchChange = (fieldName, event) => {
+		if (event.type === 'keypress') {
+			if (event.key === 'Enter') {
 				this.searchClick(fieldName,event);
-			} else {
-				if (this.props.codeType === 'NATIVE') {
-					this.setState({[fieldName]:event.nativeEvent.text});
-				} else {
-					this.setState({[fieldName]:event.target.value});
-				}
 			}
-		};
+		} else {
+			if (this.props.codeType === 'NATIVE') {
+				this.setState({[fieldName]:event.nativeEvent.text});
+			} else {
+				this.setState({[fieldName]:event.target.value});
+			}
+		}
 	}
 
-	onSearchClick(fieldName) {
-		return (event) => {
-			this.searchClick(fieldName,event);
-		};
-	}
-	
-	searchClick(fieldName,event) {
+	onSearchClick = (fieldName, event) => {
 		let searchCriteria = [];
 		if (fieldName === 'ADMIN_ROLE-SEARCHBY') {
 			if (event != null) {
@@ -136,125 +110,127 @@ class RolesContainer extends Component {
 		this.props.actions.search({state:this.props.roles,searchCriteria});
 	}
 
-	onOrderBy(selectedOption) {
-		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onOrderBy',msg:"id " + selectedOption});
-			let orderCriteria = [];
-			if (event != null) {
-				for (let o = 0; o < event.length; o++) {
-					let option = {};
-					if (event[o].label.includes("ASC")) {
-						option.orderColumn = event[o].value;
-						option.orderDir = "ASC";
-					} else if (event[o].label.includes("DESC")){
-						option.orderColumn = event[o].value;
-						option.orderDir = "DESC";
-					} else {
-						option.orderColumn = event[o].value;
-					}
-					orderCriteria.push(option);
+	onOrderBy = (selectedOption, event) => {
+		fuLogger.log({level:'TRACE',loc:'RoleContainer::onOrderBy',msg:"id " + selectedOption});
+		let orderCriteria = [];
+		if (event != null) {
+			for (let o = 0; o < event.length; o++) {
+				let option = {};
+				if (event[o].label.includes("ASC")) {
+					option.orderColumn = event[o].value;
+					option.orderDir = "ASC";
+				} else if (event[o].label.includes("DESC")){
+					option.orderColumn = event[o].value;
+					option.orderDir = "DESC";
+				} else {
+					option.orderColumn = event[o].value;
 				}
-			} else {
-				let option = {orderColumn:"ADMIN_ROLE_TABLE_NAME",orderDir:"ASC"};
 				orderCriteria.push(option);
 			}
-			this.props.actions.orderBy({state:this.props.roles,orderCriteria});
-		};
+		} else {
+			let option = {orderColumn:"ADMIN_ROLE_TABLE_NAME",orderDir:"ASC"};
+			orderCriteria.push(option);
+		}
+		this.props.actions.orderBy({state:this.props.roles,orderCriteria});
 	}
 	
-	onSave() {
-		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onSave',msg:"test"});
-			let errors = utils.validateFormFields(this.props.roles.prefForms.ADMIN_ROLE_PAGE, this.props.roles.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
-			
-			if (errors.isValid){
-				this.props.actions.saveRole({state:this.props.roles});
-			} else {
-				this.setState({errors:errors.errorMap});
-			}
-		};
-	}
-	
-	onModify(item) {
-		return (event) => {
-			let id = null;
-			if (item != null && item.id != null) {
-				id = item.id;
-			}
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onModify',msg:"item id "+id});
-			this.props.actions.role(id);
-		};
-	}
-	
-	onDelete(item) {
-		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onDelete',msg:"test"+item.id});
-			this.setState({isDeleteModalOpen:false});
-			this.props.actions.deleteRole({state:this.props.roles,id:item.id});
-		};
-	}
-	
-	openDeleteModal(item) {
-		return (event) => {
-		    this.setState({isDeleteModalOpen:true,selected:item});
+	onSave = () => {
+		fuLogger.log({level:'TRACE',loc:'RoleContainer::onSave',msg:"test"});
+		let errors = utils.validateFormFields(this.props.roles.prefForms.ADMIN_ROLE_PAGE, this.props.roles.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
+		
+		if (errors.isValid){
+			this.props.actions.saveRole({state:this.props.roles});
+		} else {
+			this.setState({errors:errors.errorMap});
 		}
 	}
 	
-	onEditPermissions(item) {
-		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onEditPermissions',msg:"test"+item.id});
-			this.props.history.push({pathname:'/admin-permissions',state:{parent:item}});
-		};
+	onModify = (item) => {
+		let id = null;
+		if (item != null && item.id != null) {
+			id = item.id;
+		}
+		fuLogger.log({level:'TRACE',loc:'RoleContainer::onModify',msg:"item id "+id});
+		this.props.actions.role(id);
 	}
 	
-	closeModal() {
-		return (event) => {
-			this.setState({isDeleteModalOpen:false,errors:null,warns:null});
-		};
+	onDelete = (item) => {
+		fuLogger.log({level:'TRACE',loc:'RoleContainer::onDelete',msg:"test"+item.id});
+		this.setState({isDeleteModalOpen:false});
+		this.props.actions.deleteRole({state:this.props.roles,id:item.id});
 	}
 	
-	onCancel() {
-		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onCancel',msg:"test"});
-			this.props.actions.list({state:this.props.roles});
-		};
+	openDeleteModal = (item) => {
+		this.setState({isDeleteModalOpen:true,selected:item});
 	}
 	
-	inputChange(fieldName,switchValue) {
-		return (event) => {
-			utils.inputChange(this.props,fieldName,switchValue);
-		};
+	onModifyPermissions = (item) => {
+		fuLogger.log({level:'TRACE',loc:'RoleContainer::onModifyPermissions',msg:"test"+item.id});
+		this.props.history.push({pathname:'/admin-permissions',state:{parent:item}});
+	}
+	
+	closeModal = () => {
+		this.setState({isDeleteModalOpen:false,errors:null,warns:null});
+	}
+	
+	onCancel = () => {
+		fuLogger.log({level:'TRACE',loc:'RoleContainer::onCancel',msg:"test"});
+		this.props.actions.list({state:this.props.roles});
+	}
+	
+	inputChange = (fieldName,switchValue) => {
+		utils.inputChange(this.props,fieldName,switchValue);
 	}
 
-	onUserRoleModify(item) {
-		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onUserRoleModify',msg:"test"+item.id});
-			if (item.userRole != null) {
-				this.props.actions.userRole({userRoleId:item.userRole.id,roleId:item.id});
-			} else {
-				this.props.actions.userRole({roleId:item.id});
-			}
-		};
+	onUserRoleModify = (item) => {
+		fuLogger.log({level:'TRACE',loc:'RoleContainer::onUserRoleModify',msg:"test"+item.id});
+		if (item.userRole != null) {
+			this.props.actions.userRole({userRoleId:item.userRole.id,roleId:item.id});
+		} else {
+			this.props.actions.userRole({roleId:item.id});
+		}
 	}
 	
-	onUserRoleSave() {
-		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::onUserRoleSave',msg:"test"});
-			let errors = utils.validateFormFields(this.props.roles.prefForms.ADMIN_USER_ROLE_FORM,this.props.roles.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
-			
-			if (errors.isValid){
-				let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_NAME'};
-				this.props.actions.saveRolePermission({state:this.props.roles});
-			} else {
-				this.setState({errors:errors.errorMap});
-			}
-		};
+	onUserRoleSave = () => {
+		fuLogger.log({level:'TRACE',loc:'RoleContainer::onUserRoleSave',msg:"test"});
+		let errors = utils.validateFormFields(this.props.roles.prefForms.ADMIN_USER_ROLE_FORM,this.props.roles.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
+		
+		if (errors.isValid){
+			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_NAME'};
+			this.props.actions.saveRolePermission({state:this.props.roles});
+		} else {
+			this.setState({errors:errors.errorMap});
+		}
 	}
 	
-	goBack() {
-		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'RoleContainer::goBack',msg:"test"});
-			this.props.history.goBack();
+	goBack = () => {
+		fuLogger.log({level:'TRACE',loc:'RoleContainer::goBack',msg:"test"});
+		this.props.history.goBack();
+	}
+	
+	onOption = (code,item) => {
+		fuLogger.log({level:'TRACE',loc:'RoleContainer::onOption',msg:" code "+code});
+		switch(code) {
+			case 'MODIFY': {
+				this.onModify(item);
+				break;
+			}
+			case 'DELETE': {
+				this.openDeleteModal(item);
+				break;
+			}
+			case 'DELETEFINAL': {
+				this.onDelete(item);
+				break;
+			}
+			case 'MODIFY_USER_ROLE': {
+				this.onUserRoleModify(item);
+				break;
+			}
+			case 'MODIFY_PERMISSION': {
+				this.onModifyPermissions(item);
+				break;
+			}
 		}
 	}
 	
@@ -298,12 +274,8 @@ class RolesContainer extends Component {
 				onSearchClick={this.onSearchClick}
 				onPaginationClick={this.onPaginationClick}
 				onOrderBy={this.onOrderBy}
-				openDeleteModal={this.openDeleteModal}
 				closeModal={this.closeModal}
-				onModify={this.onModify}
-				onDelete={this.onDelete}
-				onEditPermissions={this.onEditPermissions}
-				onUserRoleModify={this.onUserRoleModify}
+				onOption={this.onOption}
 				inputChange={this.inputChange}
 				goBack={this.goBack}
 				session={this.props.session}
