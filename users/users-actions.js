@@ -187,7 +187,7 @@ export function user(id) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
 	    requestParams.service = "USERS_SVC";
-	    requestParams.prefFormKeys = new Array("ADMIN_USER_PAGE");
+	    requestParams.prefFormKeys = new Array("ADMIN_USER_FORM");
 	    if (id != null) {
 	    	requestParams.itemId = id;
 	    }

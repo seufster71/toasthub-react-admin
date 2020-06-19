@@ -78,7 +78,7 @@ class PermissionsContainer extends Component {
 	onSearchChange = (fieldName, event) => {
 		if (event.type === 'keypress') { 
 			if (event.key === 'Enter') {
-				this.searchClick(fieldName,event);
+				this.onSearchClick(fieldName,event);
 			}
 		} else if (event.type === 'change') {
 			if (this.props.codeType === 'NATIVE') {
@@ -138,7 +138,7 @@ class PermissionsContainer extends Component {
 	
 	onSave = () => {
 		fuLogger.log({level:'TRACE',loc:'PermissionContainer::onSave',msg:"test"});
-		let errors = utils.validateFormFields(this.props.permissions.prefForms.ADMIN_PERMISSION_PAGE,this.props.permissions.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
+		let errors = utils.validateFormFields(this.props.permissions.prefForms.ADMIN_PERMISSION_FORM,this.props.permissions.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
 		
 		if (errors.isValid){
 			this.props.actions.savePermission({state:this.props.permissions});
@@ -153,7 +153,7 @@ class PermissionsContainer extends Component {
 			id = item.id;
 		}
 		fuLogger.log({level:'TRACE',loc:'PermissionContainer::onModify',msg:"item id "+id});
-		this.props.actions.permission(id);
+		this.props.actions.modifyItem({id,appPrefs:this.props.appPrefs});
 	}
 	
 	onDelete = (item) => {
@@ -174,16 +174,22 @@ class PermissionsContainer extends Component {
 		this.props.actions.list({state:this.props.permissions});
 	}
 	
-	inputChange = (fieldName,switchValue) => {
-		utils.inputChange(this.props,fieldName,switchValue);
+	inputChange = (fieldName,switchValue,event) => {
+		let value = "";
+		if (switchValue === "DATE") {
+			value = event.toISOString();
+		} else {
+			value = switchValue;
+		}
+		utils.inputChange(this.props,fieldName,value);
 	}
 	
 	onRolePermissionModify = (item) => {
 		fuLogger.log({level:'TRACE',loc:'PermissionContainer::onRolePermissionModify',msg:"test"+item.id});
 		if (item.rolePermission != null) {
-			this.props.actions.rolePermission({rolePermissionId:item.rolePermission.id,permissionId:item.id});
+			this.props.actions.modifyRolePermission({rolePermissionId:item.rolePermission.id,permissionId:item.id});
 		} else {
-			this.props.actions.rolePermission({permissionId:item.id});
+			this.props.actions.modifyRolePermission({permissionId:item.id,appPrefs:this.props.appPrefs});
 		}
 	}
 	

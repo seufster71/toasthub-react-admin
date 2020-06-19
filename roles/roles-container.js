@@ -76,7 +76,7 @@ class RolesContainer extends Component {
 	onSearchChange = (fieldName, event) => {
 		if (event.type === 'keypress') {
 			if (event.key === 'Enter') {
-				this.searchClick(fieldName,event);
+				this.onSearchClick(fieldName,event);
 			}
 		} else {
 			if (this.props.codeType === 'NATIVE') {
@@ -136,7 +136,7 @@ class RolesContainer extends Component {
 	
 	onSave = () => {
 		fuLogger.log({level:'TRACE',loc:'RoleContainer::onSave',msg:"test"});
-		let errors = utils.validateFormFields(this.props.roles.prefForms.ADMIN_ROLE_PAGE, this.props.roles.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
+		let errors = utils.validateFormFields(this.props.roles.prefForms.ADMIN_ROLE_FORM, this.props.roles.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
 		
 		if (errors.isValid){
 			this.props.actions.saveRole({state:this.props.roles});
@@ -151,7 +151,7 @@ class RolesContainer extends Component {
 			id = item.id;
 		}
 		fuLogger.log({level:'TRACE',loc:'RoleContainer::onModify',msg:"item id "+id});
-		this.props.actions.role(id);
+		this.props.actions.modifyItem({id,appPrefs:this.props.appPrefs});
 	}
 	
 	onDelete = (item) => {
@@ -178,16 +178,22 @@ class RolesContainer extends Component {
 		this.props.actions.list({state:this.props.roles});
 	}
 	
-	inputChange = (fieldName,switchValue) => {
-		utils.inputChange(this.props,fieldName,switchValue);
+	inputChange = (fieldName,switchValue,event) => {
+		let value = "";
+		if (switchValue === "DATE") {
+			value = event.toISOString();
+		} else {
+			value = switchValue;
+		}
+		utils.inputChange(this.props,fieldName,value);
 	}
 
 	onUserRoleModify = (item) => {
 		fuLogger.log({level:'TRACE',loc:'RoleContainer::onUserRoleModify',msg:"test"+item.id});
 		if (item.userRole != null) {
-			this.props.actions.userRole({userRoleId:item.userRole.id,roleId:item.id});
+			this.props.actions.modifyUserRole({userRoleId:item.userRole.id,roleId:item.id,appPrefs:this.props.appPrefs});
 		} else {
-			this.props.actions.userRole({roleId:item.id});
+			this.props.actions.modifyUserRole({roleId:item.id,appPrefs:this.props.appPrefs});
 		}
 	}
 	

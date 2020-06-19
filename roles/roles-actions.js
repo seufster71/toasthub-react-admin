@@ -170,33 +170,12 @@ export function deleteRole({state,id}) {
 	};
 }
 
-export function rolesPage() {
-	return function(dispatch) {
-	    let requestParams = {};
-	    requestParams.action = "ROLES_PAGE";
-	   
-	    let params = {};
-	    params.requestParams = requestParams;
-	    params.URI = '/api/admin/callService';
-
-	    return callService(params).then( (responseJson) => {
-	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'ROLES_PAGE',responseJson});
-	    	} else {
-	    		actionUtils.checkConnectivity(responseJson,dispatch);
-	    	}
-	    }).catch(error => {
-	    	throw(error);
-	    });
-	};
-}
-
-export function role(id) {
+export function modifyItem({id, appPrefs}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
 	    requestParams.service = "ROLES_SVC";
-	    requestParams.prefFormKeys = new Array("ADMIN_ROLE_PAGE");
+	    requestParams.prefFormKeys = new Array("ADMIN_ROLE_FORM");
 	    if (id != null) {
 	    	requestParams.itemId = id;
 	    }
@@ -206,7 +185,7 @@ export function role(id) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'ROLES_ROLE',responseJson});
+	    		dispatch({ type: 'ROLES_ITEM',responseJson, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -216,12 +195,12 @@ export function role(id) {
 	};
 }
 
-export function userRole({userRoleId, roleId}) {
+export function modifyUserRole({userRoleId, roleId, appPrefs}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "USER_ROLE_ITEM";
 	    requestParams.service = "ROLES_SVC";
-	    requestParams.prefFormKeys = new Array("ADMIN_ROLE_PAGE");
+	    requestParams.prefFormKeys = new Array("ADMIN_USER_ROLE_FORM");
 	    if (userRoleId != null) {
 	    	requestParams.itemId = userRoleId;
 	    }
@@ -232,7 +211,7 @@ export function userRole({userRoleId, roleId}) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'ROLES_USER_ROLE',responseJson});
+	    		dispatch({ type: 'ROLES_USER_ROLE',responseJson, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}

@@ -171,33 +171,12 @@ export function deletePermission({state,id}) {
 	};
 }
 
-export function permissionsPage() {
-	return function(dispatch) {
-	    let requestParams = {};
-	    requestParams.action = "PERMISSIONS_PAGE";
-	   
-	    let params = {};
-	    params.requestParams = requestParams;
-	    params.URI = '/api/admin/callService';
-
-	    return callService(params).then( (responseJson) => {
-	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'PERMISSIONS_PAGE',responseJson});
-	    	} else {
-	    		actionUtils.checkConnectivity(responseJson,dispatch);
-	    	}
-	    }).catch(error => {
-	    	throw(error);
-	    });
-	};
-}
-
-export function permission(id) {
+export function modifyItem({id,appPrefs}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
 	    requestParams.service = "PERMISSIONS_SVC";
-	    requestParams.prefFormKeys = new Array("ADMIN_PERMISSION_PAGE");
+	    requestParams.prefFormKeys = new Array("ADMIN_PERMISSION_FORM");
 	    if (id != null) {
 	    	requestParams.itemId = id;
 	    }
@@ -207,7 +186,7 @@ export function permission(id) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'PERMISSIONS_PERMISSION',responseJson});
+	    		dispatch({ type: 'PERMISSIONS_ITEM',responseJson, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -217,12 +196,12 @@ export function permission(id) {
 	};
 }
 
-export function rolePermission({rolePermissionId, permissionId}) {
+export function modifyRolePermission({rolePermissionId, permissionId, appPrefs}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "ROLE_PERMISSION_ITEM";
 	    requestParams.service = "PERMISSIONS_SVC";
-	    requestParams.prefFormKeys = new Array("ADMIN_PERMISSION_PAGE");
+	    requestParams.prefFormKeys = new Array("ADMIN_ROLE_PERMISSION_FORM");
 	    if (rolePermissionId != null) {
 	    	requestParams.itemId = rolePermissionId;
 	    }
@@ -233,7 +212,7 @@ export function rolePermission({rolePermissionId, permissionId}) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'PERMISSIONS_ROLE_PERMISSION',responseJson});
+	    		dispatch({ type: 'PERMISSIONS_ROLE_PERMISSION',responseJson, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}

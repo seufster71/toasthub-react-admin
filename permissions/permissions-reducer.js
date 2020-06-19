@@ -54,45 +54,57 @@ export default function permissionsReducer(state = {}, action) {
     			return state;
     		}
 		}
-    	case 'PERMISSIONS_PERMISSION': {
+    	case 'PERMISSIONS_ITEM': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
 				let prefForms = reducerUtils.getPrefForms(action);
-				for (let i = 0; i < prefForms.ADMIN_PERMISSION_PAGE.length; i++) {
-					if (prefForms.ADMIN_PERMISSION_PAGE[i].group === "FORM1") {
-						let classModel = JSON.parse(prefForms.ADMIN_PERMISSION_PAGE[i].classModel);
+				for (let i = 0; i < prefForms.ADMIN_PERMISSION_FORM.length; i++) {
+					if (prefForms.ADMIN_PERMISSION_FORM[i].group === "FORM1") {
+						let classModel = JSON.parse(prefForms.ADMIN_PERMISSION_FORM[i].classModel);
 						if (action.responseJson.params.item != null && action.responseJson.params.item.hasOwnProperty(classModel.field)) {
 							if (classModel.defaultClazz != null) {
-								inputFields[prefForms.ADMIN_PERMISSION_PAGE[i].name+"-DEFAULT"] = action.responseJson.params.item[classModel.field].defaultText;
+								inputFields[prefForms.ADMIN_PERMISSION_FORM[i].name+"-DEFAULT"] = action.responseJson.params.item[classModel.field].defaultText;
 							}
 							if (classModel.textClazz != null) {
 								for (let j = 0; j < action.responseJson.params.item[classModel.field].langTexts.length; j++) {
-									inputFields[prefForms.ADMIN_PERMISSION_PAGE[i].name+"-TEXT-"+action.responseJson.params.item[classModel.field].langTexts[j].lang] = action.responseJson.params.item[classModel.field].langTexts[j].text;
+									inputFields[prefForms.ADMIN_PERMISSION_FORM[i].name+"-TEXT-"+action.responseJson.params.item[classModel.field].langTexts[j].lang] = action.responseJson.params.item[classModel.field].langTexts[j].text;
 								}
 							}
 							if (classModel.type == "Object") {
-								inputFields[prefForms.ADMIN_PERMISSION_PAGE[i].name] = "Object";
+								inputFields[prefForms.ADMIN_PERMISSION_FORM[i].name] = "Object";
 							} else {
-								inputFields[prefForms.ADMIN_PERMISSION_PAGE[i].name] = action.responseJson.params.item[classModel.field];
+								inputFields[prefForms.ADMIN_PERMISSION_FORM[i].name] = action.responseJson.params.item[classModel.field];
 							}
 						} else {
 							let result = "";
-							if (prefForms.ADMIN_PERMISSION_PAGE[i].value != null && prefForms.ADMIN_PERMISSION_PAGE[i].value != ""){
-								if (prefForms.ADMIN_PERMISSION_PAGE[i].value.includes("{")) {
-									let formValue = JSON.parse(prefForms.ADMIN_PERMISSION_PAGE[i].value);
+							if (prefForms.ADMIN_PERMISSION_FORM[i].value != null && prefForms.ADMIN_PERMISSION_FORM[i].value != ""){
+								if (prefForms.ADMIN_PERMISSION_FORM[i].value.includes("{")) {
+									let formValue = JSON.parse(prefForms.ADMIN_PERMISSION_FORM[i].value);
 									if (formValue.options != null) {
 										for (let j = 0; j < formValue.options.length; j++) {
 											if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
 												result = formValue.options[j].value;
 											}
 										}
+									} else if (formValue.referPref != null) {
+										let pref = action.appPrefs.prefTexts[formValue.referPref.prefName][formValue.referPref.prefItem];
+										if (pref != null && pref.value != null && pref.value != "") {
+											let value = JSON.parse(pref.value);
+											if (value.options != null) {
+												for (let j = 0; j < value.options.length; j++) {
+													if (value.options[j] != null && value.options[j].defaultInd == true){
+														result = value.options[j].value;
+													}
+												}
+											}
+										}
 									}
 								} else {
-									result = prefForms.ADMIN_PERMISSION_PAGE[i].value;
+									result = prefForms.ADMIN_PERMISSION_FORM[i].value;
 								}
 							}
-							inputFields[prefForms.ADMIN_PERMISSION_PAGE[i].name] = result;
+							inputFields[prefForms.ADMIN_PERMISSION_FORM[i].name] = result;
 						}
 					}
 				}
@@ -141,40 +153,52 @@ export default function permissionsReducer(state = {}, action) {
 				// load inputFields
 				let inputFields = {};
 				let prefForms = reducerUtils.getPrefForms(action);
-				for (let i = 0; i < prefForms.ADMIN_ROLE_PERMISSION_PAGE.length; i++) {
-					if (prefForms.ADMIN_PERMISSION_PAGE[i].group === "ROLE_PERM_FORM") {
-						let classModel = JSON.parse(prefForms.ADMIN_ROLE_PERMISSION_PAGE[i].classModel);
+				for (let i = 0; i < prefForms.ADMIN_ROLE_PERMISSION_FORM.length; i++) {
+					if (prefForms.ADMIN_ROLE_PERMISSION_FORM[i].group === "ROLE_PERM_FORM") {
+						let classModel = JSON.parse(prefForms.ADMIN_ROLE_PERMISSION_FORM[i].classModel);
 						if (action.responseJson.params.item != null && action.responseJson.params.item.hasOwnProperty(classModel.field)) {
 							if (classModel.defaultClazz != null) {
-								inputFields[prefForms.ADMIN_ROLE_PERMISSION_PAGE[i].name+"-DEFAULT"] = action.responseJson.params.item[classModel.field].defaultText;
+								inputFields[prefForms.ADMIN_ROLE_PERMISSION_FORM[i].name+"-DEFAULT"] = action.responseJson.params.item[classModel.field].defaultText;
 							}
 							if (classModel.textClazz != null) {
 								for (let j = 0; j < action.responseJson.params.item[classModel.field].langTexts.length; j++) {
-									inputFields[prefForms.ADMIN_ROLE_PERMISSION_PAGE[i].name+"-TEXT-"+action.responseJson.params.item[classModel.field].langTexts[j].lang] = action.responseJson.params.item[classModel.field].langTexts[j].text;
+									inputFields[prefForms.ADMIN_ROLE_PERMISSION_FORM[i].name+"-TEXT-"+action.responseJson.params.item[classModel.field].langTexts[j].lang] = action.responseJson.params.item[classModel.field].langTexts[j].text;
 								}
 							}
 							if (classModel.type == "Object") {
-								inputFields[prefForms.ADMIN_ROLE_PERMISSION_PAGE[i].name] = "Object";
+								inputFields[prefForms.ADMIN_ROLE_PERMISSION_FORM[i].name] = "Object";
 							} else {
-								inputFields[prefForms.ADMIN_ROLE_PERMISSION_PAGE[i].name] = action.responseJson.params.item[classModel.field];
+								inputFields[prefForms.ADMIN_ROLE_PERMISSION_FORM[i].name] = action.responseJson.params.item[classModel.field];
 							}
 						} else {
 							let result = "";
-							if (prefForms.ADMIN_ROLE_PERMISSION_PAGE[i].value != null && prefForms.ADMIN_ROLE_PERMISSION_PAGE[i].value != ""){
-								if (prefForms.ADMIN_ROLE_PERMISSION_PAGE[i].value.includes("{")) {
-									let formValue = JSON.parse(prefForms.ADMIN_ROLE_PERMISSION_PAGE[i].value);
+							if (prefForms.ADMIN_ROLE_PERMISSION_FORM[i].value != null && prefForms.ADMIN_ROLE_PERMISSION_FORM[i].value != ""){
+								if (prefForms.ADMIN_ROLE_PERMISSION_FORM[i].value.includes("{")) {
+									let formValue = JSON.parse(prefForms.ADMIN_ROLE_PERMISSION_FORM[i].value);
 									if (formValue.options != null) {
 										for (let j = 0; j < formValue.options.length; j++) {
 											if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
 												result = formValue.options[j].value;
 											}
 										}
+									} else if (formValue.referPref != null) {
+										let pref = action.appPrefs.prefTexts[formValue.referPref.prefName][formValue.referPref.prefItem];
+										if (pref != null && pref.value != null && pref.value != "") {
+											let value = JSON.parse(pref.value);
+											if (value.options != null) {
+												for (let j = 0; j < value.options.length; j++) {
+													if (value.options[j] != null && value.options[j].defaultInd == true){
+														result = value.options[j].value;
+													}
+												}
+											}
+										}
 									}
 								} else {
-									result = prefForms.ADMIN_ROLE_PERMISSION_PAGE[i].value;
+									result = prefForms.ADMIN_ROLE_PERMISSION_FORM[i].value;
 								}
 							}
-							inputFields[prefForms.ADMIN_ROLE_PERMISSION_PAGE[i].name] = result;
+							inputFields[prefForms.ADMIN_ROLE_PERMISSION_FORM[i].name] = result;
 						}
 					}
 				}

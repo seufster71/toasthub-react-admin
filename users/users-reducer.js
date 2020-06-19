@@ -57,22 +57,22 @@ export default function usersReducer(state = {}, action) {
 				// load inputFields
 				let inputFields = {};
 				let prefForms = reducerUtils.getPrefForms(action);
-				for (let i = 0; i < prefForms.ADMIN_USER_PAGE.length; i++) {
-					if (prefForms.ADMIN_USER_PAGE[i].group === "FORM1") {
-						let classModel = JSON.parse(prefForms.ADMIN_USER_PAGE[i].classModel);
+				for (let i = 0; i < prefForms.ADMIN_USER_FORM.length; i++) {
+					if (prefForms.ADMIN_USER_FORM[i].group === "FORM1") {
+						let classModel = JSON.parse(prefForms.ADMIN_USER_FORM[i].classModel);
 						if (action.responseJson.params.item != null && action.responseJson.params.item[classModel.field]) {
-							inputFields[prefForms.ADMIN_USER_PAGE[i].name] = action.responseJson.params.item[classModel.field];
+							inputFields[prefForms.ADMIN_USER_FORM[i].name] = action.responseJson.params.item[classModel.field];
 						} else {
 							let result = "";
-							if (prefForms.ADMIN_USER_PAGE[i].value != null && prefForms.ADMIN_USER_PAGE[i].value != ""){
-								let formValue = JSON.parse(prefForms.ADMIN_USER_PAGE[i].value);
+							if (prefForms.ADMIN_USER_FORM[i].value != null && prefForms.ADMIN_USER_FORM[i].value != ""){
+								let formValue = JSON.parse(prefForms.ADMIN_USER_FORM[i].value);
 								for (let j = 0; j < formValue.options.length; j++) {
 									if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
 										result = formValue.options[j].value;
 									}
 								}
 							}
-							inputFields[prefForms.ADMIN_USER_PAGE[i].name] = result;
+							inputFields[prefForms.ADMIN_USER_FORM[i].name] = result;
 						}
 					}
 				}
