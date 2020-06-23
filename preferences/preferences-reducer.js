@@ -29,8 +29,8 @@ export default function preferencesReducer(state = {}, action) {
 	    		 	items: reducerUtils.getItems(action),
 	    		  	listLimit: reducerUtils.getListLimit(action),
 	    			listStart: reducerUtils.getListStart(action),
-	    			orderCriteria: action.orderCriteria,
-    				searchCriteria: action.searchCriteria,
+	    			orderCriteria: [{'orderColumn':'ADMIN_PREFERENCE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_PREFERENCE_TABLE_TITLE','orderDir':'ASC'}],
+    				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_PREFERENCE_TABLE_TITLE'}],
     				selected: null,
     				isModifyOpen: false,
     				isSubViewOpen: false
@@ -53,12 +53,12 @@ export default function preferencesReducer(state = {}, action) {
     		    return state;
     		}
     	}
-    	case 'PREFERENCES_PREFERENCE': {
+    	case 'PREFERENCES_ITEM': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
 				let prefForms = reducerUtils.getPrefForms(action);
-				inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_PREFERENCE_PAGE,inputFields);
+				inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_PREFERENCE_FORM,inputFields,action.appPrefs,"FORM1");
 
 				// add id if this is existing item
 				if (action.responseJson.params.item != null) {

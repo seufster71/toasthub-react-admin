@@ -285,26 +285,26 @@ export function deletePreference({state,stateSubView,id,viewType}) {
 	};
 }
 
-export function preference({id,viewType,languages}) {
+export function modifyItem({id,viewType,languages,appPrefs}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
 	    
 	    if (viewType === "FORM") {
 	    	requestParams.service = "PREF_FORMFIELD_SVC";
-	    	requestParams.prefFormKeys = new Array("ADMIN_FORMFIELD_PAGE");
+	    	requestParams.prefFormKeys = new Array("ADMIN_FORMFIELD_FORM");
 	    } else if (viewType === "LABEL") {
 	    	requestParams.service = "PREF_LABEL_SVC";
-	    	requestParams.prefFormKeys = new Array("ADMIN_LABEL_PAGE");
+	    	requestParams.prefFormKeys = new Array("ADMIN_LABEL_FORM");
 	    } else if (viewType === "TEXT") {
 	    	requestParams.service = "PREF_TEXT_SVC";
-	    	requestParams.prefFormKeys = new Array("ADMIN_TEXT_PAGE");
+	    	requestParams.prefFormKeys = new Array("ADMIN_TEXT_FORM");
 	    } else if (viewType === "OPTION") {
 	    	requestParams.service = "PREF_OPTION_SVC";
-	    	requestParams.prefFormKeys = new Array("ADMIN_OPTION_PAGE");
+	    	requestParams.prefFormKeys = new Array("ADMIN_OPTION_FORM");
 	    } else {
 	    	requestParams.service = "PREF_SVC";
-		    requestParams.prefFormKeys = new Array("ADMIN_PREFERENCE_PAGE");
+		    requestParams.prefFormKeys = new Array("ADMIN_PREFERENCE_FORM");
 	    }
 	    
 	    if (id != null) {
@@ -317,9 +317,9 @@ export function preference({id,viewType,languages}) {
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if (viewType != null) {
-	    			dispatch({ type: 'PREFERENCES_SUBVIEW_PREFERENCE', responseJson, viewType, languages});
+	    			dispatch({ type: 'PREFERENCES_SUBVIEW_ITEM', responseJson, viewType, languages, appPrefs});
 	    		} else {
-	    			dispatch({ type: 'PREFERENCES_PREFERENCE', responseJson});
+	    			dispatch({ type: 'PREFERENCES_ITEM', responseJson, appPrefs});
 	    		}
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);

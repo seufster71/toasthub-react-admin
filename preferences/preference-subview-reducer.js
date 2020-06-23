@@ -29,8 +29,8 @@ export default function preferenceSubViewReducer(state = {}, action) {
 	    		 	items: reducerUtils.getItems(action),
 	    		  	listLimit: reducerUtils.getListLimit(action),
 	    			listStart: reducerUtils.getListStart(action),
-	    			orderCriteria: action.orderCriteria,
-					searchCriteria: action.searchCriteria,
+	    			orderCriteria: [{'orderColumn':'ADMIN_PREFERENCE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_PREFERENCE_TABLE_TITLE','orderDir':'ASC'}],
+					searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_PREFERENCE_TABLE_TITLE'}],
 					parent: action.item,
 					isModifyOpen: false,
 					viewType: action.viewType
@@ -52,19 +52,19 @@ export default function preferenceSubViewReducer(state = {}, action) {
 				return state;
 			}
 		}
-		case 'PREFERENCES_SUBVIEW_PREFERENCE': {
+		case 'PREFERENCES_SUBVIEW_ITEM': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
 				let prefForms = reducerUtils.getPrefForms(action);
 				if (action.viewType === "FORM") {
-					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_FORMFIELD_PAGE,inputFields,action.languages);
+					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_FORMFIELD_FORM,inputFields,action.appPrefs,"FORM1");
 				} else if (action.viewType === "LABEL") {
-					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_LABEL_PAGE,inputFields,action.languages);
+					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_LABEL_FORM,inputFields,action.appPrefs,"FORM1");
 				} else if (action.viewType === "TEXT") {
-					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_TEXT_PAGE,inputFields,action.languages);
+					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_TEXT_FORM,inputFields,action.appPrefs,"FORM1");
 				} else if (action.viewType === "OPTION") {
-					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_OPTION_PAGE,inputFields,action.languages);
+					inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_OPTION_FORM,inputFields,action.appPrefs,"FORM1");
 				}
 				
 				// add id if this is existing item

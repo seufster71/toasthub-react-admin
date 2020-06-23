@@ -161,33 +161,12 @@ export function deleteLanguage({state,id}) {
 	};
 }
 
-export function languagesPage() {
-	return function(dispatch) {
-	    let requestParams = {};
-	    requestParams.action = "LANGUAGES_PAGE";
-	   
-	    let params = {};
-	    params.requestParams = requestParams;
-	    params.URI = '/api/admin/callService';
-
-	    return callService(params).then( (responseJson) => {
-	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'LANGUAGES_PAGE',responseJson});
-	    	} else {
-	    		actionUtils.checkConnectivity(responseJson,dispatch);
-	    	}
-	    }).catch(error => {
-	    	throw(error);
-	    });
-	};
-}
-
-export function language(id) {
+export function modifyItem({id, appPrefs}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
 	    requestParams.service = "LANGUAGE_SVC";
-	    requestParams.prefFormKeys = new Array("ADMIN_LANGUAGE_PAGE");
+	    requestParams.prefFormKeys = new Array("ADMIN_LANGUAGE_FORM");
 	    if (id != null) {
 	    	requestParams.itemId = id;
 	    }
@@ -197,7 +176,7 @@ export function language(id) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'LANGUAGES_LANGUAGE',responseJson});
+	    		dispatch({ type: 'LANGUAGES_ITEM',responseJson, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
