@@ -18,7 +18,7 @@ import reducerUtils from '../../core/common/reducer-utils';
 export default function preferenceSubViewReducer(state = {}, action) {
 	let myState = {};
 	switch(action.type) {
-		case 'PREFERENCE_SUBVIEW_INIT': {
+		case 'PREFERENCES_SUBVIEW_INIT': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				return Object.assign({}, state, {
 					prefTexts: Object.assign({}, state.prefTexts, reducerUtils.getPrefTexts(action)),
@@ -29,8 +29,8 @@ export default function preferenceSubViewReducer(state = {}, action) {
 	    		 	items: reducerUtils.getItems(action),
 	    		  	listLimit: reducerUtils.getListLimit(action),
 	    			listStart: reducerUtils.getListStart(action),
-	    			orderCriteria: [{'orderColumn':'ADMIN_PREFERENCE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_PREFERENCE_TABLE_TITLE','orderDir':'ASC'}],
-					searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_PREFERENCE_TABLE_TITLE'}],
+	    			orderCriteria: action.orderCriteria,
+					searchCriteria: action.searchCriteria,
 					parent: action.item,
 					isModifyOpen: false,
 					viewType: action.viewType
@@ -39,7 +39,7 @@ export default function preferenceSubViewReducer(state = {}, action) {
 				return state;
 			}
 		}
-		case 'PREFERENCE_SUBVIEW_LIST': {
+		case 'PREFERENCES_SUBVIEW_LIST': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				return Object.assign({}, state, {
 	    			itemCount: reducerUtils.getItemCount(action),
@@ -81,7 +81,7 @@ export default function preferenceSubViewReducer(state = {}, action) {
 				return state;
 			}
 		}
-		case 'PREFERENCE_SUBVIEW_INPUT_CHANGE': {
+		case 'PREFERENCES_SUBVIEW_INPUT_CHANGE': {
 			if (action.params != null) {
 				let inputFields = Object.assign({}, state.inputFields);
 				inputFields[action.params.field] = action.params.value;
@@ -109,11 +109,26 @@ export default function preferenceSubViewReducer(state = {}, action) {
 					 selected: null,
 					 inputfields: null,
 					 viewType: null,
-					 isModifyOpen: false
+					 isModifyOpen: false,
+					 moveSelectedItem: null
 				 });
 			} else {
 		        return state;
 		    }
+		}
+		case 'PREFERENCES_SUBVIEW_MOVE_SELECT': {
+			if (action.item != null) {
+				return Object.assign({}, state, {
+					moveSelectedItem: action.item
+				});
+			} else {
+		        return state;
+		    }
+		}
+		case 'PREFERENCES_SUBVIEW_MOVE_CANCEL': {
+			return Object.assign({}, state, {
+				moveSelectedItem: null
+			});
 		}
     	default:
     		return state;

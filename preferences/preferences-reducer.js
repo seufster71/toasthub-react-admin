@@ -18,7 +18,7 @@ import reducerUtils from '../../core/common/reducer-utils';
 export default function preferencesReducer(state = {}, action) {
 	let myState = {};
 	switch(action.type) {
-    	case 'LOAD_INIT_PREFERENCE': {
+    	case 'PREFERENCES_INIT': {
     		if (action.responseJson != null && action.responseJson.params != null) {
     		    return Object.assign({}, state, {
 	    			prefTexts: Object.assign({}, state.prefTexts, reducerUtils.getPrefTexts(action)),
@@ -39,7 +39,7 @@ export default function preferencesReducer(state = {}, action) {
     		    return state;
     		}
     	}
-    	case 'LOAD_LIST_PREFERENCE': {
+    	case 'PREFERENCES_LIST': {
     		if (action.responseJson != null && action.responseJson.params != null) {
     		    return Object.assign({}, state, {
     		    	itemCount: reducerUtils.getItemCount(action),
@@ -104,7 +104,7 @@ export default function preferencesReducer(state = {}, action) {
 		        return state;
 		    }
 		}
-		case 'PREFERENCE_SUBVIEW_INIT': {
+		case 'PREFERENCES_SUBVIEW_INIT': {
 			if (action.item != null) {
 				 return Object.assign({}, state, {
 					 selected: action.item,

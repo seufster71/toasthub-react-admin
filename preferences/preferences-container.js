@@ -272,6 +272,25 @@ class PreferencesContainer extends Component {
 		this.props.actions.init({state:this.props.preferences,stateSubView:this.props.preferenceSubView,item,viewType:"OPTION",orderCriteria,searchCriteria,listStart:0,listLimit:20});
 	}
 	
+	onMoveSelect = (item) => {
+		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onMoveSelect',msg:"test"});
+		if (item != null) {
+			this.props.actions.moveSelect({state:this.props.preferences,stateSubView:this.props.preferenceSubView,item});
+		}
+	}
+	
+	onMoveSave = (code,item) => {
+		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onMoveSave',msg:"test"});
+		if (item != null) {
+			this.props.actions.moveSave({state:this.props.preferences,code,item,stateSubView:this.props.preferenceSubView});
+		}
+	}
+	
+	onMoveCancel = () => {
+		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onMoveCancel',msg:"test"});
+		this.props.actions.moveCancel({state:this.props.preferences,stateSubView:this.props.preferenceSubView});
+	}
+	
 	goBack = () => {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::goBack',msg:"test"});
 		this.props.actions.goBack();
@@ -306,6 +325,22 @@ class PreferencesContainer extends Component {
 			}
 			case 'SHOW_OPTIONS': {
 				this.openOptionView(item);
+				break;
+			}
+			case 'MOVESELECT': {
+				this.onMoveSelect(item);
+				break;
+			}
+			case 'MOVEABOVE': {
+				this.onMoveSave(code,item);
+				break;
+			}
+			case 'MOVEBELOW': {
+				this.onMoveSave(code,item);
+				break;
+			}
+			case 'MOVECANCEL': {
+				this.onMoveCancel();
 				break;
 			}
 		}
@@ -344,7 +379,7 @@ class PreferencesContainer extends Component {
 			return (
 				<PreferenceSubView
 				containerState={this.state}
-				preferenceState={this.props.preferenceSubView}
+				itemState={this.props.preferenceSubView}
 				appPrefs={this.props.appPrefs}
 				onListLimitChange={this.onListLimitChange}
 				onSearchChange={this.onSearchChange}
@@ -362,7 +397,7 @@ class PreferencesContainer extends Component {
 			return (
 				<PreferencesView
 				containerState={this.state}
-				preferenceState={this.props.preferences}
+				itemState={this.props.preferences}
 				appPrefs={this.props.appPrefs}
 				onListLimitChange={this.onListLimitChange}
 				onSearchChange={this.onSearchChange}
