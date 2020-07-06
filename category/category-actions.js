@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2016 The ToastHub Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import callService from '../../core/api/api-call';
 import actionUtils from '../../core/common/action-utils';
 // action helpers
@@ -10,9 +25,8 @@ export function init() {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "CATEGORY_SVC";
-		requestParams.prefFormKeys = new Array("ADMIN_CATEGORY_FORM");
 		requestParams.prefTextKeys = new Array("ADMIN_CATEGORY_PAGE");
-		requestParams.prefLabelKeys = new Array("ADMIN_CATEGORY_TABLE");
+		requestParams.prefLabelKeys = new Array("ADMIN_CATEGORY_PAGE");
 		let params = {};
 		params.requestParams = requestParams;
 		params.URI = '/api/admin/callService';
@@ -30,16 +44,32 @@ export function init() {
 	};
 }
 
-export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
+export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
 		requestParams.service = "CATEGORY_SVC";
-		requestParams.listStart = listStart;
-		requestParams.listLimit = listLimit;
-		requestParams.searchCriteria = searchCriteria;
-		requestParams.orderCriteria = orderCriteria;
-		let prefChange = {"page":"category","orderCriteria":orderCriteria,"listStart":listStart,"listLimit":listLimit};
+		if (listStart != null) {
+			requestParams.listStart = listStart;
+		} else {
+			requestParams.listStart = state.listStart;
+		}
+		if (listLimit != null) {
+			requestParams.listLimit = listLimit;
+		} else {
+			requestParams.listLimit = state.listLimit;
+		}
+		if (searchCriteria != null) {
+			requestParams.searchCriteria = searchCriteria;
+		} else {
+			requestParams.searchCriteria = state.searchCriteria;
+		}
+		if (orderCriteria != null) {
+			requestParams.orderCriteria = orderCriteria;
+		} else {
+			requestParams.orderCriteria = state.orderCriteria;
+		}
+		let prefChange = {"page":"category","orderCriteria":requestParams.orderCriteria,"listStart":requestParams.listStart,"listLimit":requestParams.listLimit};
 		dispatch({type:"CATEGORY_PREF_CHANGE", prefChange});
 		let params = {};
 		params.requestParams = requestParams;
@@ -61,11 +91,26 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 	};
 }
 
-export function saveLanguage(langauge,listStart,listLimit,searchCriteria,orderCriteria) {
+export function listLimit({state,listLimit}) {
+	return function(dispatch) {
+		 dispatch({ type:"CATEGORY_LISTLIMIT",listLimit});
+		 dispatch(list({state,listLimit}));
+	 };
+}
+
+export function search({state,searchCriteria}) {
+	return function(dispatch) {
+		 dispatch({ type:"CATEGORY_SEARCH",searchCriteria});
+		 dispatch(list({state,searchCriteria,listStart:0}));
+	 };
+}
+
+export function saveLanguage({state}) {
 	return function(dispatch) {
 		let requestParams = {};
-	    requestParams.action = "CATEGORY_SAVE";
-	    requestParams.params = {"CATEGORY" : category};
+	    requestParams.action = "SAVE";
+	    requestParams.service = "CATEGORY_SVC";
+	    requestParams.inputFields = state.inputFields;
 
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -74,7 +119,7 @@ export function saveLanguage(langauge,listStart,listLimit,searchCriteria,orderCr
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESSFUL"){  
-	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Category save Successful"]));
+	    			dispatch(list({state,info:["Save Successful"]}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "error") {
 	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
 	    		}
@@ -88,11 +133,12 @@ export function saveLanguage(langauge,listStart,listLimit,searchCriteria,orderCr
 }
 
 
-export function deleteCategory(id,listStart,listLimit,searchCriteria,orderCriteria) {
+export function deleteCategory({state,id}) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "CATEGORY_DELETE";
-	    requestParams.params = {"CATEGORY_ID":id};
+	    requestParams.action = "DELETE";
+	    requestParams.service = "CATEGORY_SVC";
+	    requestParams.itemId = id;
 	    
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -100,28 +146,11 @@ export function deleteCategory(id,listStart,listLimit,searchCriteria,orderCriter
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch(list(listStart,listLimit,searchCriteria,orderCriteria));
-	    	} else {
-	    		actionUtils.checkConnectivity(responseJson,dispatch);
-	    	}
-	    }).catch(error => {
-	    	throw(error);
-	    });
-	};
-}
-
-export function categoryPage() {
-	return function(dispatch) {
-	    let requestParams = {};
-	    requestParams.action = "CATEGORY_PAGE";
-	   
-	    let params = {};
-	    params.requestParams = requestParams;
-	    params.URI = '/api/admin/callService';
-
-	    return callService(params).then( (responseJson) => {
-	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'CATEGORY_PAGE',responseJson});
+	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
+	    			dispatch(list({state,info:["Delete Successful"]}));
+	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
+	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
+	    		}
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -134,10 +163,11 @@ export function categoryPage() {
 export function category(id) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "CATEGORY_CATEGORY";
+	    requestParams.action = "ITEM";
+	    requestParams.service = "CATEGORY_SVC";
+	    requestParams.prefFormKeys = new Array("ADMIN_CATEGORY_FORM");
 	    if (id != null) {
-	    	requestParams.params = {};
-	    	requestParams.params.CATEGORY_ID = id;
+	    	requestParams.itemId = id;
 	    }
 	    let params = {};
 	    params.requestParams = requestParams;
@@ -164,8 +194,23 @@ export function inputChange(field,value) {
 	 };
 }
 
-export function clearLanguage() {
+export function orderBy({state,orderCriteria}) {
+	 return function(dispatch) {
+		 dispatch({ type:"CATEGORY_ORDERBY",orderCriteria});
+		 dispatch(list({state,orderCriteria}));
+	 };
+}
+
+export function clearCategory() {
 	return function(dispatch) {
-		dispatch({ type:"CATEGPRU_CLEAR_CATEGORY"});
+		dispatch({ type:"CATEGORY_CLEAR_CATEGORY"});
+	};
+}
+
+export function clearField(field) {
+	return function(dispatch) {
+		let params = {};
+		 params.field = field;
+		dispatch({ type:"CATEGORY_CLEAR_FIELD",params});
 	};
 }

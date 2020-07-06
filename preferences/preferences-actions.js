@@ -119,8 +119,8 @@ export function list({state,stateSubView,listStart,listLimit,searchCriteria,orde
 				requestParams.service = "PREF_OPTION_SVC";
 				page = "pref_options";
 			}
-		    if (state.selected != null) {
-		    	requestParams.parentId = state.selected.id;
+		    if (stateSubView.parent != null) {
+		    	requestParams.parentId = stateSubView.parent.id;
 		    } else if (item != null){
 		    	requestParams.parentId = item.id;
 		    }
@@ -394,7 +394,7 @@ export function subViewInit({state,stateSubView,listStart,listLimit,searchCriter
 export function moveSelect({state,stateSubView,item}) {
 	 return function(dispatch) {
 		 dispatch({ type:"PREFERENCES_SUBVIEW_MOVE_SELECT",item});
-		 dispatch(list({state,stateSubView,item}));
+		 dispatch(list({state,stateSubView,item,orderCriteria:[],searchCriteria:[]}));
 	 };
 }
 

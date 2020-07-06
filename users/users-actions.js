@@ -161,27 +161,6 @@ export function deleteUser({state,id}) {
 	};
 }
 
-export function usersPage() {
-	return function(dispatch) {
-	    let requestParams = {};
-	    requestParams.action = "USERS_PAGE";
-	   
-	    let params = {};
-	    params.requestParams = requestParams;
-	    params.URI = '/api/admin/callService';
-
-	    return callService(params).then( (responseJson) => {
-	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'USERS_PAGE',responseJson});
-	    	} else {
-	    		actionUtils.checkConnectivity(responseJson,dispatch);
-	    	}
-	    }).catch(error => {
-	    	throw(error);
-	    });
-	};
-}
-
 export function user(id) {
 	return function(dispatch) {
 	    let requestParams = {};

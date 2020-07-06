@@ -1,6 +1,21 @@
 /*
-* Author Edward Seufert
-*/
+ * Copyright (C) 2016 The ToastHub Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/*
+ * Author Edward Seufert
+ */
 'use-strict';
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
@@ -9,167 +24,190 @@ import {bindActionCreators} from 'redux';
 import * as categoryActions from './category-actions';
 import fuLogger from '../../core/common/fu-logger';
 import CategoryView from '../../adminView/category/category-view';
+import utils from '../../core/common/utils';
 
 
 class CategoryContainer extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {pageName:"ADMIN_CATEGORY",orderCriteria:[{'orderColumn':'ADMIN_CATEGORY_TABLE_NAME','orderDir':'ASC'},{'orderColumn':'ADMIN_CATEGORY_TABLE_CODE','orderDir':'ASC'}],
-				isDeleteModalOpen: false, errors:null, warns:null, successes:null};
-		this.onListLimitChange = this.onListLimitChange.bind(this);
-		this.onSearchClick = this.onSearchClick.bind(this);
-		this.onSearchChange = this.onSearchChange.bind(this);
-		this.onPaginationClick = this.onPaginationClick.bind(this);
-		this.onColumnSort = this.onColumnSort.bind(this);
-		this.openDeleteModal = this.openDeleteModal.bind(this);
-		this.closeModal = this.closeModal.bind(this);
-		this.onSave = this.onSave.bind(this);
-		this.onModify = this.onModify.bind(this);
-		this.onDelete = this.onDelete.bind(this);
-		this.inputChange = this.inputChange.bind(this);
+		this.state = {pageName:"ADMIN_CATEGORY", isDeleteModalOpen: false, errors:null, warns:null, successes:null};
 	}
 
 	componentDidMount() {
 		this.props.actions.init();
 	}
 
-	onListLimitChange(fieldName) {
-		return (event) => {
-			let value = 20;
-			if (this.props.codeType === 'NATIVE') {
-				value = event.nativeEvent.text;
-				this.setState({[fieldName]:parseInt(event.nativeEvent.text)});
-			} else {
-				value = event.target.value;
-				this.setState({[fieldName]:parseInt(event.target.value)});
-			}
+	onListLimitChange = (fieldName, event) => {
+		let value = 20;
+		if (this.props.codeType === 'NATIVE') {
+			value = event.nativeEvent.text;
+		} else {
+			value = event.target.value;
+		}
 
-			let listStart = 0;
-			let listLimit = parseInt(value);
-			let searchCriteria = {'searchValue':this.state['ADMIN_CATEGORY_SEARCH_input'],'searchColumn':'ADMIN_CATEGORY_TABLE_NAME'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
-		};
+		let listLimit = parseInt(value);
+		this.props.actions.listLimit({state:this.props.category,listLimit});
 	}
 
-	onPaginationClick(value) {
-		return(event) => {
-			fuLogger.log({level:'TRACE',loc:'CategoryContainer::onPaginationClick',msg:"fieldName "+ value});
-			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_CATEGORY_ListLimit');
-			let listStart = 0;
-			let segmentValue = 1;
-			let oldValue = 1;
-			if (this.state["ADMIN_CATEGORY_PAGINATION"] != null && this.state["ADMIN_CATEGORY_PAGINATION"] != ""){
-				oldValue = this.state["ADMIN_CATEGORY_PAGINATION"];
-			}
-			if (value === "prev") {
-				segmentValue = oldValue - 1;
-			} else if (value === "next") {
-				segmentValue = oldValue + 1;
-			} else {
-				segmentValue = value;
-			}
-			listStart = ((segmentValue - 1) * listLimit);
-			this.setState({"ADMIN_CATEGORY_PAGINATION":segmentValue});
+	onPaginationClick = (value) => {
+		fuLogger.log({level:'TRACE',loc:'CategoryContainer::onPaginationClick',msg:"fieldName "+ value});
+		let listStart = this.props.category.listStart;
+		let segmentValue = 1;
+		let oldValue = 1;
+		if (this.state["ADMIN_CATEGORY_PAGINATION"] != null && this.state["ADMIN_CATEGORY_PAGINATION"] != ""){
+			oldValue = this.state["ADMIN_CATEGORY_PAGINATION"];
+		}
+		if (value === "prev") {
+			segmentValue = oldValue - 1;
+		} else if (value === "next") {
+			segmentValue = oldValue + 1;
+		} else {
+			segmentValue = value;
+		}
+		listStart = ((segmentValue - 1) * this.props.category.listLimit);
+		this.setState({"ADMIN_CATEGORY_PAGINATION":segmentValue});
 
-			let searchCriteria = {'searchValue':this.state['ADMIN_CATEGORY_SEARCH_input'],'searchColumn':'ADMIN_CATEGORY_TABLE_NAME'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
-		};
+		this.props.actions.list({state:this.props.category,listStart});
 	}
 
-	onSearchChange(fieldName) {
-		return (event) => {
+	onSearchChange = (fieldName, event) => {
+		if (event.type === 'keypress') {
+			if (event.key === 'Enter') {
+				this.onSearchClick(fieldName,event);
+			}
+		} else {
 			if (this.props.codeType === 'NATIVE') {
 				this.setState({[fieldName]:event.nativeEvent.text});
 			} else {
 				this.setState({[fieldName]:event.target.value});
 			}
-		};
+		}
 	}
 
-	onSearchClick(e) {
-		return (event) => {
-			let fieldName = "";
-			if (this.props.codeType === 'NATIVE') {
-				fieldName = e;
-			} else {
-				event.preventDefault();
-				fieldName = event.target.id;
+	onSearchClick = (fieldname, event) => {
+		let searchCriteria = [];
+		if (fieldName === 'ADMIN_CATEGORY-SEARCHBY') {
+			if (event != null) {
+				for (let o = 0; o < event.length; o++) {
+					let option = {};
+					option.searchValue = this.state['ADMIN_CATEGORY-SEARCH'];
+					option.searchColumn = event[o].value;
+					searchCriteria.push(option);
+				}
 			}
-			let listStart = 0;
-			let listLimit = utils.getListLimit(this.props.appPrefs,this.state,'ADMIN_CATEGORY_ListLimit');
-			let searchCriteria = {'searchValue':this.state[fieldName+'_input'],'searchColumn':'ADMIN_CATEGORY_TABLE_NAME'};
-			this.props.actions.list(listStart,listLimit,searchCriteria,this.state.orderCriteria);
-		};
-	}
-
-	onColumnSort(id) {
-		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'CategoryContainer::onColumnSort',msg:"id " + id});
-		};
-	}
-	
-	onSave() {
-		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'CategoryContainer::onSaveCategory',msg:"test"});
-
-			let errors = utils.validateFormFields(this.props.users.prefForms.ADMIN_USER_FORM,this.props.users.inputFields);
-			
-			if (errors.isValid){
-				let searchCriteria = {'searchValue':this.state['CATEGORY_SEARCH_input'],'searchColumn':'CATEGORY_TABLE_NAME'};
-				this.props.actions.saveCategory(this.props.category.inputFields,this.props.category.listStart,this.props.category.listLimit,searchCriteria,this.state.orderCriteria);
-			} else {
-				this.setState({errors:errors});
+		} else {
+			for (let i = 0; i < this.props.category.searchCriteria.length; i++) {
+				let option = {};
+				option.searchValue = this.state['ADMIN_CATEGORY-SEARCH'];
+				option.searchColumn = this.props.category.searchCriteria[i].searchColumn;
+				searchCriteria.push(option);
 			}
-		};
+		}
+		
+		this.props.actions.search({state:this.props.category.searchCriteria});
+	}
+
+	onOrderBy = (selectedOption, event) => {
+		fuLogger.log({level:'TRACE',loc:'CategoryContainer::onOrderBy',msg:"id " + selectedOption});
+		let orderCriteria = [];
+		if (event != null) {
+			for (let o = 0; o < event.length; o++) {
+				let option = {};
+				if (event[o].label.includes("ASC")) {
+					option.orderColumn = event[o].value;
+					option.orderDir = "ASC";
+				} else if (event[o].label.includes("DESC")){
+					option.orderColumn = event[o].value;
+					option.orderDir = "DESC";
+				} else {
+					option.orderColumn = event[o].value;
+				}
+				orderCriteria.push(option);
+			}
+		} else {
+			let option = {orderColumn:"ADMIN_CATEGORY_TABLE_NAME",orderDir:"ASC"};
+			orderCriteria.push(option);
+		}
+		this.props.actions.orderBy({state:this.props.category,orderCriteria});
 	}
 	
-	onModify(id) {
-		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'CategoryContainer::onModify',msg:"test"+id});
-			this.props.actions.category(id);
-		};
-	}
-	
-	onDelete(id) {
-		return (event) => {
-			fuLogger.log({level:'TRACE',loc:'CategoryContainer::onDeleteCategory',msg:"test"+id});
-			this.setState({isEditModalOpen:false,isDeleteModalOpen:false});
-			let searchCriteria = {'searchValue':this.state['CATEGORY_SEARCH_input'],'searchColumn':'CATEGORY_TABLE_NAME'};
-			this.props.actions.deleteLanguage(id,this.props.category.listStart,this.props.category.listLimit,searchCriteria,this.state.orderCriteria);
-		};
-	}
-	
-	openDeleteModal(id,name) {
-		return (event) => {
-		    this.setState({isDeleteModalOpen:true,selectedLanguageId:id,selectedName:name});
+	onSave = () => {
+		fuLogger.log({level:'TRACE',loc:'CategoryContainer::onSaveCategory',msg:"test"});
+
+		let errors = utils.validateFormFields(this.props.category.prefForms.ADMIN_CATEGORY_FORM,this.props.category.inputFields);
+		
+		if (errors.isValid){
+			this.props.actions.saveCategory({state:this.props.category});
+		} else {
+			this.setState({errors:errors.errorMap});
 		}
 	}
 	
-	closeModal() {
-		return (event) => {
-			this.setState({isDeleteModalOpen:false,errors:null,warns:null});
-		};
+	onModify = (item) => {
+		let id = null;
+		if (item != null && item.id != null) {
+			id = item.id;
+		}
+		fuLogger.log({level:'TRACE',loc:'CategoryContainer::onModify',msg:"test"+id});
+		this.props.actions.category(id);
 	}
 	
-	inputChange(fieldName) {
-		return (event) => {
-			let	value = event.target.value;
-			this.props.actions.inputChange(fieldName,value);
-		};
+	onDelete = (item) => {
+		fuLogger.log({level:'TRACE',loc:'CategoryContainer::onDelete',msg:"test"});
+		this.setState({isDeleteModalOpen:false});
+		if (item != null && item.id != "") {
+			this.props.actions.deleteLanguage({state:this.props.category,id:item.id});
+		}
+	}
+	
+	openDeleteModal = (item) => {
+		this.setState({isDeleteModalOpen:true,selected:item});
+	}
+	
+	closeModal = () => {
+		this.setState({isDeleteModalOpen:false,errors:null,warns:null});
+	}
+	
+	onCancel = () => {
+		fuLogger.log({level:'TRACE',loc:'CategoryContainer::onCancel',msg:"test"});
+		this.props.actions.list({state:this.props.category});
+	}
+	
+	inputChange = (fieldName,switchValue) => {
+		utils.inputChange(this.props,fieldName,switchValue);
 	}
 
+	onOption = (code,item) => {
+		fuLogger.log({level:'TRACE',loc:'CategoryContainer::onOption',msg:" code "+code});
+		switch(code) {
+			case 'MODIFY': {
+				this.onModify(item);
+				break;
+			}
+			case 'DELETE': {
+				this.openDeleteModal(item);
+				break;
+			}
+			case 'DELETEFINAL': {
+				this.onDelete(item);
+				break;
+			}
+		}
+	}
+	
 	render() {
 		fuLogger.log({level:'TRACE',loc:'CategoryContainer::render',msg:"Hi there"});
 		if (this.props.category.isModifyOpen) {
 			return (
 				<CategoryModifyView
 				containerState={this.state}
-				category={this.props.category.selected}
+				item={this.props.category.selected}
 				inputFields={this.props.category.inputFields}
 				appPrefs={this.props.appPrefs}
-				prefForms={this.props.category.prefForms}
+				itemPrefForms={this.props.category.prefForms}
 				onSave={this.onSave}
 				onCancel={this.onCancel}
+				onReturn={this.onCancel}
 				inputChange={this.inputChange}
 				/>
 			);
@@ -177,18 +215,17 @@ class CategoryContainer extends Component {
 			return (
 				<CategoryView 
 				containerState={this.state}
-				category={this.props.category}
+				itemState={this.props.category}
 				appPrefs={this.props.appPrefs}
 				onListLimitChange={this.onListLimitChange}
 				onSearchChange={this.onSearchChange}
 				onSearchClick={this.onSearchClick}
 				onPaginationClick={this.onPaginationClick}
-				onColumnSort={this.onColumnSort}
-				openDeleteMOdal={this.openDeleteModal}
+				onOrderBy={this.onOrderBy}
 				closeModal={this.closeModal}
-				onModify={this.onModify}
-				onDelete={this.onDelete}
+				onOption={this.onOption}
 				inputChange={this.inputChange}
+				session={this.props.session}
 				/>
 					
 			);
@@ -201,11 +238,12 @@ class CategoryContainer extends Component {
 CategoryContainer.propTypes = {
 	appPrefs: PropTypes.object,
 	actions: PropTypes.object,
-	category: PropTypes.object
+	category: PropTypes.object,
+	session: PropTypes.object
 };
 
 function mapStateToProps(state, ownProps) {
-  return {appPrefs:state.appPrefs, category:state.category};
+  return {appPrefs:state.appPrefs, category:state.category, session:state.session};
 }
 
 function mapDispatchToProps(dispatch) {

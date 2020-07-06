@@ -135,17 +135,17 @@ class PreferencesContainer extends Component {
 	onOrderBy = (selectedOption, event) => {
 		fuLogger.log({level:'TRACE',loc:'PreferenceContainer::onOrderBy',msg:"id " + selectedOption});
 		let orderCriteria = [];
-		if (event != null) {
-			for (let o = 0; o < event.length; o++) {
+		if (selectedOption != null) {
+			for (let o = 0; o < selectedOption.length; o++) {
 				let option = {};
-				if (event[o].label.includes("ASC")) {
-					option.orderColumn = event[o].value;
+				if (selectedOption[o].label.includes("ASC")) {
+					option.orderColumn = selectedOption[o].value;
 					option.orderDir = "ASC";
-				} else if (event[o].label.includes("DESC")){
-					option.orderColumn = event[o].value;
+				} else if (selectedOption[o].label.includes("DESC")){
+					option.orderColumn = selectedOption[o].value;
 					option.orderDir = "DESC";
 				} else {
-					option.orderColumn = event[o].value;
+					option.orderColumn = selectedOption[o].value;
 				}
 				orderCriteria.push(option);
 			}
