@@ -66,7 +66,7 @@ class AdminContainer extends Component {
       return (
         <AdminView>
           <NavigationView appPrefs={this.props.appPrefs} permissions={myPermissions}
-          menus={myMenus} changeTab={this.changeTab} activeTab={this.props.history.location.pathname} backToTab={"member"}/>
+          menus={myMenus} changeTab={this.changeTab} activeTab={this.props.history.location.pathname} backToTab={"member"} user={this.props.session.user}/>
           <StatusView/>
           <Switch>
             <Route exact path="/admin" component={DashboardContainer}/>
