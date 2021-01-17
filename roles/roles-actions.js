@@ -21,18 +21,19 @@ import actionUtils from '../../core/common/action-utils';
 
 
 // thunks
-export function init(user) {
+export function init(parent,parentType) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "ROLES_SVC";
 		requestParams.prefTextKeys = new Array("ADMIN_ROLE_PAGE");
 		requestParams.prefLabelKeys = new Array("ADMIN_ROLE_PAGE");
-		if (user != null) {
-			requestParams.userId = user.id;
-			dispatch({type:"ROLES_ADD_USER", user});
+		if (parent != null) {
+			requestParams.parentId = parent.id;
+			requestParams.parentType = parentType;
+			dispatch({type:"ROLES_ADD_PARENT", parent, parentType});
 		} else {
-			dispatch({type:"ROLES_CLEAR_USER"});
+			dispatch({type:"ROLES_CLEAR_PARENT"});
 		}
 		let params = {};
 		params.requestParams = requestParams;
@@ -51,7 +52,7 @@ export function init(user) {
 	};
 }
 
-export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info}) {
+export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info,paginationSegment}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
@@ -87,7 +88,7 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_LIST_ROLES", responseJson });
+				dispatch({ type: "LOAD_LIST_ROLES", responseJson, paginationSegment });
 				if (info != null) {
 		        	  dispatch({type:'SHOW_STATUS',info:info});  
 		        }
@@ -115,13 +116,17 @@ export function search({state,searchCriteria}) {
 	 };
 }
 
-export function saveRole({state}) {
+export function saveItem({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
 	    requestParams.service = "ROLES_SVC";
 	    requestParams.inputFields = state.inputFields;
-
+		if (state.parent != null) {
+	    	requestParams.parentId = state.parent.id;
+	    	requestParams.parentType = state.parentType;
+	    }
+	    
 	    let params = {};
 	    params.requestParams = requestParams;
 	    params.URI = '/api/admin/callService';
@@ -129,7 +134,7 @@ export function saveRole({state}) {
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list({state,info:["Save Successful"]}));
+	    			dispatch(list({state,info:responseJson.infos}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
 	    		}
@@ -157,7 +162,7 @@ export function deleteRole({state,id}) {
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list({state,info:["Delete Successful"]}));
+	    			dispatch(list({state,info:responseJson.infos}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
 	    		}	
@@ -237,7 +242,7 @@ export function saveRolePermission({state}) {
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch(list({state,info:["Save Successful"]}));
+	    			dispatch(list({state,info:responseJson.infos}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
 	    		}
@@ -270,4 +275,22 @@ export function clearRole() {
 	return function(dispatch) {
 		dispatch({ type:"ROLES_CLEAR_ROLE"});
 	};
+}
+
+export function setErrors({errors}) {
+	 return function(dispatch) {
+		 dispatch({ type:"PM_TEAM_SET_ERRORS",errors});
+	 };
+}
+
+export function openDeleteModal({item}) {
+	 return function(dispatch) {
+		 dispatch({type:"PM_TEAM_OPEN_DELETE_MODAL",item});
+	 };
+}
+
+export function closeDeleteModal() {
+	 return function(dispatch) {
+		 dispatch({type:"PM_TEAM_CLOSE_DELETE_MODAL"});
+	 };
 }

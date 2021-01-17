@@ -45,7 +45,7 @@ export function init() {
   };
 }
 
-export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info}) {
+export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info,paginationSegment}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
@@ -78,7 +78,7 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_LIST_USERS", responseJson });
+				dispatch({ type: "LOAD_LIST_USERS", responseJson, paginationSegment });
 				if (info != null) {
 		        	  dispatch({type:'SHOW_STATUS',info:info});  
 		        }
@@ -106,7 +106,7 @@ export function search({state,searchCriteria}) {
 	 };
 }
 
-export function saveUser({state}) {
+export function saveItem({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
@@ -134,7 +134,7 @@ export function saveUser({state}) {
 }
 
 
-export function deleteUser({state,id}) {
+export function deleteItem({state,id}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
@@ -161,7 +161,7 @@ export function deleteUser({state,id}) {
 	};
 }
 
-export function user(id) {
+export function modifyItem({id, appPrefs}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
@@ -176,7 +176,7 @@ export function user(id) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'USERS_USER',responseJson});
+	    		dispatch({ type: 'USERS_ITEM',responseJson, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -192,6 +192,15 @@ export function inputChange(field,value) {
 		 params.field = field;
 		 params.value = value;
 		 dispatch({ type:"USERS_INPUT_CHANGE",params});
+	 };
+}
+
+export function selectChange({field,value}) {
+	return function(dispatch) {
+		let params = {};
+		params.field = field;
+		params.value = value;
+		dispatch({ type:"USERS_INPUT_CHANGE",params});
 	 };
 }
 
@@ -214,4 +223,22 @@ export function clearField(field) {
 		 params.field = field;
 		dispatch({ type:"USERS_CLEAR_FIELD",params});
 	};
+}
+
+export function setErrors({errors}) {
+	 return function(dispatch) {
+		 dispatch({ type:"PM_TEAM_SET_ERRORS",errors});
+	 };
+}
+
+export function openDeleteModal({item}) {
+	 return function(dispatch) {
+		 dispatch({type:"PM_TEAM_OPEN_DELETE_MODAL",item});
+	 };
+}
+
+export function closeDeleteModal() {
+	 return function(dispatch) {
+		 dispatch({type:"PM_TEAM_CLOSE_DELETE_MODAL"});
+	 };
 }

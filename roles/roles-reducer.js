@@ -16,7 +16,6 @@
 import reducerUtils from '../../core/common/reducer-utils';
 
 export default function rolesReducer(state = {}, action) {
-	let myState = {};
 	switch(action.type) {
     	case 'LOAD_INIT_ROLES': {
     		if (action.responseJson != null && action.responseJson.params != null) {
@@ -31,9 +30,16 @@ export default function rolesReducer(state = {}, action) {
     				listStart: reducerUtils.getListStart(action),
     				orderCriteria: [{'orderColumn':'ADMIN_ROLE_TABLE_NAME','orderDir':'ASC'}],
     				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_ROLE_TABLE_NAME'}],
+    				paginationSegment: 1,
     				selected: null,
     				isModifyOpen: false,
-    				isUserRoleOpen: false
+    				isUserRoleOpen: false,
+    				pageName:"ADMIN_ROLE",
+					isDeleteModalOpen: false,
+					errors:null, 
+					warns:null, 
+					successes:null,
+					searchValue:""
     			});
     		} else {
     			return state;
@@ -46,9 +52,14 @@ export default function rolesReducer(state = {}, action) {
     				items: reducerUtils.getItems(action),
     				listLimit: reducerUtils.getListLimit(action),
     				listStart: reducerUtils.getListStart(action),
+    				paginationSegment: action.paginationSegment,
     				selected: null,
     				isModifyOpen: false,
-    				isUserRoleOpen: false
+    				isUserRoleOpen: false,
+    				isDeleteModalOpen: false,
+					errors:null, 
+					warns:null, 
+					successes:null
     			});
     		} else {
     			return state;
@@ -226,6 +237,22 @@ export default function rolesReducer(state = {}, action) {
 		}
 		case 'ROLES_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
+		}
+		case 'ROLES_SET_ERRORS': {
+			return Object.assign({}, state, {
+				errors: action.errors
+			});
+		}
+		case 'ROLES_CLOSE_DELETE_MODAL': {
+			return Object.assign({}, state, {
+				isDeleteModalOpen: false
+			});
+		}
+		case 'ROLES_OPEN_DELETE_MODAL': {
+			return Object.assign({}, state, {
+				isDeleteModalOpen: true,
+				selected: action.item
+			});
 		}
     	default:
     		return state;

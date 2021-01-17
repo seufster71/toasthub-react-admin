@@ -9,10 +9,10 @@ import {bindActionCreators} from 'redux';
 import * as dashboardActions from './dashboard-actions';
 import fuLogger from '../../core/common/fu-logger';
 import DashboardView from '../../adminView/dashboard/dashboard-view';
+import BaseContainer from '../../core/container/base-container';
 
 
-
-class DashboardContainer extends Component {
+class DashboardContainer extends BaseContainer {
 	constructor(props) {
 		super(props);
 
@@ -21,29 +21,36 @@ class DashboardContainer extends Component {
 	componentDidMount() {
 		fuLogger.log({level:'TRACE',loc:'DashboardContainer::componentdid',msg:"Hi there"});
 		let statCriteria = {startTime:"12-30-2018 20:45:00", endTime:"12-30-2018 20:50:00"};
-		this.props.actions.initStats(statCriteria);
+		this.props.actions.init({statCriteria});
 	}
 
+	getState = () => {
+		return this.props.dashboard;
+	}
+	
+	getForm = () => {
+		return "DASHBOARD_FORM";
+	}
 
-  render() {
-			fuLogger.log({level:'TRACE',loc:'DashboardContainer::render',msg:"Hi there trser"});
-      return (
+  	render() {
+		fuLogger.log({level:'TRACE',loc:'DashboardContainer::render',msg:"Hi there trser"});
+      	return (
 				<DashboardView
 				stats={this.props.dashboard}
 				/>
 			);
-  }
+  	}
 }
 
 DashboardContainer.propTypes = {
 	appPrefs: PropTypes.object,
-	lang: PropTypes.string,
 	actions: PropTypes.object,
 	dashboard: PropTypes.object,
+	session: PropTypes.object
 };
 
 function mapStateToProps(state, ownProps) {
-  return {appPrefs:state.appPrefs, dashboard:state.dashboard};
+  return {appPrefs:state.appPrefs, dashboard:state.dashboard, session:state.session};
 }
 
 function mapDispatchToProps(dispatch) {

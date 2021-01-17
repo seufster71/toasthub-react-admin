@@ -16,7 +16,6 @@
 import reducerUtils from '../../core/common/reducer-utils';
 
 export default function usersReducer(state = {}, action) {
-	let myState = {};
 	switch(action.type) {
 		case 'LOAD_INIT_USERS': {
 			if (action.responseJson != null && action.responseJson.params != null) {
@@ -31,8 +30,15 @@ export default function usersReducer(state = {}, action) {
 					listStart: reducerUtils.getListStart(action),
 					orderCriteria: [{'orderColumn':'ADMIN_USER_TABLE_USERNAME','orderDir':'ASC'}],
     				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_USER_TABLE_USERNAME'}],
+					paginationSegment: 1,
 					selected: null,
-					isModifyOpen: false
+					isModifyOpen: false,
+					pageName:"ADMIN_USER",
+					isDeleteModalOpen: false,
+					errors:null, 
+					warns:null, 
+					successes:null,
+					searchValue:""
 				});
 			} else {
 				return state;
@@ -45,37 +51,24 @@ export default function usersReducer(state = {}, action) {
 					items: reducerUtils.getItems(action),
 					listLimit: reducerUtils.getListLimit(action),
 					listStart: reducerUtils.getListStart(action),
+					paginationSegment: action.paginationSegment,
 					selected: null,
-					isModifyOpen: false
+					isModifyOpen: false,
+					isDeleteModalOpen: false,
+					errors:null, 
+					warns:null, 
+					successes:null
 				});
 			} else {
 				return state;
 			}
 		}
-		case 'USERS_USER': {
+		case 'USERS_ITEM': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
 				let prefForms = reducerUtils.getPrefForms(action);
-				for (let i = 0; i < prefForms.ADMIN_USER_FORM.length; i++) {
-					if (prefForms.ADMIN_USER_FORM[i].group === "FORM1") {
-						let classModel = JSON.parse(prefForms.ADMIN_USER_FORM[i].classModel);
-						if (action.responseJson.params.item != null && action.responseJson.params.item[classModel.field]) {
-							inputFields[prefForms.ADMIN_USER_FORM[i].name] = action.responseJson.params.item[classModel.field];
-						} else {
-							let result = "";
-							if (prefForms.ADMIN_USER_FORM[i].value != null && prefForms.ADMIN_USER_FORM[i].value != ""){
-								let formValue = JSON.parse(prefForms.ADMIN_USER_FORM[i].value);
-								for (let j = 0; j < formValue.options.length; j++) {
-									if (formValue.options[j] != null && formValue.options[j].defaultInd == true){
-										result = formValue.options[j].value;
-									}
-								}
-							}
-							inputFields[prefForms.ADMIN_USER_FORM[i].name] = result;
-						}
-					}
-				}
+				inputFields = reducerUtils.loadInputFields(action.responseJson.params.item,prefForms.ADMIN_USER_FORM,inputFields,action.appPrefs,"FORM1");
 				// add id if this is existing item
 				if (action.responseJson.params.item != null) {
 					inputFields.itemId = action.responseJson.params.item.id;
@@ -93,6 +86,9 @@ export default function usersReducer(state = {}, action) {
 		case 'USERS_INPUT_CHANGE': {
 			return reducerUtils.updateInputChange(state,action);
 		}
+		case 'USERS_SELECT_CHANGE': {
+			return reducerUtils.selectChange(state,action);
+		}
 		case 'USERS_CLEAR_FIELD': {
 			return reducerUtils.updateClearField(state,action);
 		}
@@ -104,6 +100,22 @@ export default function usersReducer(state = {}, action) {
 		}
 		case 'USERS_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
+		}
+		case 'USERS_SET_ERRORS': {
+			return Object.assign({}, state, {
+				errors: action.errors
+			});
+		}
+		case 'USERS_CLOSE_DELETE_MODAL': {
+			return Object.assign({}, state, {
+				isDeleteModalOpen: false
+			});
+		}
+		case 'USERS_OPEN_DELETE_MODAL': {
+			return Object.assign({}, state, {
+				isDeleteModalOpen: true,
+				selected: action.item
+			});
 		}
 		default:
 			return state;

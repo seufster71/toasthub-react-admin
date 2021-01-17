@@ -31,9 +31,16 @@ export default function permissionsReducer(state = {}, action) {
     				listStart: reducerUtils.getListStart(action),
     				orderCriteria: [{'orderColumn':'ADMIN_PERMISSION_TABLE_NAME','orderDir':'ASC'}],
     				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_PERMISSION_TABLE_NAME'}],
+    				paginationSegment: 1,
     				selected: null,
     				isModifyOpen: false,
-    				isRolePermissionOpen: false
+    				isRolePermissionOpen: false,
+    				pageName:"ADMIN_PERMISSION",
+					isDeleteModalOpen: false,
+					errors:null, 
+					warns:null, 
+					successes:null,
+					searchValue:""
     			});
     		} else {
     			return state;
@@ -46,9 +53,14 @@ export default function permissionsReducer(state = {}, action) {
     				items: reducerUtils.getItems(action),
     				listLimit: reducerUtils.getListLimit(action),
     				listStart: reducerUtils.getListStart(action),
+    				paginationSegment: action.paginationSegment,
     				selected: null,
     				isModifyOpen: false,
-    				isRolePermissionOpen: false
+    				isRolePermissionOpen: false,
+    				isDeleteModalOpen: false,
+					errors:null, 
+					warns:null, 
+					successes:null
     			});
     		} else {
     			return state;
@@ -124,15 +136,7 @@ export default function permissionsReducer(state = {}, action) {
 			}
 		}
 		case 'PERMISSIONS_INPUT_CHANGE': {
-			if (action.params != null) {
-				let inputFields = Object.assign({}, state.inputFields);
-				inputFields[action.params.field] = action.params.value;
-				let clone = Object.assign({}, state);
-				clone.inputFields = inputFields;
-				return clone;
-			} else {
-		        return state;
-		    }
+			return reducerUtils.updateInputChange(state,action);
 		}
 		case 'PERMISSIONS_ADD_ROLE': {
 			if (action.role != null) {
@@ -226,6 +230,22 @@ export default function permissionsReducer(state = {}, action) {
 		}
 		case 'PERMISSIONS_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
+		}
+		case 'USERS_SET_ERRORS': {
+			return Object.assign({}, state, {
+				errors: action.errors
+			});
+		}
+		case 'USERS_CLOSE_DELETE_MODAL': {
+			return Object.assign({}, state, {
+				isDeleteModalOpen: false
+			});
+		}
+		case 'USERS_OPEN_DELETE_MODAL': {
+			return Object.assign({}, state, {
+				isDeleteModalOpen: true,
+				selected: action.item
+			});
 		}
     	default:
     		return state;

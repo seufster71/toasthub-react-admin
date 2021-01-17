@@ -21,16 +21,16 @@ import actionUtils from '../../core/common/action-utils';
 
 
 // thunks
-export function init(role) {
+export function init(parent) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "PERMISSIONS_SVC";
 		requestParams.prefTextKeys = new Array("ADMIN_PERMISSION_PAGE");
 		requestParams.prefLabelKeys = new Array("ADMIN_PERMISSION_PAGE");
-		if (role != null) {
-			requestParams.roleId = role.id;
-			dispatch({type:"PERMISSIONS_ADD_ROLE", role});
+		if (parent != null) {
+			requestParams.parentId = parent.id;
+			dispatch({type:"PERMISSIONS_ADD_ROLE", parent});
 		} else {
 			dispatch({type:"PERMISSIONS_CLEAR_ROLE"});
 		}
@@ -52,7 +52,7 @@ export function init(role) {
 	};
 }
 
-export function list({state,listLimit,listStart,searchCriteria,orderCriteria,info}) {
+export function list({state,listLimit,listStart,searchCriteria,orderCriteria,info,paginationSegment}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
@@ -88,7 +88,7 @@ export function list({state,listLimit,listStart,searchCriteria,orderCriteria,inf
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_LIST_PERMISSIONS", responseJson });
+				dispatch({ type: "LOAD_LIST_PERMISSIONS", responseJson, paginationSegment });
 				if (info != null) {
 		        	  dispatch({type:'SHOW_STATUS',info:info});  
 		        }
@@ -116,7 +116,7 @@ export function search({state,searchCriteria}) {
 	 };
 }
 
-export function savePermission({state}) {
+export function saveItem({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
@@ -144,7 +144,7 @@ export function savePermission({state}) {
 }
 
 
-export function deletePermission({state,id}) {
+export function deleteItem({state,id}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
@@ -271,4 +271,22 @@ export function clearPermission() {
 	return function(dispatch) {
 		dispatch({ type:"PERMISSIONS_CLEAR_PERMISSION"});
 	};
+}
+
+export function setErrors({errors}) {
+	 return function(dispatch) {
+		 dispatch({ type:"PERMISSIONS_SET_ERRORS",errors});
+	 };
+}
+
+export function openDeleteModal({item}) {
+	 return function(dispatch) {
+		 dispatch({type:"PERMISSIONS_OPEN_DELETE_MODAL",item});
+	 };
+}
+
+export function closeDeleteModal() {
+	 return function(dispatch) {
+		 dispatch({type:"PERMISSIONS_CLOSE_DELETE_MODAL"});
+	 };
 }

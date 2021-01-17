@@ -22,179 +22,37 @@ import * as userActions from './users-actions';
 import fuLogger from '../../core/common/fu-logger';
 import UsersView from '../../adminView/users/users-view';
 import UsersModifyView from '../../adminView/users/users-modify-view';
-import utils from '../../core/common/utils';
+import BaseContainer from '../../core/container/base-container';
 
-
-class UsersContainer extends Component {
+class UsersContainer extends BaseContainer {
 	constructor(props) {
 		super(props);
-		this.state = {pageName:"ADMIN_USER",isDeleteModalOpen: false, errors:null, warns:null, successes:null};
-
 	}
 
 	componentDidMount() {
 		this.props.actions.init();
 	}
 
-	onListLimitChange = (fieldName, event) => {
-		let value = 20;
-		if (this.props.codeType === 'NATIVE') {
-			value = event.nativeEvent.text;
-		} else {
-			value = event.target.value;
-		}
-
-		let listLimit = parseInt(value);
-		this.props.actions.listLimit({state:this.props.users,listLimit});
-	}
-
-	onPaginationClick = (value) => {
-		fuLogger.log({level:'TRACE',loc:'UsersContainer::onPaginationClick',msg:"fieldName "+ value});
-		let listStart = this.props.users.listStart;
-		let segmentValue = 1;
-		let oldValue = 1;
-		if (this.state["ADMIN_USER_PAGINATION"] != null && this.state["ADMIN_USER_PAGINATION"] != ""){
-			oldValue = this.state["ADMIN_USER_PAGINATION"];
-		}
-		if (value === "prev") {
-			segmentValue = oldValue - 1;
-		} else if (value === "next") {
-			segmentValue = oldValue + 1;
-		} else {
-			segmentValue = value;
-		}
-		listStart = ((segmentValue - 1) * this.props.users.listLimit);
-		this.setState({"ADMIN_USER_PAGINATION":segmentValue});
-		
-		this.props.actions.list({state:this.props.users,listStart});
-	}
-
-	onSearchChange = (fieldName, event) => {
-		if (event.type === 'keypress') {
-			if (event.key === 'Enter') {
-				this.onSearchClick(fieldName,event);
-			}
-		} else {
-			if (this.props.codeType === 'NATIVE') {
-				this.setState({[fieldName]:event.nativeEvent.text});
-			} else {
-				this.setState({[fieldName]:event.target.value});
-			}
-		}
-	}
-
-	onSearchClick = (fieldName, event) => {
-		let searchCriteria = [];
-		if (fieldName === 'ADMIN_USER-SEARCHBY') {
-			if (event != null) {
-				for (let o = 0; o < event.length; o++) {
-					let option = {};
-					option.searchValue = this.state['ADMIN_USER-SEARCH'];
-					option.searchColumn = event[o].value;
-					searchCriteria.push(option);
-				}
-			}
-		} else {
-			for (let i = 0; i < this.props.users.searchCriteria.length; i++) {
-				let option = {};
-				option.searchValue = this.state['ADMIN_USER-SEARCH'];
-				option.searchColumn = this.props.users.searchCriteria[i].searchColumn;
-				searchCriteria.push(option);
-			}
-		}
-
-		this.props.actions.search({state:this.props.users,searchCriteria});
-	}
-
-	onOrderBy = (selectedOption, event) => {
-		fuLogger.log({level:'TRACE',loc:'UserContainer::onOrderBy',msg:"id " + selectedOption});
-		let orderCriteria = [];
-		if (event != null) {
-			for (let o = 0; o < event.length; o++) {
-				let option = {};
-				if (event[o].label.includes("ASC")) {
-					option.orderColumn = event[o].value;
-					option.orderDir = "ASC";
-				} else if (event[o].label.includes("DESC")){
-					option.orderColumn = event[o].value;
-					option.orderDir = "DESC";
-				} else {
-					option.orderColumn = event[o].value;
-				}
-				orderCriteria.push(option);
-			}
-		} else {
-			let option = {orderColumn:"ADMIN_USER_TABLE_NAME",orderDir:"ASC"};
-			orderCriteria.push(option);
-		}
-		this.props.actions.orderBy({state:this.props.users,orderCriteria});
+	getState = () => {
+		return this.props.users;
 	}
 	
-	onSave = () => {
-		fuLogger.log({level:'TRACE',loc:'UsersContainer::onSave',msg:"test"});
-		let errors = utils.validateFormFields(this.props.users.prefForms.ADMIN_USER_FORM,this.props.users.inputFields);
-		
-		if (errors.isValid){
-			this.props.actions.saveUser({state:this.props.users});
-		} else {
-			this.setState({errors:errors.errorMap});
-		}
-	}
-	
-	onModify = (item) => {
-		let id = null;
-		if (item != null && item.id != null) {
-			id = item.id;
-		}
-		fuLogger.log({level:'TRACE',loc:'UsersContainer::onModify',msg:"test"+id});
-		this.props.actions.user(id);
-	}
-	
-	onDelete = (item) => {
-		fuLogger.log({level:'TRACE',loc:'UsersContainer::onDelete',msg:"test"});
-		this.setState({isDeleteModalOpen:false});
-		if (item != null && item.id != "") {
-			this.props.actions.deleteUser({state:this.props.users,id:item.id});
-		}
-	}
-	
-	openDeleteModal = (item) => {
-		this.setState({isDeleteModalOpen:true,selected:item});
-	}
+	getForm = () => {
+		return "ADMIN_USER_FORM";
+	}	
 	
 	onModifyRoles = (item) => {
 		fuLogger.log({level:'TRACE',loc:'UsersContainer::onModifyRoles',msg:"test"+item.id});
 		this.props.history.push({pathname:'/admin-roles',state:{parent:item}});
 	}
 	
-	closeModal = () => {
-		this.setState({isDeleteModalOpen:false,errors:null,warns:null});
-	}
-	
-	onCancel = () => {
-		fuLogger.log({level:'TRACE',loc:'UsersContainer::onCancel',msg:"test"});
-		this.props.actions.list({state:this.props.users});
-	}
-	
-	inputChange = (fieldName,switchValue) => {
-		utils.inputChange(this.props,fieldName,switchValue);
-	}
-	
 	onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'UsersContainer::onOption',msg:" code "+code});
+		if (this.onOptionBase(code,item)) {
+			return;
+		}
+		
 		switch(code) {
-			case 'MODIFY': {
-				this.onModify(item);
-				break;
-			}
-			case 'DELETE': {
-				this.openDeleteModal(item);
-				break;
-			}
-			case 'DELETEFINAL': {
-				this.onDelete(item);
-				break;
-			}
 			case 'MODIFY_ROLE': {
 				this.onModifyRoles(item);
 				break;
@@ -245,7 +103,7 @@ class UsersContainer extends Component {
 	
 	clearVerifyPassword = () => {
 		fuLogger.log({level:'TRACE',loc:'UsersContainer::clearVerifyPassword',msg:"Hi there"});
-		this.setState({errors:null, successes:null});
+		this.props.actions.setErrors({errors:null, successes:null});
 		this.props.actions.clearField('ADMIN_USER_FORM_VERIFY_PASSWORD');
 	}
 
@@ -254,22 +112,17 @@ class UsersContainer extends Component {
 		if (this.props.users.isModifyOpen) {
 			return (
 				<UsersModifyView
-				containerState={this.state}
-				item={this.props.users.selected}
-				inputFields={this.props.users.inputFields}
+				itemState={this.props.users}
 				appPrefs={this.props.appPrefs}
-				itemPrefForms={this.props.users.prefForms}
 				onSave={this.onSave}
 				onCancel={this.onCancel}
-				onReturn={this.onCancel}
 				inputChange={this.inputChange}
 				onBlur={this.onBlur}/>
 			);
 		} else if (this.props.users.items != null) {
 			return (
 				<UsersView
-				containerState={this.state}
-				items={this.props.users}
+				itemState={this.props.users}
 				appPrefs={this.props.appPrefs}
 				onListLimitChange={this.onListLimitChange}
 				onSearchChange={this.onSearchChange}
