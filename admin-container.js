@@ -16,6 +16,7 @@ import DashboardContainer from './dashboard/dashboard-container';
 import BugsContainer from './bugs/bugs-container';
 import ChangeRequestsContainer from './changerequests/changerequests-container';
 import PreferencesContainer from './preferences/preferences-container';
+import PreferenceSubContainer from './preferences/preferences-sub-container';
 import SubMenuContainer from './submenu/submenu-container';
 import UsersContainer from './users/users-container';
 import RolesContainer from './roles/roles-container';
@@ -78,6 +79,7 @@ class AdminContainer extends Component {
             <PrivateRoute path="/admin-roles" component={RolesContainer} permissions={myPermissions} code="AR" pathto="/access-denied"/>
             <PrivateRoute path="/admin-permissions" component={PermissionsContainer} permissions={myPermissions} code="AP" pathto="/access-denied"/>
             <PrivateRoute path="/admin-prefmgmt" component={PreferencesContainer} permissions={myPermissions} code="APR" pathto="/access-denied"/>
+            <PrivateRoute path="/admin-prefsub" component={PreferenceSubContainer} permissions={myPermissions} code="APR" pathto="/access-denied"/>
             <PrivateRoute path="/admin-language" component={LanguageContainer} permissions={myPermissions} code="AL" pathto="/access-denied"/>
             <PrivateRoute path="/admin-category" component={CategoryContainer} permissions={myPermissions} code="AC" pathto="/access-denied"/>
             <PrivateRoute path="/admin-status" component={StatusContainer} permissions={myPermissions} code="AS" pathto="/access-denied"/>

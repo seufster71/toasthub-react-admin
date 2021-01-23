@@ -19,7 +19,6 @@ import actionUtils from '../../core/common/action-utils';
 // action helpers
 
 
-
 // thunks
 export function init() {
 	return function(dispatch) {
@@ -45,7 +44,7 @@ export function init() {
 	};
 }
 
-export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info}) {
+export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info,paginationSegment}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
@@ -78,7 +77,7 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_LIST_LANGUAGES", responseJson });
+				dispatch({ type: "LOAD_LIST_LANGUAGES", responseJson, paginationSegment });
 				if (info != null) {
 		        	  dispatch({type:'SHOW_STATUS',info:info});  
 		        }
@@ -106,7 +105,7 @@ export function search({state,searchCriteria}) {
 	 };
 }
 
-export function saveLanguage({state}) {
+export function saveItem({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
@@ -134,7 +133,7 @@ export function saveLanguage({state}) {
 }
 
 
-export function deleteLanguage({state,id}) {
+export function deleteItem({state,id}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
@@ -199,5 +198,30 @@ export function orderBy({state,orderCriteria}) {
 	 return function(dispatch) {
 		 dispatch({ type:"LANGUAGES_ORDERBY",orderCriteria});
 		 dispatch(list({state,orderCriteria}));
+	 };
+}
+
+export function clearField(field) {
+	return function(dispatch) {
+		let params = {};
+		 params.field = field;
+		dispatch({ type:"LANGUAGES_CLEAR_FIELD",params});
+	};
+}
+export function setErrors({errors}) {
+	 return function(dispatch) {
+		 dispatch({ type:"LANGUAGES_SET_ERRORS",errors});
+	 };
+}
+
+export function openDeleteModal({item}) {
+	 return function(dispatch) {
+		 dispatch({type:"LANGUAGES_OPEN_DELETE_MODAL",item});
+	 };
+}
+
+export function closeDeleteModal() {
+	 return function(dispatch) {
+		 dispatch({type:"LANGUAGES_CLOSE_DELETE_MODAL"});
 	 };
 }

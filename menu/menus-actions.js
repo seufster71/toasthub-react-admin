@@ -47,7 +47,7 @@ export function init() {
 	};
 }
 
-export function list({state,listStart,listLimit,searchCriteria,orderCriteria,infos}) {
+export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info,paginationSegment}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
@@ -80,9 +80,9 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_LIST_MENUS", responseJson });
-				if (infos != null) {
-		        	  dispatch({type:'SHOW_STATUS',infos:infos});  
+				dispatch({ type: "LOAD_LIST_MENUS", responseJson, paginationSegment });
+				if (info != null) {
+		        	  dispatch({type:'SHOW_STATUS',info:info});  
 		        }
 			} else {
 				actionUtils.checkConnectivity(responseJson,dispatch);
@@ -108,7 +108,7 @@ export function search({state,searchCriteria}) {
 	 };
 }
 
-export function save({state}) {
+export function saveItem({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
@@ -216,4 +216,22 @@ export function clearField(field) {
 		 params.field = field;
 		dispatch({ type:"MENUS_CLEAR_FIELD",params});
 	};
+}
+
+export function setErrors({errors}) {
+	 return function(dispatch) {
+		 dispatch({ type:"MENUS_SET_ERRORS",errors});
+	 };
+}
+
+export function openDeleteModal({item}) {
+	 return function(dispatch) {
+		 dispatch({type:"MENUS_OPEN_DELETE_MODAL",item});
+	 };
+}
+
+export function closeDeleteModal() {
+	 return function(dispatch) {
+		 dispatch({type:"MENUS_CLOSE_DELETE_MODAL"});
+	 };
 }

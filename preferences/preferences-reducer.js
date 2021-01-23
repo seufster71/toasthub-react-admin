@@ -16,7 +16,6 @@
 import reducerUtils from '../../core/common/reducer-utils';
 
 export default function preferencesReducer(state = {}, action) {
-	let myState = {};
 	switch(action.type) {
     	case 'PREFERENCES_INIT': {
     		if (action.responseJson != null && action.responseJson.params != null) {
@@ -31,9 +30,17 @@ export default function preferencesReducer(state = {}, action) {
 	    			listStart: reducerUtils.getListStart(action),
 	    			orderCriteria: [{'orderColumn':'ADMIN_PREFERENCE_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_PREFERENCE_TABLE_TITLE','orderDir':'ASC'}],
     				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_PREFERENCE_TABLE_TITLE'}],
+    				paginationSegment: 1,
     				selected: null,
     				isModifyOpen: false,
-    				isSubViewOpen: false
+    				isSubViewOpen: false,
+    				pageName:"ADMIN_PERFERENCE",
+					isDeleteModalOpen: false,
+					errors:null, 
+					warns:null, 
+					successes:null,
+					searchValue:"",
+					viewType: null
     		    });
     		} else {
     		    return state;
@@ -46,8 +53,13 @@ export default function preferencesReducer(state = {}, action) {
     		    	items: reducerUtils.getItems(action),
     		    	listLimit: reducerUtils.getListLimit(action),
     		    	listStart: reducerUtils.getListStart(action),
+    		    	paginationSegment: action.paginationSegment,
     		    	selected: null,
-    				isModifyOpen: false
+    				isModifyOpen: false,
+    				isDeleteModalOpen: false,
+					errors:null, 
+					warns:null, 
+					successes:null
     		    });
     		} else {
     		    return state;
@@ -75,15 +87,7 @@ export default function preferencesReducer(state = {}, action) {
 			}
 		}
 		case 'PREFERENCES_INPUT_CHANGE': {
-			if (action.params != null) {
-				let inputFields = Object.assign({}, state.inputFields);
-				inputFields[action.params.field] = action.params.value;
-				let clone = Object.assign({}, state);
-				clone.inputFields = inputFields;
-				return clone;
-			} else {
-		        return state;
-		    }
+			return reducerUtils.updateInputChange(state,action);
 		}
 		case 'PREFERENCES_LISTLIMIT': {
 			return reducerUtils.updateListLimit(state,action);
@@ -108,11 +112,28 @@ export default function preferencesReducer(state = {}, action) {
 			if (action.item != null) {
 				 return Object.assign({}, state, {
 					 selected: action.item,
+					 pageName:"ADMIN_PERFERENCE",
 					 isSubViewOpen: true
 				 });
 			} else {
 		        return state;
 		    }
+		}
+		case 'PREFERENCES_SET_ERRORS': {
+			return Object.assign({}, state, {
+				errors: action.errors
+			});
+		}
+		case 'PREFERENCES_CLOSE_DELETE_MODAL': {
+			return Object.assign({}, state, {
+				isDeleteModalOpen: false
+			});
+		}
+		case 'PREFERENCES_OPEN_DELETE_MODAL': {
+			return Object.assign({}, state, {
+				isDeleteModalOpen: true,
+				selected: action.item
+			});
 		}
     	default:
     		return state;

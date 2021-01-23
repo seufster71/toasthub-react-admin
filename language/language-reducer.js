@@ -16,7 +16,6 @@
 import reducerUtils from '../../core/common/reducer-utils';
 
 export default function languagesReducer(state = {}, action) {
-	let myState = {};
 	switch(action.type) {
 		case 'LOAD_INIT_LANGUAGES': {
 			if (action.responseJson != null && action.responseJson.params != null) {
@@ -31,8 +30,15 @@ export default function languagesReducer(state = {}, action) {
 					listStart: reducerUtils.getListStart(action),
 					orderCriteria: [{'orderColumn':'ADMIN_LANGUAGE_TABLE_TITLE','orderDir':'ASC'}],
     				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_LANGUAGE_TABLE_TITLE'}],
+					paginationSegment: 1,
 					selected: null,
-					isModifyOpen: false
+					isModifyOpen: false,
+					pageName:"ADMIN_LANGUAGE",
+					isDeleteModalOpen: false,
+					errors:null, 
+					warns:null, 
+					successes:null,
+					searchValue:""
 				});
 			} else {
 				return state;
@@ -45,8 +51,13 @@ export default function languagesReducer(state = {}, action) {
 					items: reducerUtils.getItems(action),
 					listLimit: reducerUtils.getListLimit(action),
 					listStart: reducerUtils.getListStart(action),
+					paginationSegment: action.paginationSegment,
 					selected: null,
-					isModifyOpen: false
+					isModifyOpen: false,
+					isDeleteModalOpen: false,
+					errors:null, 
+					warns:null, 
+					successes:null
 				});
 			} else {
 				return state;
@@ -131,6 +142,22 @@ export default function languagesReducer(state = {}, action) {
 		}
 		case 'LANGUAGES_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
+		}
+		case 'LANGUAGES_SET_ERRORS': {
+			return Object.assign({}, state, {
+				errors: action.errors
+			});
+		}
+		case 'LANGUAGES_CLOSE_DELETE_MODAL': {
+			return Object.assign({}, state, {
+				isDeleteModalOpen: false
+			});
+		}
+		case 'LANGUAGES_OPEN_DELETE_MODAL': {
+			return Object.assign({}, state, {
+				isDeleteModalOpen: true,
+				selected: action.item
+			});
 		}
 		default:
 			return state;

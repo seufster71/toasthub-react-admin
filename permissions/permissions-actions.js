@@ -30,9 +30,9 @@ export function init(parent) {
 		requestParams.prefLabelKeys = new Array("ADMIN_PERMISSION_PAGE");
 		if (parent != null) {
 			requestParams.parentId = parent.id;
-			dispatch({type:"PERMISSIONS_ADD_ROLE", parent});
+			dispatch({type:"PERMISSIONS_ADD_PARENT", parent});
 		} else {
-			dispatch({type:"PERMISSIONS_CLEAR_ROLE"});
+			dispatch({type:"PERMISSIONS_CLEAR_PARENT"});
 		}
 		
 		let params = {};
@@ -78,7 +78,7 @@ export function list({state,listLimit,listStart,searchCriteria,orderCriteria,inf
 			requestParams.orderCriteria = state.orderCriteria;
 		}
 		if (state.parent != null) {
-			requestParams.roleId = state.parent.id;
+			requestParams.parentId = state.parent.id;
 		}
 		let prefChange = {"page":"permissions","orderCriteria":requestParams.orderCriteria,"listStart":requestParams.listStart,"listLimit":requestParams.listLimit};
 		dispatch({type:"PERMISSION_PREF_CHANGE", prefChange});

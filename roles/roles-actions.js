@@ -78,7 +78,7 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 			requestParams.orderCriteria = state.orderCriteria;
 		}
 		if (state.parent != null) {
-			requestParams.userId = state.parent.id;
+			requestParams.parentId = state.parent.id;
 		}
 		let prefChange = {"page":"roles","orderCriteria":requestParams.orderCriteria,"listStart":requestParams.listStart,"listLimit":requestParams.listLimit};
 		dispatch({type:"ROLE_PREF_CHANGE", prefChange});

@@ -138,16 +138,16 @@ export default function permissionsReducer(state = {}, action) {
 		case 'PERMISSIONS_INPUT_CHANGE': {
 			return reducerUtils.updateInputChange(state,action);
 		}
-		case 'PERMISSIONS_ADD_ROLE': {
-			if (action.role != null) {
+		case 'PERMISSIONS_ADD_PARENT': {
+			if (action.parent != null) {
 				return Object.assign({}, state, {
-					parent: action.role
+					parent: action.parent
 				});
 			} else {
 		        return state;
 		    }
 		}
-		case 'PERMISSIONS_CLEAR_ROLE': {
+		case 'PERMISSIONS_CLEAR_PARENT': {
 			return Object.assign({}, state, {
 				parent: null
 			});

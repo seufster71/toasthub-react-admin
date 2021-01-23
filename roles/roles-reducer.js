@@ -145,18 +145,20 @@ export default function rolesReducer(state = {}, action) {
 		        return state;
 		    }
 		}
-		case 'ROLES_ADD_USER': {
-			if (action.user != null) {
+		case 'ROLES_ADD_PARENT': {
+			if (action.parent != null) {
 				return Object.assign({}, state, {
-					parent: action.user
+					parent: action.parent,
+					parentType: action.parentType
 				});
 			} else {
 		        return state;
 		    }
 		}
-		case 'ROLES_CLEAR_USER': {
+		case 'ROLES_CLEAR_PARENT': {
 			return Object.assign({}, state, {
-				parent: null
+				parent: null,
+				parentType: null
 			});
 		}
 		case 'ROLES_USER_ROLE': {
