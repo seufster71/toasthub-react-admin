@@ -26,12 +26,11 @@ export function init() {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "SERVICE_CRAWLER_SVC";
-		requestParams.prefFormKeys = new Array("ADMIN_SERVICE_CRAWLER_PAGE");
-		requestParams.prefTextKeys = new Array("ADMIN_SERVICE_CRAWLER_PAGE");
-		requestParams.prefLabelKeys = new Array("ADMIN_SERVICE_CRAWLER_PAGE");
+		requestParams.prefTextKeys = new Array("ADMIN_SERVICES_PAGE");
+		requestParams.prefLabelKeys = new Array("ADMIN_SERVICES_PAGE");
 		let params = {};
 		params.requestParams = requestParams;
-		params.URI = '/api/admin/callService';
+		params.URI = '/api/system/callService';
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
@@ -46,24 +45,40 @@ export function init() {
 	};
 }
 
-export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
+export function list({state,listStart,listLimit,searchCriteria,orderCriteria,info,paginationSegment}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
 		requestParams.service = "SERVICE_CRAWLER_SVC";
-		requestParams.listStart = listStart;
-		requestParams.listLimit = listLimit;
-		requestParams.searchCriteria = searchCriteria;
-		requestParams.orderCriteria = orderCriteria;
+		if (listStart != null) {
+			requestParams.listStart = listStart;
+		} else {
+			requestParams.listStart = state.listStart;
+		}
+		if (listLimit != null) {
+			requestParams.listLimit = listLimit;
+		} else {
+			requestParams.listLimit = state.listLimit;
+		}
+		if (searchCriteria != null) {
+			requestParams.searchCriteria = searchCriteria;
+		} else {
+			requestParams.searchCriteria = state.searchCriteria;
+		}
+		if (orderCriteria != null) {
+			requestParams.orderCriteria = orderCriteria;
+		} else {
+			requestParams.orderCriteria = state.orderCriteria;
+		}
 		let prefChange = {"page":"services","orderCriteria":orderCriteria,"listStart":listStart,"listLimit":listLimit};
 		dispatch({type:"SERVICE_CRAWLER_PREF_CHANGE", prefChange});
 		let params = {};
 		params.requestParams = requestParams;
-		params.URI = '/api/admin/callService';
+		params.URI = '/api/system/callService';
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_LIST_SERVICES", responseJson });
+				dispatch({ type: "LOAD_LIST_SERVICES", responseJson, paginationSegment });
 				if (info != null) {
 		        	  dispatch({type:'SHOW_STATUS',info:info});  
 		        }
@@ -77,22 +92,30 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 	};
 }
 
-export function saveService(service,listStart,listLimit,searchCriteria,orderCriteria) {
+export function search({state,searchCriteria}) {
+	return function(dispatch) {
+		 dispatch({ type:"SERVICES_SEARCH",searchCriteria});
+		 dispatch(list({state,searchCriteria,listStart:0}));
+	 };
+}
+
+export function saveItem({state}) {
 	return function(dispatch) {
 		let requestParams = {};
-	    requestParams.action = "SERVICE_CRAWLER_SAVE";
-	    requestParams.params = {"SERVICE" : service};
+	    requestParams.action = "SAVE";
+	    requestParams.service = "SERVICE_CRAWLER_SVC";
+	    requestParams.inputFields = state.inputFields;
 
 	    let params = {};
 	    params.requestParams = requestParams;
-	    params.URI = '/api/admin/callService';
+	    params.URI = '/api/system/callService';
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESSFUL"){  
-	    			dispatch(list(listStart,listLimit,searchCriteria,orderCriteria,["Service save Successful"]));
-	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "error") {
-	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
+	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
+	    			dispatch(list({state,info:["Save Successful"]}));
+	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
+	    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
 	    		}
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
@@ -104,19 +127,23 @@ export function saveService(service,listStart,listLimit,searchCriteria,orderCrit
 }
 
 
-export function deleteService(id,listStart,listLimit,searchCriteria,orderCriteria) {
+export function deleteItem({state,id}) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "SERVICE_CRAWLER_DELETE";
-	    requestParams.params = {"SERVICE_ID":id};
+	    requestParams.service = "SERVICE_CRAWLER_SVC";
+	    requestParams.itemId = id;
 	    
 	    let params = {};
 	    params.requestParams = requestParams;
-	    params.URI = '/api/admin/callService';
+	    params.URI = '/api/system/callService';
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch(list(listStart,listLimit,searchCriteria,orderCriteria));
+	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
+	    			dispatch(list({state,info:["Delete Successful"]}));
+	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
+	    			dispatch({type:'SHOW_STATUS',warn:responseJson.errors});
+	    		}
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -126,42 +153,22 @@ export function deleteService(id,listStart,listLimit,searchCriteria,orderCriteri
 	};
 }
 
-export function languagesPage() {
+export function modifyItem({id, appPrefs}) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "SERVICE_CRAWLER_PAGE";
-	   
-	    let params = {};
-	    params.requestParams = requestParams;
-	    params.URI = '/api/admin/callService';
-
-	    return callService(params).then( (responseJson) => {
-	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'SERVICES_PAGE',responseJson});
-	    	} else {
-	    		actionUtils.checkConnectivity(responseJson,dispatch);
-	    	}
-	    }).catch(error => {
-	    	throw(error);
-	    });
-	};
-}
-
-export function service(id) {
-	return function(dispatch) {
-	    let requestParams = {};
-	    requestParams.action = "SERVICE_CRAWLER_SERVICE";
+	    requestParams.action = "ITEM";
+	    requestParams.service = "SERVICE_CRAWLER_SVC";
+	    requestParams.prefFormKeys = new Array("ADMIN_SERVICES_FORM");
 	    if (id != null) {
-	    	requestParams.params = {};
-	    	requestParams.params.SERVICE_ID = id;
+	    	requestParams.itemId = id;
 	    }
 	    let params = {};
 	    params.requestParams = requestParams;
-	    params.URI = '/api/admin/callService';
+	    params.URI = '/api/system/callService';
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'SERVICES_SERVICE',responseJson});
+	    		dispatch({ type: 'SERVICES_ITEM',responseJson, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -180,8 +187,42 @@ export function inputChange(field,value) {
 	 };
 }
 
-export function clearService() {
+export function selectChange({field,value}) {
 	return function(dispatch) {
-		dispatch({ type:"SERVICES_CLEAR_SERVICE"});
+		let params = {};
+		params.field = field;
+		params.value = value;
+		dispatch({ type:"USERS_INPUT_CHANGE",params});
+	 };
+}
+
+export function orderBy({state,orderCriteria}) {
+	 return function(dispatch) {
+		 dispatch({ type:"USERS_ORDERBY",orderCriteria});
+		 dispatch(list({state,orderCriteria}));
+	 };
+}
+
+export function clearItem() {
+	return function(dispatch) {
+		dispatch({ type:"SERVICES_CLEAR_ITEM"});
 	};
+}
+
+export function setErrors({errors}) {
+	 return function(dispatch) {
+		 dispatch({ type:"SERVICES_SET_ERRORS",errors});
+	 };
+}
+
+export function openDeleteModal({item}) {
+	 return function(dispatch) {
+		 dispatch({type:"SERVICES_OPEN_DELETE_MODAL",item});
+	 };
+}
+
+export function closeDeleteModal() {
+	 return function(dispatch) {
+		 dispatch({type:"SERVICES_CLOSE_DELETE_MODAL"});
+	 };
 }

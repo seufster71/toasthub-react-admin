@@ -211,9 +211,9 @@ export function orderBy({state,orderCriteria}) {
 	 };
 }
 
-export function clearUser() {
+export function clearItem() {
 	return function(dispatch) {
-		dispatch({ type:"USERS_CLEAR_USER"});
+		dispatch({ type:"USERS_CLEAR_ITEM"});
 	};
 }
 
@@ -227,18 +227,18 @@ export function clearField(field) {
 
 export function setErrors({errors}) {
 	 return function(dispatch) {
-		 dispatch({ type:"PM_TEAM_SET_ERRORS",errors});
+		 dispatch({ type:"USERS_SET_ERRORS",errors});
 	 };
 }
 
 export function openDeleteModal({item}) {
 	 return function(dispatch) {
-		 dispatch({type:"PM_TEAM_OPEN_DELETE_MODAL",item});
+		 dispatch({type:"USERS_OPEN_DELETE_MODAL",item});
 	 };
 }
 
 export function closeDeleteModal() {
 	 return function(dispatch) {
-		 dispatch({type:"PM_TEAM_CLOSE_DELETE_MODAL"});
+		 dispatch({type:"USERS_CLOSE_DELETE_MODAL"});
 	 };
 }
