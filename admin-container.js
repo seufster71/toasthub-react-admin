@@ -59,15 +59,15 @@ class AdminContainer extends Component {
       myMenus = this.props.appMenus[this.props.appPrefs.adminMenu];
     }
     let myPermissions = {};
-    if (this.props.session != null && this.props.session.user != null && this.props.session.user.permissions != null) {
-      myPermissions = this.props.session.user.permissions;
+    if (this.props.session != null && this.props.session.selected != null && this.props.session.selected.permissions != null) {
+      myPermissions = this.props.session.selected.permissions;
     }
     //fuLogger.log({level:'TRACE',loc:'AdminContainer::render',msg:"menus "+ JSON.stringify(myMenus)});
     if (myMenus.length > 0) {
       return (
         <AdminView>
           <NavigationView appPrefs={this.props.appPrefs} permissions={myPermissions}
-          menus={myMenus} changeTab={this.changeTab} activeTab={this.props.history.location.pathname} backToTab={"member"} user={this.props.session.user}/>
+          menus={myMenus} changeTab={this.changeTab} activeTab={this.props.history.location.pathname} backToTab={"member"} user={this.props.session.selected}/>
           <StatusView/>
           <Switch>
             <Route exact path="/admin" component={DashboardContainer}/>
