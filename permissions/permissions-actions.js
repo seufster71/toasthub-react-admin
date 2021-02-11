@@ -260,6 +260,12 @@ export function inputChange(field,value) {
 	 };
 }
 
+export function searchChange({value}) {
+	 return function(dispatch) {
+		 dispatch({ type:"PERMISSIONS_SEARCH_CHANGE",value});
+	 };
+}
+
 export function orderBy({state,orderCriteria}) {
 	 return function(dispatch) {
 		 dispatch({ type:"PERMISSIONS_ORDERBY",orderCriteria});

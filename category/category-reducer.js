@@ -114,6 +114,11 @@ export default function categoryReducer(state = {}, action) {
 		case 'CATEGORY_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
+		case 'CATEGORY_SEARCH_CHANGE': { 
+			return Object.assign({}, state, {
+				searchValue: action.value
+			});
+		}
 		case 'CATEGORY_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}

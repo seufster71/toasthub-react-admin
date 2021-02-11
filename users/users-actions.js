@@ -204,6 +204,12 @@ export function selectChange({field,value}) {
 	 };
 }
 
+export function searchChange({value}) {
+	 return function(dispatch) {
+		 dispatch({ type:"USERS_SEARCH_CHANGE",value});
+	 };
+}
+
 export function orderBy({state,orderCriteria}) {
 	 return function(dispatch) {
 		 dispatch({ type:"USERS_ORDERBY",orderCriteria});

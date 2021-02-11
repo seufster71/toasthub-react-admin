@@ -95,6 +95,11 @@ export default function preferencesReducer(state = {}, action) {
 		case 'PREFERENCES_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
+		case 'PREFERENCES_SEARCH_CHANGE': { 
+			return Object.assign({}, state, {
+				searchValue: action.value
+			});
+		}
 		case 'PREFERENCES_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}

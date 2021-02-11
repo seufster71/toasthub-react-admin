@@ -118,6 +118,11 @@ export default function preferenceSubViewReducer(state = {}, action) {
 		case 'PREFERENCES_SUB_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
+		case 'PREFERENCES_SUB_SEARCH_CHANGE': { 
+			return Object.assign({}, state, {
+				searchValue: action.value
+			});
+		}
 		case 'PREFERENCES_SUB_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}

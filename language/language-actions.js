@@ -194,6 +194,12 @@ export function inputChange(field,value) {
 	 };
 }
 
+export function searchChange({value}) {
+	 return function(dispatch) {
+		 dispatch({ type:"LANGUAGES_SEARCH_CHANGE",value});
+	 };
+}
+
 export function orderBy({state,orderCriteria}) {
 	 return function(dispatch) {
 		 dispatch({ type:"LANGUAGES_ORDERBY",orderCriteria});

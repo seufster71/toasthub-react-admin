@@ -237,6 +237,11 @@ export default function rolesReducer(state = {}, action) {
 		case 'ROLES_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
+		case 'ROLES_SEARCH_CHANGE': { 
+			return Object.assign({}, state, {
+				searchValue: action.value
+			});
+		}
 		case 'ROLES_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}

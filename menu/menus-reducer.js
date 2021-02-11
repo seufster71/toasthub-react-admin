@@ -96,6 +96,11 @@ export default function menusReducer(state = {}, action) {
 		case 'MENUS_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
+		case 'MENUS_SEARCH_CHANGE': { 
+			return Object.assign({}, state, {
+				searchValue: action.value
+			});
+		}
 		case 'MENUS_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}

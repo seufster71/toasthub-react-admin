@@ -98,6 +98,11 @@ export default function usersReducer(state = {}, action) {
 		case 'USERS_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
+		case 'USERS_SEARCH_CHANGE': { 
+			return Object.assign({}, state, {
+				searchValue: action.value
+			});
+		}
 		case 'USERS_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}

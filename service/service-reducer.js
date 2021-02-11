@@ -98,6 +98,11 @@ export default function serviceReducer(state = {}, action) {
 		case 'SERVICES_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
+		case 'SERVICES_SEARCH_CHANGE': { 
+			return Object.assign({}, state, {
+				searchValue: action.value
+			});
+		}
 		case 'SERVICES_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}

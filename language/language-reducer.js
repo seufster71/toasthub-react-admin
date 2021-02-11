@@ -140,6 +140,11 @@ export default function languagesReducer(state = {}, action) {
 		case 'LANGUAGES_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
+		case 'LANGUAGES_SEARCH_CHANGE': { 
+			return Object.assign({}, state, {
+				searchValue: action.value
+			});
+		}
 		case 'LANGUAGES_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}

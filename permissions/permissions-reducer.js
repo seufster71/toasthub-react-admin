@@ -228,6 +228,11 @@ export default function permissionsReducer(state = {}, action) {
 		case 'PERMISSIONS_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
+		case 'PERMISSIONS_SEARCH_CHANGE': { 
+			return Object.assign({}, state, {
+				searchValue: action.value
+			});
+		}
 		case 'PERMISSIONS_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}

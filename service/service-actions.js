@@ -192,13 +192,19 @@ export function selectChange({field,value}) {
 		let params = {};
 		params.field = field;
 		params.value = value;
-		dispatch({ type:"USERS_INPUT_CHANGE",params});
+		dispatch({ type:"SERVICES_INPUT_CHANGE",params});
+	 };
+}
+
+export function searchChange({value}) {
+	 return function(dispatch) {
+		 dispatch({ type:"SERVICES_SEARCH_CHANGE",value});
 	 };
 }
 
 export function orderBy({state,orderCriteria}) {
 	 return function(dispatch) {
-		 dispatch({ type:"USERS_ORDERBY",orderCriteria});
+		 dispatch({ type:"SERVICES_ORDERBY",orderCriteria});
 		 dispatch(list({state,orderCriteria}));
 	 };
 }

@@ -117,6 +117,11 @@ export default function bugsReducer(state = {}, action) {
 		case 'ISSUES_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
+		case 'ISSUES_SEARCH_CHANGE': { 
+			return Object.assign({}, state, {
+				searchValue: action.value
+			});
+		}
 		case 'ISSUES_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}
