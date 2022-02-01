@@ -27,77 +27,64 @@ import BaseContainer from '../../core/container/base-container';
 /*
 * Language Page
 */
-class LanguageContainer extends BaseContainer {
-	constructor(props) {
-		super(props);
-	}
-
-	componentDidMount() {
-		this.props.actions.init();
-	}
-
-	getState = () => {
-		return this.props.languages;
+function LanguageContainer() {
+	const pmteam = useSelector((state) => state.pmteam);
+	const session = useSelector((state) => state.session);
+	const appMenus = useSelector((state) => state.appMenus);
+	const appPrefs = useSelector((state) => state.appPrefs);
+	const dispatch = useDispatch();
+	const location = useLocation();
+	const navigate = useNavigate();
+	
+	useEffect(() => {
+		dispatch(languageActions.init());
+	}, []);
+	
+	const getState = () => {
+		return languages;
 	}
 	
-	getForm = () => {
+	const getForm = () => {
 		return "ADMIN_LANGUAGE_FORM";
 	}	
 	
 	
-	onOption = (code,item) => {
+	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'LanguageContainer::onOption',msg:" code "+code});
-		if (this.onOptionBase(code,item)) {
+		if (BaseContainer.onOptionBase(code,item)) {
 			return;
 		}
 	}
 
-	render() {
-		fuLogger.log({level:'TRACE',loc:'LanguageContainer::render',msg:"Hi there"});
-		if (this.props.languages.isModifyOpen) {
-			return (
-				<LanguageModifyView
-				itemState={this.props.languages}
-				appPrefs={this.props.appPrefs}
-				onSave={this.onSave}
-				onCancel={this.onCancel}
-				inputChange={this.inputChange}/>
-			);
-		} else if (this.props.languages.items != null) {
-			return (
-				<LanguageView 
-				itemState={this.props.languages}
-				appPrefs={this.props.appPrefs}
-				onListLimitChange={this.onListLimitChange}
-				onSearchChange={this.onSearchChange}
-				onSearchClick={this.onSearchClick}
-				onPaginationClick={this.onPaginationClick}
-				onOrderBy={this.onOrderBy}
-				closeModal={this.closeModal}
-				onOption={this.onOption}
-				inputChange={this.inputChange}
-				session={this.props.session}
-				/>	
-			);
-		} else {
-			return (<div> Loading... </div>);
-		}
+	fuLogger.log({level:'TRACE',loc:'LanguageContainer::render',msg:"Hi there"});
+	if (languages.isModifyOpen) {
+		return (
+			<LanguageModifyView
+			itemState={languages}
+			appPrefs={appPrefs}
+			onSave={BaseContainer.onSave}
+			onCancel={BaseContainer.onCancel}
+			inputChange={BaseContainer.inputChange}/>
+		);
+	} else if (languages.items != null) {
+		return (
+			<LanguageView 
+			itemState={languages}
+			appPrefs={appPrefs}
+			onListLimitChange={BaseContainer.onListLimitChange}
+			onSearchChange={BaseContainer.onSearchChange}
+			onSearchClick={BaseContainer.onSearchClick}
+			onPaginationClick={BaseContainer.onPaginationClick}
+			onOrderBy={BaseContainer.onOrderBy}
+			closeModal={BaseContainer.closeModal}
+			onOption={onOption}
+			inputChange={BaseContainer.inputChange}
+			session={session}
+			/>	
+		);
+	} else {
+		return (<div> Loading... </div>);
 	}
 }
 
-LanguageContainer.propTypes = {
-	appPrefs: PropTypes.object,
-	actions: PropTypes.object,
-	languages: PropTypes.object,
-	session: PropTypes.object
-};
-
-function mapStateToProps(state, ownProps) {
-  return {appPrefs:state.appPrefs, languages:state.languages, session:state.session};
-}
-
-function mapDispatchToProps(dispatch) {
-  return { actions:bindActionCreators(languageActions,dispatch) };
-}
-
-export default connect(mapStateToProps,mapDispatchToProps)(LanguageContainer);
+export default LanguageContainer;

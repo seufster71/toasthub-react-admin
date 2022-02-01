@@ -14,89 +14,75 @@
  * limitations under the License.
  */
 'use-strict';
-import React, {Component} from 'react';
-import PropTypes from 'prop-types';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import * as serviceActions from './service-actions';
 import fuLogger from '../../core/common/fu-logger';
 import ServiceView from '../../adminView/service/service-view';
 import ServiceModifyView from '../../adminView/service/service-modify-view';
 import BaseContainer from '../../core/container/base-container';
 
-class ServiceContainer extends BaseContainer {
-	constructor(props) {
-		super(props);
-	}
+function ServiceContainer() {
+	const pmteam = useSelector((state) => state.pmteam);
+	const session = useSelector((state) => state.session);
+	const appMenus = useSelector((state) => state.appMenus);
+	const appPrefs = useSelector((state) => state.appPrefs);
+	const dispatch = useDispatch();
+	const location = useLocation();
+	const navigate = useNavigate();
+	
+	useEffect(() => {
+		dispatch(serviceActions.init());
+	}, []);
 
-	componentDidMount() {
-		this.props.actions.init();
-	}
-
-	getState = () => {
-		return this.props.services;
+	const getState = () => {
+		return services;
 	}
 	
-	getForm = () => {
+	const getForm = () => {
 		return "ADMIN_SERVICES_FORM";
 	}	
 	
-	onOption = (code,item) => {
+	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'ServiceContainer::onOption',msg:" code "+code});
-		if (this.onOptionBase(code,item)) {
+		if (BaseContainer.onOptionBase(code,item)) {
 			return;
 		}
 		
 	}
 	
-	render() {
-		fuLogger.log({level:'TRACE',loc:'ServiceContainer::render',msg:"Hi there"});
-		if (this.props.services.isModifyOpen) {
-			return (
-				<ServiceModifyView
-				itemState={this.props.services}
-				appPrefs={this.props.appPrefs}
-				onSave={this.onSave}
-				onCancel={this.onCancel}
-				inputChange={this.inputChange}
-				onBlur={this.onBlur}/>
-			);
-		} else if (this.props.services.items != null) {
-			return (
-				<ServiceView 
-				itemState={this.props.services}
-				appPrefs={this.props.appPrefs}
-				onListLimitChange={this.onListLimitChange}
-				onSearchChange={this.onSearchChange}
-				onSearchClick={this.onSearchClick}
-				onPaginationClick={this.onPaginationClick}
-				onOrderBy={this.onOrderBy}
-				closeModal={this.closeModal}
-				onOption={this.onOption}
-				inputChange={this.inputChange}
-				session={this.props.session}
-				/>
-					
-			);
-		} else {
-			return (<div> Loading... </div>);
-		}
-  }
+	fuLogger.log({level:'TRACE',loc:'ServiceContainer::render',msg:"Hi there"});
+	if (services.isModifyOpen) {
+		return (
+			<ServiceModifyView
+			itemState={services}
+			appPrefs={appPrefs}
+			onSave={BaseContainer.onSave}
+			onCancel={BaseContainer.onCancel}
+			inputChange={BaseContainer.inputChange}
+			onBlur={BaseContainer.onBlur}/>
+		);
+	} else if (services.items != null) {
+		return (
+			<ServiceView 
+			itemState={services}
+			appPrefs={appPrefs}
+			onListLimitChange={BaseContainer.onListLimitChange}
+			onSearchChange={BaseContainer.onSearchChange}
+			onSearchClick={BaseContainer.onSearchClick}
+			onPaginationClick={BaseContainer.onPaginationClick}
+			onOrderBy={BaseContainer.onOrderBy}
+			closeModal={BaseContainer.closeModal}
+			onOption={onOption}
+			inputChange={BaseContainer.inputChange}
+			session={session}
+			/>
+				
+		);
+	} else {
+		return (<div> Loading... </div>);
+	}
 }
 
-ServiceContainer.propTypes = {
-	appPrefs: PropTypes.object,
-	actions: PropTypes.object,
-	services: PropTypes.object,
-	session: PropTypes.object
-};
-
-function mapStateToProps(state, ownProps) {
-  return {appPrefs:state.appPrefs, services:state.services, session:state.session};
-}
-
-function mapDispatchToProps(dispatch) {
-  return { actions:bindActionCreators(serviceActions,dispatch) };
-}
-
-export default connect(mapStateToProps,mapDispatchToProps)(ServiceContainer);
+export default ServiceContainer;

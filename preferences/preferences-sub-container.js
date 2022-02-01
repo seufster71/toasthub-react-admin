@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 'use-strict';
-import React, {Component} from 'react';
-import PropTypes from 'prop-types';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import * as preferencesActions from './preferences-sub-actions';
 import fuLogger from '../../core/common/fu-logger';
 import PreferenceSubView from '../../adminView/preferences/preferences-sub-view';
@@ -28,150 +27,137 @@ import BaseContainer from '../../core/container/base-container';
 /*
 * Preference Sub Page
 */
-class PreferenceSubContainer extends BaseContainer {
-	constructor(props) {
-		super(props);
-	}
-
-	componentDidMount() {
-		if (this.props.history.location.state != null && this.props.history.location.state.parent != null) {
-			this.props.actions.init({parent:this.props.history.location.state.parent,subType:this.props.history.location.state.subType});
+function PreferenceSubContainer() {
+	const preferences = useSelector((state) => state.preferences);
+	const session = useSelector((state) => state.session);
+	const appMenus = useSelector((state) => state.appMenus);
+	const appPrefs = useSelector((state) => state.appPrefs);
+	const dispatch = useDispatch();
+	const location = useLocation();
+	const navigate = useNavigate();
+	
+	useEffect(() => {
+		if (location.state != null && location.state.parent != null) {
+			dispatch(preferencesActions.init({parent:location.state.parent,subType:location.state.subType}));
 		} else {
-			this.props.actions.init();
+			dispatch(preferencesActions.init());
 		}
-	}
+	}, []);
 
-	getState = () => {
-		return this.props.preferences;
+	const getState = () => {
+		return preferences;
 	}
 	
-	getForm = () => {
+	const getForm = () => {
 		return "ADMIN_PREFERENCE_SUB_FORM";
 	}	
 
-	onSave = () => {
+	const onSave = () => {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onSavePreference',msg:"test"});
 		let errors = null;
-		if (this.props.preferences != null && this.props.preferences.subType != null) {
-			if (this.props.preferences.subType === "FORM") {
-				errors = utils.validateFormFields(this.props.preferences.prefForms.ADMIN_FORMFIELD_FORM, this.props.preferences.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES, "FORM1");
-			} else if (this.props.preferences.subType === "LABEL") {
-				errors = utils.validateFormFields(this.props.preferences.prefForms.ADMIN_LABEL_FORM, this.props.preferences.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES, "FORM1");
-			} else if (this.props.preferences.subType === "TEXT") {
-				errors = utils.validateFormFields(this.props.preferences.prefForms.ADMIN_TEXT_FORM, this.props.preferences.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES, "FORM1");
-			} else if (this.props.preferences.subType === "OPTION") {
-				errors = utils.validateFormFields(this.props.preferences.prefForms.ADMIN_OPTION_FORM, this.props.preferences.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES, "FORM1");
+		if (preferences != null && preferences.subType != null) {
+			if (preferences.subType === "FORM") {
+				errors = utils.validateFormFields(preferences.prefForms.ADMIN_FORMFIELD_FORM, preferences.inputFields, appPrefs.prefGlobal.LANGUAGES, "FORM1");
+			} else if (preferences.subType === "LABEL") {
+				errors = utils.validateFormFields(preferences.prefForms.ADMIN_LABEL_FORM, preferences.inputFields, appPrefs.prefGlobal.LANGUAGES, "FORM1");
+			} else if (preferences.subType === "TEXT") {
+				errors = utils.validateFormFields(preferences.prefForms.ADMIN_TEXT_FORM, preferences.inputFields, appPrefs.prefGlobal.LANGUAGES, "FORM1");
+			} else if (preferences.subType === "OPTION") {
+				errors = utils.validateFormFields(preferences.prefForms.ADMIN_OPTION_FORM, preferences.inputFields, appPrefs.prefGlobal.LANGUAGES, "FORM1");
 			}
 		} else {
-			errors = utils.validateFormFields(this.props.preferences.prefForms.ADMIN_PREFERENCE_FORM, this.props.preferences.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES, "FORM1");
+			errors = utils.validateFormFields(preferences.prefForms.ADMIN_PREFERENCE_FORM, preferences.inputFields, appPrefs.prefGlobal.LANGUAGES, "FORM1");
 		}
 		
 		if (errors.isValid){
-			this.props.actions.saveItem({state:this.props.preferences,parent:this.props.preferences.parent});
+			dispatch(preferencesActions.saveItem({state:preferences,parent:preferences.parent}));
 		} else {
-			this.props.actions.setErrors({errors:errors.errorMap});
+			dispatch(preferencesActions.setErrors({errors:errors.errorMap}));
 		}
 	}
 	
 	
-	onMoveSelect = (item) => {
+	const onMoveSelect = (item) => {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onMoveSelect',msg:"test"});
 		if (item != null) {
-			this.props.actions.moveSelect({state:this.props.preferences,item});
+			dispatch(preferencesActions.moveSelect({state:preferences,item}));
 		}
 	}
 	
-	onMoveSave = (code,item) => {
+	const onMoveSave = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onMoveSave',msg:"test"});
 		if (item != null) {
-			this.props.actions.moveSave({state:this.props.preferences,code,item});
+			dispatch(preferencesActions.moveSave({state:preferences,code,item}));
 		}
 	}
 	
-	onMoveCancel = () => {
+	const onMoveCancel = () => {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onMoveCancel',msg:"test"});
-		this.props.actions.moveCancel({state:this.props.preferences});
+		dispatch(preferencesActions.moveCancel({state:preferences}));
 	}
 	
-	onOption = (code,item) => {
+	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onOption',msg:" code "+code});
-		if (this.onOptionBase(code,item)) {
+		if (BaseContainer.onOptionBase(code,item)) {
 			return;
 		}
 		
 		switch(code) {
 			case 'MOVESELECT': {
-				this.onMoveSelect(item);
+				onMoveSelect(item);
 				break;
 			}
 			case 'MOVEABOVE': {
-				this.onMoveSave(code,item);
+				onMoveSave(code,item);
 				break;
 			}
 			case 'MOVEBELOW': {
-				this.onMoveSave(code,item);
+				onMoveSave(code,item);
 				break;
 			}
 			case 'MOVECANCEL': {
-				this.onMoveCancel();
+				onMoveCancel();
 				break;
 			}
 		}
 	}
 
-	render() {
-		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"test "});
-		if (this.props.preferences.isModifyOpen) {
-			fuLogger.log({level:'TRACE',loc:'PreferenceSubContainer::render',msg:"view PreferenceSubModifyView"});
-			return (
-				<PreferenceSubModifyView
-				itemState={this.props.preferences}
-				appPrefs={this.props.appPrefs}
-				onSave={this.onSave}
-				onCancel={this.onCancel}
-				inputChange={this.inputChange}
-				/>
-			);
-		} else if (this.props.preferences.items != null) {
-			fuLogger.log({level:'TRACE',loc:'PreferenceSubContainer::render',msg:"view PreferenceSubView"});
-			return (
-				<PreferenceSubView
-				itemState={this.props.preferences}
-				appPrefs={this.props.appPrefs}
-				onListLimitChange={this.onListLimitChange}
-				onSearchChange={this.onSearchChange}
-				onSearchClick={this.onSearchClick}
-				onPaginationClick={this.onPaginationClick}
-				onOrderBy={this.onOrderBy}
-				onOption={this.onOption}
-				closeModal={this.closeModal}
-				inputChange={this.inputChange}
-				openFormView={this.openFormView}
-				openLabelView={this.openLabelView}
-				openTextView={this.openTextView}
-				openOptionView={this.openOptionView}
-				session={this.props.session}
-				goBack={this.goBack}/>
-			);
-		} else {
-			return (<div> Loading </div>);
-		}
-  }
+	fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"test "});
+	if (preferences.isModifyOpen) {
+		fuLogger.log({level:'TRACE',loc:'PreferenceSubContainer::render',msg:"view PreferenceSubModifyView"});
+		return (
+			<PreferenceSubModifyView
+			itemState={preferences}
+			appPrefs={appPrefs}
+			onSave={BaseContainer.onSave}
+			onCancel={BaseContainer.onCancel}
+			inputChange={BaseContainer.inputChange}
+			/>
+		);
+	} else if (preferences.items != null) {
+		fuLogger.log({level:'TRACE',loc:'PreferenceSubContainer::render',msg:"view PreferenceSubView"});
+		return (
+			<PreferenceSubView
+			itemState={preferences}
+			appPrefs={appPrefs}
+			onListLimitChange={BaseContainer.onListLimitChange}
+			onSearchChange={BaseContainer.onSearchChange}
+			onSearchClick={BaseContainer.onSearchClick}
+			onPaginationClick={BaseContainer.onPaginationClick}
+			onOrderBy={BaseContainer.onOrderBy}
+			onOption={onOption}
+			closeModal={BaseContainer.closeModal}
+			inputChange={BaseContainer.inputChange}
+			openFormView={openFormView}
+			openLabelView={openLabelView}
+			openTextView={openTextView}
+			openOptionView={openOptionView}
+			session={session}
+			goBack={BaseContainer.goBack}/>
+		);
+	} else {
+		return (<div> Loading </div>);
+	}
 }
 
-PreferenceSubContainer.propTypes = {
-	appPrefs: PropTypes.object,
-	actions: PropTypes.object,
-	codeType: PropTypes.string,
-	preferences: PropTypes.object
-};
-
-function mapStateToProps(state, ownProps) {
-  return {appPrefs:state.appPrefs, preferences:state.preferenceSub, session:state.session};
-}
-
-function mapDispatchToProps(dispatch) {
-  return { actions:bindActionCreators(preferencesActions,dispatch) };
-}
-
-export default connect(mapStateToProps,mapDispatchToProps)(PreferenceSubContainer);
+export default PreferenceSubContainer;

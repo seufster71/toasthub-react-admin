@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 'use-strict';
-import React, {Component} from 'react';
-import PropTypes from 'prop-types';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import * as permissionsActions from './permissions-actions';
 import fuLogger from '../../core/common/fu-logger';
 import utils from '../../core/common/utils';
@@ -29,119 +28,106 @@ import BaseContainer from '../../core/container/base-container';
 /*
 * Permission Page
 */
-class PermissionsContainer extends BaseContainer {
-	constructor(props) {
-		super(props);
-	}
-
-	componentDidMount() {
-		if (this.props.history.location.state != null && this.props.history.location.state.parent != null) {
-			this.props.actions.init(this.props.history.location.state.parent);
+function PermissionsContainer() {
+	const permissions = useSelector((state) => state.permissions);
+	const session = useSelector((state) => state.session);
+	const appMenus = useSelector((state) => state.appMenus);
+	const appPrefs = useSelector((state) => state.appPrefs);
+	const dispatch = useDispatch();
+	const location = useLocation();
+	const navigate = useNavigate();
+	
+	useEffect(() => {
+		if (location.state != null && location.state.parent != null) {
+			dispatch(permissionsActions.init(location.state.parent,location.state.parentType));
 		} else {
-			this.props.actions.init();
+			dispatch(permissionsActions.init());
 		}
+	}, []);
+	
+	const getState = () => {
+		return permissions;
 	}
 	
-	getState = () => {
-		return this.props.permissions;
-	}
-	
-	getForm = () => {
+	const getForm = () => {
 		return "ADMIN_PERMISSION_FORM";
 	}	
 	
-	onRolePermissionModify = (item) => {
+	const onRolePermissionModify = (item) => {
 		fuLogger.log({level:'TRACE',loc:'PermissionContainer::onRolePermissionModify',msg:"test"+item.id});
 		if (item.rolePermission != null) {
-			this.props.actions.modifyRolePermission({rolePermissionId:item.rolePermission.id,permissionId:item.id});
+			dispatch(permissionsActions.modifyRolePermission({rolePermissionId:item.rolePermission.id,permissionId:item.id}));
 		} else {
-			this.props.actions.modifyRolePermission({permissionId:item.id,appPrefs:this.props.appPrefs});
+			dispatch(permissionsActions.modifyRolePermission({permissionId:item.id,appPrefs:appPrefs}));
 		}
 	}
 	
-	onRolePermissionSave = () => {
+	const onRolePermissionSave = () => {
 		fuLogger.log({level:'TRACE',loc:'PermissionContainer::onRolePermissionSave',msg:"test"});
-		let errors = utils.validateFormFields(this.props.permissions.prefForms.ADMIN_ROLE_PERMISSION_FORM,this.props.permissions.inputFields, this.props.appPrefs.prefGlobal.LANGUAGES);
+		let errors = utils.validateFormFields(permissions.prefForms.ADMIN_ROLE_PERMISSION_FORM,permissions.inputFields, appPrefs.prefGlobal.LANGUAGES);
 		
 		if (errors.isValid){
-			this.props.actions.saveRolePermission({state:this.props.permissions});
+			dispatch(permissionsActions.saveRolePermission({state:permissions}));
 		} else {
 			this.setState({errors:errors.errorMap});
 		}
 	}
 	
-	onOption = (code,item) => {
+	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'PermissionContainer::onOption',msg:" code "+code});
-		if (this.onOptionBase(code,item)) {
+		if (BaseContainer.onOptionBase(code,item)) {
 			return;
 		}
 		
 		switch(code) {
 			case 'MODIFY_ROLE_PERMISSION': {
-				this.onRolePermissionModify(item);
+				onRolePermissionModify(item);
 				break;
 			}
 		}
 	}
 
-	render() {
-		fuLogger.log({level:'TRACE',loc:'PermissionsContainer::render',msg:"Hi there"});
-		if (this.props.permissions.isModifyOpen) {
-			return (
-				<PermissionsModifyView
-				itemState={this.props.permissions}
-				appPrefs={this.props.appPrefs}
-				onSave={this.onSave}
-				onCancel={this.onCancel}
-				inputChange={this.inputChange}
-				applicationSelectList={this.props.permissions.applicationSelectList}/>
-			);
-		} else if (this.props.permissions.isRolePermissionOpen) {
-			return (
-				<RolePermissionsModifyView
-				itemState={this.props.permissions}
-				appPrefs={this.props.appPrefs}
-				onSave={this.onRolePermissionSave}
-				onCancel={this.onCancel}
-				inputChange={this.inputChange}/>
-			);
-		} else if (this.props.permissions.items != null) {
-			return (
-				<PermissionsView 
-				itemState={this.props.permissions}
-				appPrefs={this.props.appPrefs}
-				onListLimitChange={this.onListLimitChange}
-				onSearchChange={this.onSearchChange}
-				onSearchClick={this.onSearchClick}
-				onPaginationClick={this.onPaginationClick}
-				onOrderBy={this.onOrderBy}
-				closeModal={this.closeModal}
-				onOption={this.onOption}
-				inputChange={this.inputChange}
-				goBack={this.goBack}
-				session={this.props.session}
-				/>
-					
-			);
-		} else {
-			return (<div> Loading... </div>);
-		}
+	fuLogger.log({level:'TRACE',loc:'PermissionsContainer::render',msg:"Hi there"});
+	if (permissions.isModifyOpen) {
+		return (
+			<PermissionsModifyView
+			itemState={permissions}
+			appPrefs={appPrefs}
+			onSave={BaseContainer.onSave}
+			onCancel={BaseContainer.onCancel}
+			inputChange={BaseContainer.inputChange}
+			applicationSelectList={permissions.applicationSelectList}/>
+		);
+	} else if (permissions.isRolePermissionOpen) {
+		return (
+			<RolePermissionsModifyView
+			itemState={permissions}
+			appPrefs={appPrefs}
+			onSave={onRolePermissionSave}
+			onCancel={BaseContainer.onCancel}
+			inputChange={BaseContainer.inputChange}/>
+		);
+	} else if (permissions.items != null) {
+		return (
+			<PermissionsView 
+			itemState={permissions}
+			appPrefs={appPrefs}
+			onListLimitChange={BaseContainer.onListLimitChange}
+			onSearchChange={BaseContainer.onSearchChange}
+			onSearchClick={BaseContainer.onSearchClick}
+			onPaginationClick={BaseContainer.onPaginationClick}
+			onOrderBy={BaseContainer.onOrderBy}
+			closeModal={BaseContainer.closeModal}
+			onOption={onOption}
+			inputChange={BaseContainer.inputChange}
+			goBack={BaseContainer.goBack}
+			session={session}
+			/>
+				
+		);
+	} else {
+		return (<div> Loading... </div>);
 	}
 }
 
-PermissionsContainer.propTypes = {
-	appPrefs: PropTypes.object,
-	actions: PropTypes.object,
-	permissions: PropTypes.object,
-	session: PropTypes.object
-};
-
-function mapStateToProps(state, ownProps) {
-  return {appPrefs:state.appPrefs, permissions:state.permissions, session:state.session};
-}
-
-function mapDispatchToProps(dispatch) {
-  return { actions:bindActionCreators(permissionsActions,dispatch) };
-}
-
-export default connect(mapStateToProps,mapDispatchToProps)(PermissionsContainer);
+export default PermissionsContainer;

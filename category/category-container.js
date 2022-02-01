@@ -17,88 +17,74 @@
  * Author Edward Seufert
  */
 'use-strict';
-import React, {Component} from 'react';
-import PropTypes from 'prop-types';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import * as categoryActions from './category-actions';
 import fuLogger from '../../core/common/fu-logger';
 import CategoryModifyView from '../../adminView/category/category-modify-view';
 import CategoryView from '../../adminView/category/category-view';
 import BaseContainer from '../../core/container/base-container';
 
-class CategoryContainer extends BaseContainer {
-	constructor(props) {
-		super(props);
-	}
+function CategoryContainer() {
+	const category = useSelector((state) => state.category);
+	const session = useSelector((state) => state.session);
+	const appMenus = useSelector((state) => state.appMenus);
+	const appPrefs = useSelector((state) => state.appPrefs);
+	const dispatch = useDispatch();
+	const location = useLocation();
+	const navigate = useNavigate();
+	
+	useEffect(() => {
+		dispatch(categoryActions.init());
+	}, []);
 
-	componentDidMount() {
-		this.props.actions.init();
-	}
-
-	getState = () => {
-		return this.props.category;
+	const getState = () => {
+		return category;
 	}
 	
-	getForm = () => {
+	const getForm = () => {
 		return "ADMIN_CATEGORY_FORM";
 	}
 
-	onOption = (code,item) => {
+	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'CategoryContainer::onOption',msg:" code "+code});
-		if (this.onOptionBase(code,item)) {
+		if (BaseContainer.onOptionBase(code,item)) {
 			return;
 		}
 	}
 	
-	render() {
-		fuLogger.log({level:'TRACE',loc:'CategoryContainer::render',msg:"Hi there"});
-		if (this.props.category.isModifyOpen) {
-			return (
-				<CategoryModifyView
-				itemState={this.props.category}
-				appPrefs={this.props.appPrefs}
-				onSave={this.onSave}
-				onCancel={this.onCancel}
-				inputChange={this.inputChange}
-				/>
-			);
-		} else if (this.props.category.items != null) {
-			return (
-				<CategoryView 
-				itemState={this.props.category}
-				appPrefs={this.props.appPrefs}
-				onListLimitChange={this.onListLimitChange}
-				onSearchChange={this.onSearchChange}
-				onSearchClick={this.onSearchClick}
-				onPaginationClick={this.onPaginationClick}
-				onOrderBy={this.onOrderBy}
-				closeModal={this.closeModal}
-				onOption={this.onOption}
-				inputChange={this.inputChange}
-				session={this.props.session}
-				/>
-					
-			);
-		} else {
-			return (<div> Loading... </div>);
-		}
-  }
+	fuLogger.log({level:'TRACE',loc:'CategoryContainer::render',msg:"Hi there"});
+	if (category.isModifyOpen) {
+		return (
+			<CategoryModifyView
+			itemState={category}
+			appPrefs={appPrefs}
+			onSave={BaseContainer.onSave}
+			onCancel={BaseContainer.onCancel}
+			inputChange={BaseContainer.inputChange}
+			/>
+		);
+	} else if (category.items != null) {
+		return (
+			<CategoryView 
+			itemState={category}
+			appPrefs={appPrefs}
+			onListLimitChange={BaseContainer.onListLimitChange}
+			onSearchChange={BaseContainer.onSearchChange}
+			onSearchClick={BaseContainer.onSearchClick}
+			onPaginationClick={BaseContainer.onPaginationClick}
+			onOrderBy={BaseContainer.onOrderBy}
+			closeModal={BaseContainer.closeModal}
+			onOption={onOption}
+			inputChange={BaseContainer.inputChange}
+			session={session}
+			/>
+				
+		);
+	} else {
+		return (<div> Loading... </div>);
+	}
 }
 
-CategoryContainer.propTypes = {
-	appPrefs: PropTypes.object,
-	actions: PropTypes.object,
-	category: PropTypes.object,
-	session: PropTypes.object
-};
-
-function mapStateToProps(state, ownProps) {
-  return {appPrefs:state.appPrefs, category:state.category, session:state.session};
-}
-
-function mapDispatchToProps(dispatch) {
-  return { actions:bindActionCreators(categoryActions,dispatch) };
-}
-
-export default connect(mapStateToProps,mapDispatchToProps)(CategoryContainer);
+export default CategoryContainer;

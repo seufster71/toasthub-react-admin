@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 'use-strict';
-import React, {Component} from 'react';
-import PropTypes from 'prop-types';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import * as menusActions from './menus-actions';
 import fuLogger from '../../core/common/fu-logger';
 import MenuView from '../../adminView/menu/menu-view';
@@ -27,76 +26,63 @@ import BaseContainer from '../../core/container/base-container';
 /*
 * Menu Page
 */
-class MenuContainer extends BaseContainer {
-	constructor(props) {
-		super(props);
-	}
+function MenuContainer() {
+	const menus = useSelector((state) => state.menus);
+	const session = useSelector((state) => state.session);
+	const appMenus = useSelector((state) => state.appMenus);
+	const appPrefs = useSelector((state) => state.appPrefs);
+	const dispatch = useDispatch();
+	const location = useLocation();
+	const navigate = useNavigate();
+	
+	useEffect(() => {
+		dispatch(menusActions.init());
+	}, []);
 
-	componentDidMount() {
-		this.props.actions.init();
-	}
-
-	getState = () => {
-		return this.props.menus;
+	const getState = () => {
+		return menus;
 	}
 	
-	getForm = () => {
+	const getForm = () => {
 		return "ADMIN_MENU_FORM";
 	}	
 
-	onOption = (code,item) => {
+	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'MenuContainer::onOption',msg:" code "+code});
-		if (this.onOptionBase(code,item)) {
+		if (BaseContainer.onOptionBase(code,item)) {
 			return;
 		}
 	}
 	
-	render() {
-		fuLogger.log({level:'TRACE',loc:'MenuContainer::render',msg:"Hi there"});
-		if (this.props.menus.isModifyOpen) {
-			return (
-				<MenuModifyView
-				itemState={this.props.menus}
-				appPrefs={this.props.appPrefs}
-				onSave={this.onSave}
-				onCancel={this.onCancel}
-				inputChange={this.inputChange}
-				onBlur={this.onBlur}/>
-			);
-		} else if (this.props.menus.items != null) {
-			return (
-				<MenuView 
-				itemState={this.props.menus}
-				appPrefs={this.props.appPrefs}
-				onListLimitChange={this.onListLimitChange}
-				onSearchChange={this.onSearchChange}
-				onSearchClick={this.onSearchClick}
-				onPaginationClick={this.onPaginationClick}
-				onOrderBy={this.onOrderBy}
-				closeModal={this.closeModal}
-				onOption={this.onOption}
-				session={this.props.session}
-				/>	
-			);
-		} else {
-			return (<div> Loading... </div>);
-		}
+	fuLogger.log({level:'TRACE',loc:'MenuContainer::render',msg:"Hi there"});
+	if (menus.isModifyOpen) {
+		return (
+			<MenuModifyView
+			itemState={menus}
+			appPrefs={appPrefs}
+			onSave={BaseContainer.onSave}
+			onCancel={BaseContainer.onCancel}
+			inputChange={BaseContainer.inputChange}
+			/>
+		);
+	} else if (menus.items != null) {
+		return (
+			<MenuView 
+			itemState={menus}
+			appPrefs={appPrefs}
+			onListLimitChange={BaseContainer.onListLimitChange}
+			onSearchChange={BaseContainer.onSearchChange}
+			onSearchClick={BaseContainer.onSearchClick}
+			onPaginationClick={BaseContainer.onPaginationClick}
+			onOrderBy={BaseContainer.onOrderBy}
+			closeModal={BaseContainer.closeModal}
+			onOption={BaseContainer.onOption}
+			session={session}
+			/>	
+		);
+	} else {
+		return (<div> Loading... </div>);
 	}
 }
 
-MenuContainer.propTypes = {
-	appPrefs: PropTypes.object,
-	actions: PropTypes.object,
-	menus: PropTypes.object,
-	session: PropTypes.object
-};
-
-function mapStateToProps(state, ownProps) {
-  return {appPrefs:state.appPrefs, menus:state.menus, session:state.session};
-}
-
-function mapDispatchToProps(dispatch) {
-  return { actions:bindActionCreators(menusActions,dispatch) };
-}
-
-export default connect(mapStateToProps,mapDispatchToProps)(MenuContainer);
+export default MenuContainer;
