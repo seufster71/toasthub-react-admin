@@ -16,33 +16,56 @@
 'use-strict';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import * as userActions from './users-actions';
+import { useNavigate, useLocation } from "react-router-dom";
+import * as actions from './users-actions';
 import fuLogger from '../../core/common/fu-logger';
 import UsersView from '../../adminView/users/users-view';
 import UsersModifyView from '../../adminView/users/users-modify-view';
 import BaseContainer from '../../core/container/base-container';
 
 function UsersContainer() {
-	const users = useSelector((state) => state.users);
+	const itemState = useSelector((state) => state.adminusers);
 	const session = useSelector((state) => state.session);
-	const appMenus = useSelector((state) => state.appMenus);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
 	const location = useLocation();
 	const navigate = useNavigate();
 	
 	useEffect(() => {
-		dispatch(userActions.init());
+		dispatch(actions.init());
 	}, []);
 
-	const getState = () => {
-		return users;
+	const onListLimitChange = (fieldName,event) => {
+		BaseContainer.onListLimitChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,fieldName,event});
 	}
-	
-	const getForm = () => {
-		return "ADMIN_USER_FORM";
-	}	
+	const onPaginationClick = (value) => {
+		BaseContainer.onPaginationClick({state:itemState,actions:actions,dispatch:dispatch,value});
+	}
+	const onSearchChange = (field,event) => {
+		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,field,event});
+	}
+	const onSearchClick = (fieldName,event) => {
+		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,fieldName,event});
+	}
+	const inputChange = (type,field,value,event) => {
+		BaseContainer.inputChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,type,field,value,event});
+	}
+	const onOrderBy = (selectedOption, event) => {
+		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,selectedOption,event});
+	}
+	const onSave = () => {
+		BaseContainer.onSave({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,form:"ADMIN_USER_FORM"});
+	}
+	const closeModal = () => {
+		BaseContainer.closeModal({actions:actions,dispatch:dispatch});
+	}
+	const onCancel = () => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch});
+	}
+	const goBack = () => {
+		BaseContainer.goBack({navigate});
+	}
+
 	
 	const onModifyRoles = (item) => {
 		fuLogger.log({level:'TRACE',loc:'UsersContainer::onModifyRoles',msg:"test"+item.id});
@@ -74,7 +97,7 @@ function UsersContainer() {
 					if (field.validation != "") {
 						let validation = JSON.parse(field.validation);
 						if (validation[optionalParams.onBlur.validation] != null && validation[optionalParams.onBlur.validation].id != null){
-							if (users.inputFields[validation[optionalParams.onBlur.validation].id] == users.inputFields[fieldName]) {
+							if (itemState.inputFields[validation[optionalParams.onBlur.validation].id] == itemState.inputFields[fieldName]) {
 								if (validation[optionalParams.onBlur.validation].successMsg != null) {
 									let successMap = this.state.successes;
 									if (successMap == null){
@@ -111,29 +134,29 @@ function UsersContainer() {
 	}
 
 	fuLogger.log({level:'TRACE',loc:'UsersContainer::render',msg:"Hi there"});
-	if (users.isModifyOpen) {
+	if (itemState.isModifyOpen) {
 		return (
 			<UsersModifyView
-			itemState={users}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onSave={BaseContainer.onSave}
-			onCancel={BaseContainer.onCancel}
-			inputChange={BaseContainer.inputChange}
+			onSave={onSave}
+			onCancel={onCancel}
+			inputChange={inputChange}
 			onBlur={onBlur}/>
 		);
-	} else if (users.items != null) {
+	} else if (itemState.items != null) {
 		return (
 			<UsersView
-			itemState={users}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onListLimitChange={BaseContainer.onListLimitChange}
-			onSearchChange={BaseContainer.onSearchChange}
-			onSearchClick={BaseContainer.onSearchClick}
-			onPaginationClick={BaseContainer.onPaginationClick}
-			onOrderBy={BaseContainer.onOrderBy}
-			closeModal={BaseContainer.closeModal}
+			onListLimitChange={onListLimitChange}
+			onSearchChange={onSearchChange}
+			onSearchClick={onSearchClick}
+			onPaginationClick={onPaginationClick}
+			onOrderBy={onOrderBy}
+			closeModal={closeModal}
 			onOption={onOption}
-			inputChange={BaseContainer.inputChange}
+			inputChange={inputChange}
 			session={session}
 			/>
 		);

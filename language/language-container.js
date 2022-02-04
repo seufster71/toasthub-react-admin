@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 'use-strict';
-import React, {Component} from 'react';
-import PropTypes from 'prop-types';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
-import * as languageActions from './language-actions';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate, useLocation } from "react-router-dom";
+import * as actions from './language-actions';
 import fuLogger from '../../core/common/fu-logger';
 import LanguageView from '../../adminView/language/language-view';
 import LanguageModifyView from '../../adminView/language/language-modify-view';
@@ -28,57 +27,81 @@ import BaseContainer from '../../core/container/base-container';
 * Language Page
 */
 function LanguageContainer() {
-	const pmteam = useSelector((state) => state.pmteam);
+	const itemState = useSelector((state) => state.adminlanguage);
 	const session = useSelector((state) => state.session);
-	const appMenus = useSelector((state) => state.appMenus);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
 	const location = useLocation();
 	const navigate = useNavigate();
 	
 	useEffect(() => {
-		dispatch(languageActions.init());
+		dispatch(actions.init());
 	}, []);
 	
-	const getState = () => {
-		return languages;
+	const onListLimitChange = (fieldName,event) => {
+		BaseContainer.onListLimitChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,fieldName,event});
 	}
-	
-	const getForm = () => {
-		return "ADMIN_LANGUAGE_FORM";
-	}	
-	
+	const onPaginationClick = (value) => {
+		BaseContainer.onPaginationClick({state:itemState,actions:actions,dispatch:dispatch,value});
+	}
+	const onSearchChange = (field,event) => {
+		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,field,event});
+	}
+	const onSearchClick = (fieldName,event) => {
+		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,fieldName,event});
+	}
+	const inputChange = (type,field,value,event) => {
+		BaseContainer.inputChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,type,field,value,event});
+	}
+	const onOrderBy = (selectedOption, event) => {
+		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,selectedOption,event});
+	}
+	const onSave = () => {
+		BaseContainer.onSave({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,form:"ADMIN_LANGUAGE_FORM"});
+	}
+	const closeModal = () => {
+		BaseContainer.closeModal({actions:actions,dispatch:dispatch});
+	}
+	const onCancel = () => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch});
+	}
+	const goBack = () => {
+		BaseContainer.goBack({navigate});
+	}
+	const onBlur = (field) => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch,field});
+	}
 	
 	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'LanguageContainer::onOption',msg:" code "+code});
-		if (BaseContainer.onOptionBase(code,item)) {
+		if (BaseContainer.onOptionBase({state:itemState,actions:actions,dispatch:dispatch,code:code,appPrefs:appPrefs,item:item})) {
 			return;
 		}
 	}
 
 	fuLogger.log({level:'TRACE',loc:'LanguageContainer::render',msg:"Hi there"});
-	if (languages.isModifyOpen) {
+	if (itemState.isModifyOpen) {
 		return (
 			<LanguageModifyView
-			itemState={languages}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onSave={BaseContainer.onSave}
-			onCancel={BaseContainer.onCancel}
-			inputChange={BaseContainer.inputChange}/>
+			onSave={onSave}
+			onCancel={onCancel}
+			inputChange={inputChange}/>
 		);
-	} else if (languages.items != null) {
+	} else if (itemState.items != null) {
 		return (
 			<LanguageView 
-			itemState={languages}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onListLimitChange={BaseContainer.onListLimitChange}
-			onSearchChange={BaseContainer.onSearchChange}
-			onSearchClick={BaseContainer.onSearchClick}
-			onPaginationClick={BaseContainer.onPaginationClick}
-			onOrderBy={BaseContainer.onOrderBy}
-			closeModal={BaseContainer.closeModal}
+			onListLimitChange={onListLimitChange}
+			onSearchChange={onSearchChange}
+			onSearchClick={onSearchClick}
+			onPaginationClick={onPaginationClick}
+			onOrderBy={onOrderBy}
+			closeModal={closeModal}
 			onOption={onOption}
-			inputChange={BaseContainer.inputChange}
+			inputChange={inputChange}
 			session={session}
 			/>	
 		);

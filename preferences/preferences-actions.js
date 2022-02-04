@@ -252,3 +252,27 @@ export function closeDeleteModal() {
 		 dispatch({type:"PREFERENCES_CLOSE_DELETE_MODAL"});
 	 };
 }
+
+export function initSubView({state}){
+	return function(dispatch) {
+		 dispatch({type:"PREFERENCES_INIT_SUBVIEW"});
+	 };
+}
+
+export function moveSelect({state}){
+	return function(dispatch) {
+		
+	 };
+}
+
+export function moveSave({state}){
+	return function(dispatch) {
+		 
+	 };
+}
+
+export function moveCancel({state}){
+	return function(dispatch) {
+		
+	 };
+}

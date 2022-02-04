@@ -16,66 +16,91 @@
 'use-strict';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import * as serviceActions from './service-actions';
+import { useNavigate, useLocation } from "react-router-dom";
+import * as actions from './service-actions';
 import fuLogger from '../../core/common/fu-logger';
 import ServiceView from '../../adminView/service/service-view';
 import ServiceModifyView from '../../adminView/service/service-modify-view';
 import BaseContainer from '../../core/container/base-container';
 
 function ServiceContainer() {
-	const pmteam = useSelector((state) => state.pmteam);
+	const itemState = useSelector((state) => state.adminservice);
 	const session = useSelector((state) => state.session);
-	const appMenus = useSelector((state) => state.appMenus);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
 	const location = useLocation();
 	const navigate = useNavigate();
 	
 	useEffect(() => {
-		dispatch(serviceActions.init());
+		dispatch(actions.init());
 	}, []);
 
-	const getState = () => {
-		return services;
+	const onListLimitChange = (fieldName,event) => {
+		BaseContainer.onListLimitChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,fieldName,event});
 	}
-	
-	const getForm = () => {
-		return "ADMIN_SERVICES_FORM";
-	}	
+	const onPaginationClick = (value) => {
+		BaseContainer.onPaginationClick({state:itemState,actions:actions,dispatch:dispatch,value});
+	}
+	const onSearchChange = (field,event) => {
+		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,field,event});
+	}
+	const onSearchClick = (fieldName,event) => {
+		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,fieldName,event});
+	}
+	const inputChange = (type,field,value,event) => {
+		BaseContainer.inputChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,type,field,value,event});
+	}
+	const onOrderBy = (selectedOption, event) => {
+		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,selectedOption,event});
+	}
+	const onSave = () => {
+		BaseContainer.onSave({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,form:"ADMIN_SERVICES_FORM"});
+	}
+	const closeModal = () => {
+		BaseContainer.closeModal({actions:actions,dispatch:dispatch});
+	}
+	const onCancel = () => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch});
+	}
+	const goBack = () => {
+		BaseContainer.goBack({navigate});
+	}
+	const onBlur = (field) => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch,field});
+	}
 	
 	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'ServiceContainer::onOption',msg:" code "+code});
-		if (BaseContainer.onOptionBase(code,item)) {
+		if (BaseContainer.onOptionBase({state:itemState,actions:actions,dispatch:dispatch,code:code,appPrefs:appPrefs,item:item})) {
 			return;
 		}
 		
 	}
 	
 	fuLogger.log({level:'TRACE',loc:'ServiceContainer::render',msg:"Hi there"});
-	if (services.isModifyOpen) {
+	if (itemState.isModifyOpen) {
 		return (
 			<ServiceModifyView
-			itemState={services}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onSave={BaseContainer.onSave}
-			onCancel={BaseContainer.onCancel}
-			inputChange={BaseContainer.inputChange}
-			onBlur={BaseContainer.onBlur}/>
+			onSave={onSave}
+			onCancel={onCancel}
+			inputChange={inputChange}
+			onBlur={onBlur}/>
 		);
-	} else if (services.items != null) {
+	} else if (itemState.items != null) {
 		return (
 			<ServiceView 
-			itemState={services}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onListLimitChange={BaseContainer.onListLimitChange}
-			onSearchChange={BaseContainer.onSearchChange}
-			onSearchClick={BaseContainer.onSearchClick}
-			onPaginationClick={BaseContainer.onPaginationClick}
-			onOrderBy={BaseContainer.onOrderBy}
-			closeModal={BaseContainer.closeModal}
+			onListLimitChange={onListLimitChange}
+			onSearchChange={onSearchChange}
+			onSearchClick={onSearchClick}
+			onPaginationClick={onPaginationClick}
+			onOrderBy={onOrderBy}
+			closeModal={closeModal}
 			onOption={onOption}
-			inputChange={BaseContainer.inputChange}
+			inputChange={inputChange}
 			session={session}
 			/>
 				

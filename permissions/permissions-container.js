@@ -16,8 +16,8 @@
 'use-strict';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import * as permissionsActions from './permissions-actions';
+import { useNavigate, useLocation } from "react-router-dom";
+import * as actions from './permissions-actions';
 import fuLogger from '../../core/common/fu-logger';
 import utils from '../../core/common/utils';
 import PermissionsView from '../../adminView/permissions/permissions-view';
@@ -31,7 +31,6 @@ import BaseContainer from '../../core/container/base-container';
 function PermissionsContainer() {
 	const permissions = useSelector((state) => state.permissions);
 	const session = useSelector((state) => state.session);
-	const appMenus = useSelector((state) => state.appMenus);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
 	const location = useLocation();
@@ -39,26 +38,52 @@ function PermissionsContainer() {
 	
 	useEffect(() => {
 		if (location.state != null && location.state.parent != null) {
-			dispatch(permissionsActions.init(location.state.parent,location.state.parentType));
+			dispatch(actions.init(location.state.parent,location.state.parentType));
 		} else {
-			dispatch(permissionsActions.init());
+			dispatch(actions.init());
 		}
 	}, []);
 	
-	const getState = () => {
-		return permissions;
+	const onListLimitChange = (fieldName,event) => {
+		BaseContainer.onListLimitChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,fieldName,event});
 	}
-	
-	const getForm = () => {
-		return "ADMIN_PERMISSION_FORM";
-	}	
+	const onPaginationClick = (value) => {
+		BaseContainer.onPaginationClick({state:itemState,actions:actions,dispatch:dispatch,value});
+	}
+	const onSearchChange = (field,event) => {
+		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,field,event});
+	}
+	const onSearchClick = (fieldName,event) => {
+		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,fieldName,event});
+	}
+	const inputChange = (type,field,value,event) => {
+		BaseContainer.inputChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,type,field,value,event});
+	}
+	const onOrderBy = (selectedOption, event) => {
+		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,selectedOption,event});
+	}
+	const onSave = () => {
+		BaseContainer.onSave({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,form:"ADMIN_PERMISSION_FORM"});
+	}
+	const closeModal = () => {
+		BaseContainer.closeModal({actions:actions,dispatch:dispatch});
+	}
+	const onCancel = () => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch});
+	}
+	const goBack = () => {
+		BaseContainer.goBack({navigate});
+	}
+	const onBlur = (field) => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch,field});
+	}
 	
 	const onRolePermissionModify = (item) => {
 		fuLogger.log({level:'TRACE',loc:'PermissionContainer::onRolePermissionModify',msg:"test"+item.id});
 		if (item.rolePermission != null) {
-			dispatch(permissionsActions.modifyRolePermission({rolePermissionId:item.rolePermission.id,permissionId:item.id}));
+			dispatch(actions.modifyRolePermission({rolePermissionId:item.rolePermission.id,permissionId:item.id}));
 		} else {
-			dispatch(permissionsActions.modifyRolePermission({permissionId:item.id,appPrefs:appPrefs}));
+			dispatch(actions.modifyRolePermission({permissionId:item.id,appPrefs:appPrefs}));
 		}
 	}
 	
@@ -67,7 +92,7 @@ function PermissionsContainer() {
 		let errors = utils.validateFormFields(permissions.prefForms.ADMIN_ROLE_PERMISSION_FORM,permissions.inputFields, appPrefs.prefGlobal.LANGUAGES);
 		
 		if (errors.isValid){
-			dispatch(permissionsActions.saveRolePermission({state:permissions}));
+			dispatch(actions.saveRolePermission({state:permissions}));
 		} else {
 			this.setState({errors:errors.errorMap});
 		}
@@ -75,7 +100,7 @@ function PermissionsContainer() {
 	
 	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'PermissionContainer::onOption',msg:" code "+code});
-		if (BaseContainer.onOptionBase(code,item)) {
+		if (BaseContainer.onOptionBase({state:itemState,actions:actions,dispatch:dispatch,code:code,appPrefs:appPrefs,item:item})) {
 			return;
 		}
 		
@@ -88,39 +113,39 @@ function PermissionsContainer() {
 	}
 
 	fuLogger.log({level:'TRACE',loc:'PermissionsContainer::render',msg:"Hi there"});
-	if (permissions.isModifyOpen) {
+	if (itemState.isModifyOpen) {
 		return (
 			<PermissionsModifyView
-			itemState={permissions}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onSave={BaseContainer.onSave}
-			onCancel={BaseContainer.onCancel}
-			inputChange={BaseContainer.inputChange}
-			applicationSelectList={permissions.applicationSelectList}/>
+			onSave={onSave}
+			onCancel={onCancel}
+			inputChange={inputChange}
+			applicationSelectList={itemState.applicationSelectList}/>
 		);
-	} else if (permissions.isRolePermissionOpen) {
+	} else if (itemState.isRolePermissionOpen) {
 		return (
 			<RolePermissionsModifyView
-			itemState={permissions}
+			itemState={itemState}
 			appPrefs={appPrefs}
 			onSave={onRolePermissionSave}
-			onCancel={BaseContainer.onCancel}
-			inputChange={BaseContainer.inputChange}/>
+			onCancel={onCancel}
+			inputChange={inputChange}/>
 		);
-	} else if (permissions.items != null) {
+	} else if (itemState.items != null) {
 		return (
 			<PermissionsView 
-			itemState={permissions}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onListLimitChange={BaseContainer.onListLimitChange}
-			onSearchChange={BaseContainer.onSearchChange}
-			onSearchClick={BaseContainer.onSearchClick}
-			onPaginationClick={BaseContainer.onPaginationClick}
-			onOrderBy={BaseContainer.onOrderBy}
-			closeModal={BaseContainer.closeModal}
+			onListLimitChange={onListLimitChange}
+			onSearchChange={onSearchChange}
+			onSearchClick={onSearchClick}
+			onPaginationClick={onPaginationClick}
+			onOrderBy={onOrderBy}
+			closeModal={closeModal}
 			onOption={onOption}
-			inputChange={BaseContainer.inputChange}
-			goBack={BaseContainer.goBack}
+			inputChange={inputChange}
+			goBack={goBack}
 			session={session}
 			/>
 				

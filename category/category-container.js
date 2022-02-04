@@ -19,65 +19,90 @@
 'use-strict';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import * as categoryActions from './category-actions';
+import { useNavigate, useLocation } from "react-router-dom";
+import * as actions from './category-actions';
 import fuLogger from '../../core/common/fu-logger';
 import CategoryModifyView from '../../adminView/category/category-modify-view';
 import CategoryView from '../../adminView/category/category-view';
 import BaseContainer from '../../core/container/base-container';
 
 function CategoryContainer() {
-	const category = useSelector((state) => state.category);
+	const itemState = useSelector((state) => state.admincategory);
 	const session = useSelector((state) => state.session);
-	const appMenus = useSelector((state) => state.appMenus);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
 	const location = useLocation();
 	const navigate = useNavigate();
 	
 	useEffect(() => {
-		dispatch(categoryActions.init());
+		dispatch(actions.init());
 	}, []);
-
-	const getState = () => {
-		return category;
-	}
 	
-	const getForm = () => {
-		return "ADMIN_CATEGORY_FORM";
+	const onListLimitChange = (fieldName,event) => {
+		BaseContainer.onListLimitChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,fieldName,event});
+	}
+	const onPaginationClick = (value) => {
+		BaseContainer.onPaginationClick({state:itemState,actions:actions,dispatch:dispatch,value});
+	}
+	const onSearchChange = (field,event) => {
+		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,field,event});
+	}
+	const onSearchClick = (fieldName,event) => {
+		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,fieldName,event});
+	}
+	const inputChange = (type,field,value,event) => {
+		BaseContainer.inputChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,type,field,value,event});
+	}
+	const onOrderBy = (selectedOption, event) => {
+		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,selectedOption,event});
+	}
+	const onSave = () => {
+		BaseContainer.onSave({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,form:"ADMIN_CATEGORY_FORM"});
+	}
+	const closeModal = () => {
+		BaseContainer.closeModal({actions:actions,dispatch:dispatch});
+	}
+	const onCancel = () => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch});
+	}
+	const goBack = () => {
+		BaseContainer.goBack({navigate});
+	}
+	const onBlur = (field) => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch,field});
 	}
 
 	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'CategoryContainer::onOption',msg:" code "+code});
-		if (BaseContainer.onOptionBase(code,item)) {
+		if (BaseContainer.onOptionBase({state:itemState,actions:actions,dispatch:dispatch,code:code,appPrefs:appPrefs,item:item})) {
 			return;
 		}
 	}
 	
 	fuLogger.log({level:'TRACE',loc:'CategoryContainer::render',msg:"Hi there"});
-	if (category.isModifyOpen) {
+	if (itemState.isModifyOpen) {
 		return (
 			<CategoryModifyView
-			itemState={category}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onSave={BaseContainer.onSave}
-			onCancel={BaseContainer.onCancel}
-			inputChange={BaseContainer.inputChange}
+			onSave={onSave}
+			onCancel={onCancel}
+			inputChange={inputChange}
 			/>
 		);
-	} else if (category.items != null) {
+	} else if (itemState.items != null) {
 		return (
 			<CategoryView 
-			itemState={category}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onListLimitChange={BaseContainer.onListLimitChange}
-			onSearchChange={BaseContainer.onSearchChange}
-			onSearchClick={BaseContainer.onSearchClick}
-			onPaginationClick={BaseContainer.onPaginationClick}
-			onOrderBy={BaseContainer.onOrderBy}
-			closeModal={BaseContainer.closeModal}
+			onListLimitChange={onListLimitChange}
+			onSearchChange={onSearchChange}
+			onSearchClick={onSearchClick}
+			onPaginationClick={onPaginationClick}
+			onOrderBy={onOrderBy}
+			closeModal={closeModal}
 			onOption={onOption}
-			inputChange={BaseContainer.inputChange}
+			inputChange={inputChange}
 			session={session}
 			/>
 				

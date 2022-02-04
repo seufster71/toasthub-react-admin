@@ -16,8 +16,8 @@
 'use-strict';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import * as preferencesActions from './preferences-actions';
+import { useNavigate, useLocation } from "react-router-dom";
+import * as actions from './preferences-actions';
 import fuLogger from '../../core/common/fu-logger';
 import PreferencesView from '../../adminView/preferences/preferences-view';
 import PreferenceModifyView from '../../adminView/preferences/preferences-modify-view';
@@ -27,76 +27,101 @@ import BaseContainer from '../../core/container/base-container';
 * Preferences Page
 */
 function PreferencesContainer() {
-	const preferences = useSelector((state) => state.preferences);
+	const itemState = useSelector((state) => state.adminpreferences);
 	const session = useSelector((state) => state.session);
-	const appMenus = useSelector((state) => state.appMenus);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
 	const location = useLocation();
 	const navigate = useNavigate();
 	
 	useEffect(() => {
-		dispatch(preferencesActions.init());
+		dispatch(actions.init());
 	}, []);
 
-	const getState = () => {
-		return preferences;
+	const onListLimitChange = (fieldName,event) => {
+		BaseContainer.onListLimitChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,fieldName,event});
 	}
-	
-	const getForm = () => {
-		return "ADMIN_PREFERENCE_FORM";
-	}	
+	const onPaginationClick = (value) => {
+		BaseContainer.onPaginationClick({state:itemState,actions:actions,dispatch:dispatch,value});
+	}
+	const onSearchChange = (field,event) => {
+		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,field,event});
+	}
+	const onSearchClick = (fieldName,event) => {
+		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,fieldName,event});
+	}
+	const inputChange = (type,field,value,event) => {
+		BaseContainer.inputChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,type,field,value,event});
+	}
+	const onOrderBy = (selectedOption, event) => {
+		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,selectedOption,event});
+	}
+	const onSave = () => {
+		BaseContainer.onSave({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,form:"ADMIN_PREFERENCE_FORM"});
+	}
+	const closeModal = () => {
+		BaseContainer.closeModal({actions:actions,dispatch:dispatch});
+	}
+	const onCancel = () => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch});
+	}
+	const goBack = () => {
+		BaseContainer.goBack({navigate});
+	}
+	const onBlur = (field) => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch,field});
+	}
 	
 	const openFormView = (item) => {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openFormView',msg:"id "+item.id});
 		let orderCriteria = [{'orderColumn':'ADMIN_FORMFIELD_TABLE_TITLE','orderDir':'ASC'}];
 		let searchCriteria = [{'searchValue':'','searchColumn':'ADMIN_FORMFIELD_TABLE_TITLE'}];
-		actions.initSubView({itemState:preferenceSubView,item,viewType:"FORM",orderCriteria,searchCriteria,listStart:0,listLimit:20});
+		dispatch(actions.initSubView({itemState:preferenceSubView,item,viewType:"FORM",orderCriteria,searchCriteria,listStart:0,listLimit:20}));
 	}
 	
 	const openLabelView = (item) => {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openLabelView',msg:"id "+item.id});
 		let orderCriteria = [{'orderColumn':'ADMIN_LABEL_TABLE_TITLE','orderDir':'ASC'}];
 		let searchCriteria = [{'searchValue':'','searchColumn':'ADMIN_LABEL_TABLE_TITLE'}];
-		actions.initSubView({itemState:preferenceSubView,item,viewType:"LABEL",orderCriteria,searchCriteria,listStart:0,listLimit:20});
+		dispatch(actions.initSubView({itemState:preferenceSubView,item,viewType:"LABEL",orderCriteria,searchCriteria,listStart:0,listLimit:20}));
 	}
 	
 	const openTextView = (item) => {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openTextView',msg:"id "+item.id});
 		let orderCriteria = [{'orderColumn':'ADMIN_TEXT_TABLE_TITLE','orderDir':'ASC'}];
 		let searchCriteria = [{'searchValue':'','searchColumn':'ADMIN_TEXT_TABLE_TITLE'}];
-		actions.initSubView({itemState:preferenceSubView,item,viewType:"TEXT",orderCriteria,searchCriteria,listStart:0,listLimit:20});
+		dispatch(actions.initSubView({itemState:preferenceSubView,item,viewType:"TEXT",orderCriteria,searchCriteria,listStart:0,listLimit:20}));
 	}
 	
 	const openOptionView = (item) => {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::openOptionView',msg:"id "+item.id});
 		let orderCriteria = [{'orderColumn':'ADMIN_OPTION_TABLE_TITLE','orderDir':'ASC'}];
 		let searchCriteria = [{'searchValue':'','searchColumn':'ADMIN_OPTION_TABLE_TITLE'}];
-		actions.initSubView({itemState:preferenceSubView,item,viewType:"OPTION",orderCriteria,searchCriteria,listStart:0,listLimit:20});
+		dispatch(actions.initSubView({itemState:preferenceSubView,item,viewType:"OPTION",orderCriteria,searchCriteria,listStart:0,listLimit:20}));
 	}
 	
 	const onMoveSelect = (item) => {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onMoveSelect',msg:"test"});
 		if (item != null) {
-			actions.moveSelect({state:preferences,stateSubView:preferenceSubView,item});
+			dispatch(actions.moveSelect({state:itemState,stateSubView:preferenceSubView,item}));
 		}
 	}
 	
 	const onMoveSave = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onMoveSave',msg:"test"});
 		if (item != null) {
-			actions.moveSave({state:preferences,code,item,stateSubView:preferenceSubView});
+			dispatch(actions.moveSave({state:itemState,code,item,stateSubView:preferenceSubView}));
 		}
 	}
 	
 	const onMoveCancel = () => {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onMoveCancel',msg:"test"});
-		actions.moveCancel({state:preferences,stateSubView:preferenceSubView});
+		dispatch(actions.moveCancel({state:itemState,stateSubView:preferenceSubView}));
 	}
 	
 	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::onOption',msg:" code "+code});
-		if (BaseContainer.onOptionBase(code,item)) {
+		if (BaseContainer.onOptionBase({state:itemState,actions:actions,dispatch:dispatch,code:code,appPrefs:appPrefs,item:item})) {
 			return;
 		}
 		
@@ -137,31 +162,31 @@ function PreferencesContainer() {
 	}
 
 	fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"test "});
-	if (preferences.isModifyOpen) {
+	if (itemState.isModifyOpen) {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"view PreferenceModifyView"});
 		return (
 			<PreferenceModifyView
-			itemState={preferences}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onSave={BaseContainer.onSave}
-			onCancel={BaseContainer.onCancel}
-			inputChange={BaseContainer.inputChange}
+			onSave={onSave}
+			onCancel={onCancel}
+			inputChange={inputChange}
 			/>
 		);
-	} else if (preferences.items != null) {
+	} else if (itemState.items != null) {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"view PreferenceView"});
 		return (
 			<PreferencesView
-			itemState={preferences}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onListLimitChange={BaseContainer.onListLimitChange}
-			onSearchChange={BaseContainer.onSearchChange}
-			onSearchClick={BaseContainer.onSearchClick}
-			onPaginationClick={BaseContainer.onPaginationClick}
-			onOrderBy={BaseContainer.onOrderBy}
+			onListLimitChange={onListLimitChange}
+			onSearchChange={onSearchChange}
+			onSearchClick={onSearchClick}
+			onPaginationClick={onPaginationClick}
+			onOrderBy={onOrderBy}
 			onOption={onOption}
-			closeModal={BaseContainer.closeModal}
-			inputChange={BaseContainer.inputChange}
+			closeModal={closeModal}
+			inputChange={inputChange}
 			openFormView={openFormView}
 			openLabelView={openLabelView}
 			openTextView={openTextView}

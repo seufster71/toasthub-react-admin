@@ -16,8 +16,8 @@
 'use-strict';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import * as rolesActions from './roles-actions';
+import { useNavigate, useLocation } from "react-router-dom";
+import * as actions from './roles-actions';
 import fuLogger from '../../core/common/fu-logger';
 import RolesView from '../../adminView/roles/roles-view';
 import RolesModifyView from '../../adminView/roles/roles-modify-view';
@@ -27,9 +27,8 @@ import BaseContainer from '../../core/container/base-container';
 
 
 function RolesContainer() {
-	const roles = useSelector((state) => state.roles);
+	const itemState = useSelector((state) => state.adminroles);
 	const session = useSelector((state) => state.session);
-	const appMenus = useSelector((state) => state.appMenus);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
 	const location = useLocation();
@@ -37,18 +36,44 @@ function RolesContainer() {
 	
 	useEffect(() => {
 		if (location.state != null && location.state.parent != null) {
-			dispatch(rolesActions.init(location.state.parent,location.state.parentType));
+			dispatch(actions.init(location.state.parent,location.state.parentType));
 		} else {
-			dispatch(rolesActions.init());
+			dispatch(actions.init());
 		}
 	}, []);
 
-	const getState = () => {
-		return roles;
+	const onListLimitChange = (fieldName,event) => {
+		BaseContainer.onListLimitChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,fieldName,event});
 	}
-	
-	const getForm = () => {
-		return "ADMIN_ROLE_FORM";
+	const onPaginationClick = (value) => {
+		BaseContainer.onPaginationClick({state:itemState,actions:actions,dispatch:dispatch,value});
+	}
+	const onSearchChange = (field,event) => {
+		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,field,event});
+	}
+	const onSearchClick = (fieldName,event) => {
+		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,fieldName,event});
+	}
+	const inputChange = (type,field,value,event) => {
+		BaseContainer.inputChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,type,field,value,event});
+	}
+	const onOrderBy = (selectedOption, event) => {
+		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,selectedOption,event});
+	}
+	const onSave = () => {
+		BaseContainer.onSave({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,form:"ADMIN_ROLE_FORM"});
+	}
+	const closeModal = () => {
+		BaseContainer.closeModal({actions:actions,dispatch:dispatch});
+	}
+	const onCancel = () => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch});
+	}
+	const goBack = () => {
+		BaseContainer.goBack({navigate});
+	}
+	const onBlur = (field) => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch,field});
 	}
 	
 	const onModifyPermissions = (item) => {
@@ -59,27 +84,27 @@ function RolesContainer() {
 	const onUserRoleModify = (item) => {
 		fuLogger.log({level:'TRACE',loc:'RoleContainer::onUserRoleModify',msg:"test"+item.id});
 		if (item.userRole != null) {
-			dispatch(rolesActions.modifyUserRole({userRoleId:item.userRole.id,roleId:item.id,appPrefs:appPrefs}));
+			dispatch(actions.modifyUserRole({userRoleId:item.userRole.id,roleId:item.id,appPrefs:appPrefs}));
 		} else {
-			dispatch(rolesActions.modifyUserRole({roleId:item.id,appPrefs:appPrefs}));
+			dispatch(actions.modifyUserRole({roleId:item.id,appPrefs:appPrefs}));
 		}
 	}
 	
 	const onUserRoleSave = () => {
 		fuLogger.log({level:'TRACE',loc:'RoleContainer::onUserRoleSave',msg:"test"});
-		let errors = utils.validateFormFields(roles.prefForms.ADMIN_USER_ROLE_FORM,roles.inputFields, appPrefs.prefGlobal.LANGUAGES);
+		let errors = utils.validateFormFields(itemState.prefForms.ADMIN_USER_ROLE_FORM,itemState.inputFields, appPrefs.prefGlobal.LANGUAGES);
 		
 		if (errors.isValid){
 			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_NAME'};
-			dispatch(rolesActions.saveRolePermission({state:roles}));
+			dispatch(actions.saveRolePermission({state:itemState}));
 		} else {
-			dispatch(rolesActions.setErrors({errors:errors.errorMap}));
+			dispatch(actions.setErrors({errors:errors.errorMap}));
 		}
 	}
 	
 	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'RoleContainer::onOption',msg:" code "+code});
-		if (BaseContainer.onOptionBase(code,item)) {
+		if (BaseContainer.onOptionBase({state:itemState,actions:actions,dispatch:dispatch,code:code,appPrefs:appPrefs,item:item})) {
 			return;
 		}
 		switch(code) {
@@ -96,39 +121,39 @@ function RolesContainer() {
 	
 
 	fuLogger.log({level:'TRACE',loc:'RolesContainer::render',msg:"Hi there"});
-	if (roles.isModifyOpen) {
+	if (itemState.isModifyOpen) {
 		return (
 			<RolesModifyView
-			itemState={roles}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onSave={BaseContainer.onSave}
-			onCancel={BaseContainer.onCancel}
-			inputChange={BaseContainer.inputChange}
-			applicationSelectList={roles.applicationSelectList}/>
+			onSave={onSave}
+			onCancel={onCancel}
+			inputChange={inputChange}
+			applicationSelectList={itemState.applicationSelectList}/>
 		);
-	} else if (roles.isUserRoleOpen) {
+	} else if (itemState.isUserRoleOpen) {
 		return (
 			<UserRolesModifyView
-			itemState={roles}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onSave={BaseContainer.onUserRoleSave}
-			onCancel={BaseContainer.onCancel}
-			inputChange={BaseContainer.inputChange}/>
+			onSave={onUserRoleSave}
+			onCancel={onCancel}
+			inputChange={inputChange}/>
 		);
-	} else if (roles.items != null) {
+	} else if (itemState.items != null) {
 		return (
 			<RolesView 
-			itemState={roles}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onListLimitChange={BaseContainer.onListLimitChange}
-			onSearchChange={BaseContainer.onSearchChange}
-			onSearchClick={BaseContainer.onSearchClick}
-			onPaginationClick={BaseContainer.onPaginationClick}
-			onOrderBy={BaseContainer.onOrderBy}
-			closeModal={BaseContainer.closeModal}
+			onListLimitChange={onListLimitChange}
+			onSearchChange={onSearchChange}
+			onSearchClick={onSearchClick}
+			onPaginationClick={onPaginationClick}
+			onOrderBy={onOrderBy}
+			closeModal={closeModal}
 			onOption={onOption}
-			inputChange={BaseContainer.inputChange}
-			goBack={BaseContainer.goBack}
+			inputChange={inputChange}
+			goBack={goBack}
 			session={session}
 			/>
 				

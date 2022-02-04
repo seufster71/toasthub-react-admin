@@ -16,8 +16,8 @@
 'use-strict';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import * as menusActions from './menus-actions';
+import { useNavigate, useLocation } from "react-router-dom";
+import * as actions from './menus-actions';
 import fuLogger from '../../core/common/fu-logger';
 import MenuView from '../../adminView/menu/menu-view';
 import MenuModifyView from '../../adminView/menu/menu-modify-view';
@@ -27,56 +27,81 @@ import BaseContainer from '../../core/container/base-container';
 * Menu Page
 */
 function MenuContainer() {
-	const menus = useSelector((state) => state.menus);
+	const itemState = useSelector((state) => state.adminmenus);
 	const session = useSelector((state) => state.session);
-	const appMenus = useSelector((state) => state.appMenus);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
 	const location = useLocation();
 	const navigate = useNavigate();
 	
 	useEffect(() => {
-		dispatch(menusActions.init());
+		dispatch(actions.init());
 	}, []);
 
-	const getState = () => {
-		return menus;
+	const onListLimitChange = (fieldName,event) => {
+		BaseContainer.onListLimitChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,fieldName,event});
+	}
+	const onPaginationClick = (value) => {
+		BaseContainer.onPaginationClick({state:itemState,actions:actions,dispatch:dispatch,value});
+	}
+	const onSearchChange = (field,event) => {
+		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,field,event});
+	}
+	const onSearchClick = (fieldName,event) => {
+		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,fieldName,event});
+	}
+	const inputChange = (type,field,value,event) => {
+		BaseContainer.inputChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,type,field,value,event});
+	}
+	const onOrderBy = (selectedOption, event) => {
+		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,selectedOption,event});
+	}
+	const onSave = () => {
+		BaseContainer.onSave({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,form:"ADMIN_MENU_FORM"});
+	}
+	const closeModal = () => {
+		BaseContainer.closeModal({actions:actions,dispatch:dispatch});
+	}
+	const onCancel = () => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch});
+	}
+	const goBack = () => {
+		BaseContainer.goBack({navigate});
+	}
+	const onBlur = (field) => {
+		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch,field});
 	}
 	
-	const getForm = () => {
-		return "ADMIN_MENU_FORM";
-	}	
-
 	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'MenuContainer::onOption',msg:" code "+code});
-		if (BaseContainer.onOptionBase(code,item)) {
+		if (BaseContainer.onOptionBase({state:itemState,actions:actions,dispatch:dispatch,code:code,appPrefs:appPrefs,item:item})) {
 			return;
 		}
 	}
 	
 	fuLogger.log({level:'TRACE',loc:'MenuContainer::render',msg:"Hi there"});
-	if (menus.isModifyOpen) {
+	if (itemState.isModifyOpen) {
 		return (
 			<MenuModifyView
-			itemState={menus}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onSave={BaseContainer.onSave}
-			onCancel={BaseContainer.onCancel}
-			inputChange={BaseContainer.inputChange}
+			onSave={onSave}
+			onCancel={onCancel}
+			inputChange={inputChange}
 			/>
 		);
-	} else if (menus.items != null) {
+	} else if (itemState.items != null) {
 		return (
 			<MenuView 
-			itemState={menus}
+			itemState={itemState}
 			appPrefs={appPrefs}
-			onListLimitChange={BaseContainer.onListLimitChange}
-			onSearchChange={BaseContainer.onSearchChange}
-			onSearchClick={BaseContainer.onSearchClick}
-			onPaginationClick={BaseContainer.onPaginationClick}
-			onOrderBy={BaseContainer.onOrderBy}
-			closeModal={BaseContainer.closeModal}
-			onOption={BaseContainer.onOption}
+			onListLimitChange={onListLimitChange}
+			onSearchChange={onSearchChange}
+			onSearchClick={onSearchClick}
+			onPaginationClick={onPaginationClick}
+			onOrderBy={onOrderBy}
+			closeModal={closeModal}
+			onOption={onOption}
 			session={session}
 			/>	
 		);
