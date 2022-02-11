@@ -22,9 +22,9 @@ function DashboardContainer() {
 	
 	useEffect(() => {
 		if (location.state != null && location.state.parent != null) {
-			dispatch(dashboardActions.init(location.state.parent,location.state.parentType));
+			dispatch(actions.init({parent:location.state.parent,parentType:location.state.parentType}));
 		} else {
-			dispatch(dashboardActions.init());
+			dispatch(actions.init({}));
 		}
 	}, []);
 
@@ -35,16 +35,16 @@ function DashboardContainer() {
 		BaseContainer.onPaginationClick({state:itemState,actions:actions,dispatch:dispatch,value});
 	}
 	const onSearchChange = (field,event) => {
-		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,field,event});
+		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,field,event});
 	}
-	const onSearchClick = (fieldName,event) => {
-		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,fieldName,event});
+	const onSearchClick = (field,event) => {
+		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,field,event});
 	}
 	const inputChange = (type,field,value,event) => {
 		BaseContainer.inputChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,type,field,value,event});
 	}
-	const onOrderBy = (selectedOption, event) => {
-		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,selectedOption,event});
+	const onOrderBy = (field, event) => {
+		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,field,event});
 	}
 	const onSave = () => {
 		BaseContainer.onSave({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,form:"ADMIN_DASHBOARD_FORM"});
@@ -65,7 +65,7 @@ function DashboardContainer() {
 	fuLogger.log({level:'TRACE',loc:'DashboardContainer::render',msg:"Hi there trser"});
   	return (
 		<DashboardView
-			stats={dashboard}
+			itemState={itemState}
 			/>
 	);
 }

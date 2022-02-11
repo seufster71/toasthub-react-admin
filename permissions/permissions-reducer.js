@@ -18,7 +18,7 @@ import reducerUtils from '../../core/common/reducer-utils';
 export default function permissionsReducer(state = {}, action) {
 	let myState = {};
 	switch(action.type) {
-    	case 'LOAD_INIT_PERMISSIONS': {
+    	case 'ADMIN_PERMISSIONS_INIT': {
     		if (action.responseJson != null && action.responseJson.params != null) {
     			return Object.assign({}, state, {
     				prefTexts: Object.assign({}, state.prefTexts, reducerUtils.getPrefTexts(action)),
@@ -46,7 +46,7 @@ export default function permissionsReducer(state = {}, action) {
     			return state;
     		}
     	}
-    	case 'LOAD_LIST_PERMISSIONS': {
+    	case 'ADMIN_PERMISSIONS_LIST': {
     		if (action.responseJson != null && action.responseJson.params != null) {
     			return Object.assign({}, state, {
     				itemCount: reducerUtils.getItemCount(action),
@@ -66,7 +66,7 @@ export default function permissionsReducer(state = {}, action) {
     			return state;
     		}
 		}
-    	case 'PERMISSIONS_ITEM': {
+    	case 'ADMIN_PERMISSIONS_ITEM': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
@@ -135,10 +135,10 @@ export default function permissionsReducer(state = {}, action) {
 				return state;
 			}
 		}
-		case 'PERMISSIONS_INPUT_CHANGE': {
+		case 'ADMIN_PERMISSIONS_INPUT_CHANGE': {
 			return reducerUtils.updateInputChange(state,action);
 		}
-		case 'PERMISSIONS_ADD_PARENT': {
+		case 'ADMIN_PERMISSIONS_ADD_PARENT': {
 			if (action.parent != null) {
 				return Object.assign({}, state, {
 					parent: action.parent
@@ -147,12 +147,12 @@ export default function permissionsReducer(state = {}, action) {
 		        return state;
 		    }
 		}
-		case 'PERMISSIONS_CLEAR_PARENT': {
+		case 'ADMIN_PERMISSIONS_CLEAR_PARENT': {
 			return Object.assign({}, state, {
 				parent: null
 			});
 		}
-		case 'PERMISSIONS_ROLE_PERMISSION': {
+		case 'ADMIN_PERMISSIONS_ROLE_PERMISSION': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
@@ -222,31 +222,31 @@ export default function permissionsReducer(state = {}, action) {
 				return state;
 			}
 		}
-		case 'PERMISSIONS_LISTLIMIT': {
+		case 'ADMIN_PERMISSIONS_LISTLIMIT': {
 			return reducerUtils.updateListLimit(state,action);
 		}
-		case 'PERMISSIONS_SEARCH': { 
+		case 'ADMIN_PERMISSIONS_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
-		case 'PERMISSIONS_SEARCH_CHANGE': { 
+		case 'ADMIN_PERMISSIONS_SEARCH_CHANGE': { 
 			return Object.assign({}, state, {
 				searchValue: action.value
 			});
 		}
-		case 'PERMISSIONS_ORDERBY': { 
+		case 'ADMIN_PERMISSIONS_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}
-		case 'USERS_SET_ERRORS': {
+		case 'ADMIN_PERMISSIONS_SET_ERRORS': {
 			return Object.assign({}, state, {
 				errors: action.errors
 			});
 		}
-		case 'USERS_CLOSE_DELETE_MODAL': {
+		case 'ADMIN_PERMISSIONS_CLOSE_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: false
 			});
 		}
-		case 'USERS_OPEN_DELETE_MODAL': {
+		case 'ADMIN_PERMISSIONS_OPEN_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: true,
 				selected: action.item

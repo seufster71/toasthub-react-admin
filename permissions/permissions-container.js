@@ -29,7 +29,7 @@ import BaseContainer from '../../core/container/base-container';
 * Permission Page
 */
 function PermissionsContainer() {
-	const permissions = useSelector((state) => state.permissions);
+	const itemState = useSelector((state) => state.adminpermissions);
 	const session = useSelector((state) => state.session);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
@@ -51,16 +51,16 @@ function PermissionsContainer() {
 		BaseContainer.onPaginationClick({state:itemState,actions:actions,dispatch:dispatch,value});
 	}
 	const onSearchChange = (field,event) => {
-		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,field,event});
+		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,field,event});
 	}
-	const onSearchClick = (fieldName,event) => {
-		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,fieldName,event});
+	const onSearchClick = (field,event) => {
+		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,field,event});
 	}
 	const inputChange = (type,field,value,event) => {
 		BaseContainer.inputChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,type,field,value,event});
 	}
-	const onOrderBy = (selectedOption, event) => {
-		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,selectedOption,event});
+	const onOrderBy = (field, event) => {
+		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,field,event});
 	}
 	const onSave = () => {
 		BaseContainer.onSave({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,form:"ADMIN_PERMISSION_FORM"});
@@ -89,10 +89,10 @@ function PermissionsContainer() {
 	
 	const onRolePermissionSave = () => {
 		fuLogger.log({level:'TRACE',loc:'PermissionContainer::onRolePermissionSave',msg:"test"});
-		let errors = utils.validateFormFields(permissions.prefForms.ADMIN_ROLE_PERMISSION_FORM,permissions.inputFields, appPrefs.prefGlobal.LANGUAGES);
+		let errors = utils.validateFormFields(itemState.prefForms.ADMIN_ROLE_PERMISSION_FORM,itemState.inputFields, appPrefs.prefGlobal.LANGUAGES);
 		
 		if (errors.isValid){
-			dispatch(actions.saveRolePermission({state:permissions}));
+			dispatch(actions.saveRolePermission({state:itemState}));
 		} else {
 			this.setState({errors:errors.errorMap});
 		}

@@ -42,10 +42,10 @@ function UsersContainer() {
 		BaseContainer.onPaginationClick({state:itemState,actions:actions,dispatch:dispatch,value});
 	}
 	const onSearchChange = (field,event) => {
-		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,field,event});
+		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,field,event});
 	}
-	const onSearchClick = (fieldName,event) => {
-		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,fieldName,event});
+	const onSearchClick = (field,event) => {
+		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,field,event});
 	}
 	const inputChange = (type,field,value,event) => {
 		BaseContainer.inputChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,type,field,value,event});
@@ -74,7 +74,7 @@ function UsersContainer() {
 	
 	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'UsersContainer::onOption',msg:" code "+code});
-		if (BaseContainer.onOptionBase(code,item)) {
+		if (BaseContainer.onOptionBase({state:itemState,actions:actions,dispatch:dispatch,code:code,appPrefs:appPrefs,item:item})) {
 			return;
 		}
 		
@@ -127,10 +127,10 @@ function UsersContainer() {
 		}
 	}
 	
-	clearVerifyPassword = () => {
+	const clearVerifyPassword = () => {
 		fuLogger.log({level:'TRACE',loc:'UsersContainer::clearVerifyPassword',msg:"Hi there"});
-		dispatch(userActions.setErrors({errors:null, successes:null}));
-		dispatch(userActions.clearField('ADMIN_USER_FORM_VERIFY_PASSWORD'));
+		dispatch(actions.setErrors({errors:null, successes:null}));
+		dispatch(actions.clearField('ADMIN_USER_FORM_VERIFY_PASSWORD'));
 	}
 
 	fuLogger.log({level:'TRACE',loc:'UsersContainer::render',msg:"Hi there"});

@@ -41,7 +41,7 @@ export function init(parent) {
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_INIT_PERMISSIONS", responseJson });
+				dispatch({ type: "ADMIN_PERMISSIONS_INIT", responseJson });
 			} else {
 				actionUtils.checkConnectivity(responseJson,dispatch);
 			}
@@ -88,7 +88,7 @@ export function list({state,listLimit,listStart,searchCriteria,orderCriteria,inf
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_LIST_PERMISSIONS", responseJson, paginationSegment });
+				dispatch({ type: "ADMIN_PERMISSIONS_LIST", responseJson, paginationSegment });
 				if (info != null) {
 		        	  dispatch({type:'SHOW_STATUS',info:info});  
 		        }
@@ -104,14 +104,14 @@ export function list({state,listLimit,listStart,searchCriteria,orderCriteria,inf
 
 export function listLimit({state,listLimit}) {
 	return function(dispatch) {
-		 dispatch({ type:"PERMISSIONS_LISTLIMIT",listLimit});
+		 dispatch({ type:"ADMIN_PERMISSIONS_LISTLIMIT",listLimit});
 		 dispatch(list({state,listLimit}));
 	 };
 }
 
 export function search({state,searchCriteria}) {
 	return function(dispatch) {
-		 dispatch({ type:"PERMISSIONS_SEARCH",searchCriteria});
+		 dispatch({ type:"ADMIN_PERMISSIONS_SEARCH",searchCriteria});
 		 dispatch(list({state,searchCriteria,listStart:0}));
 	 };
 }
@@ -186,7 +186,7 @@ export function modifyItem({id,appPrefs}) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'PERMISSIONS_ITEM',responseJson, appPrefs});
+	    		dispatch({ type: 'ADMIN_PERMISSIONS_ITEM',responseJson, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -212,7 +212,7 @@ export function modifyRolePermission({rolePermissionId, permissionId, appPrefs})
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'PERMISSIONS_ROLE_PERMISSION',responseJson, appPrefs});
+	    		dispatch({ type: 'ADMIN_PERMISSIONS_ROLE_PERMISSION',responseJson, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -256,43 +256,43 @@ export function inputChange(field,value) {
 		 let params = {};
 		 params.field = field;
 		 params.value = value;
-		 dispatch({ type:"PERMISSIONS_INPUT_CHANGE",params});
+		 dispatch({ type:"ADMIN_PERMISSIONS_INPUT_CHANGE",params});
 	 };
 }
 
 export function searchChange({value}) {
 	 return function(dispatch) {
-		 dispatch({ type:"PERMISSIONS_SEARCH_CHANGE",value});
+		 dispatch({ type:"ADMIN_PERMISSIONS_SEARCH_CHANGE",value});
 	 };
 }
 
 export function orderBy({state,orderCriteria}) {
 	 return function(dispatch) {
-		 dispatch({ type:"PERMISSIONS_ORDERBY",orderCriteria});
+		 dispatch({ type:"ADMIN_PERMISSIONS_ORDERBY",orderCriteria});
 		 dispatch(list({state,orderCriteria}));
 	 };
 }
 
 export function clearPermission() {
 	return function(dispatch) {
-		dispatch({ type:"PERMISSIONS_CLEAR_PERMISSION"});
+		dispatch({ type:"ADMIN_PERMISSIONS_CLEAR_PERMISSION"});
 	};
 }
 
 export function setErrors({errors}) {
 	 return function(dispatch) {
-		 dispatch({ type:"PERMISSIONS_SET_ERRORS",errors});
+		 dispatch({ type:"ADMIN_PERMISSIONS_SET_ERRORS",errors});
 	 };
 }
 
 export function openDeleteModal({item}) {
 	 return function(dispatch) {
-		 dispatch({type:"PERMISSIONS_OPEN_DELETE_MODAL",item});
+		 dispatch({type:"ADMIN_PERMISSIONS_OPEN_DELETE_MODAL",item});
 	 };
 }
 
 export function closeDeleteModal() {
 	 return function(dispatch) {
-		 dispatch({type:"PERMISSIONS_CLOSE_DELETE_MODAL"});
+		 dispatch({type:"ADMIN_PERMISSIONS_CLOSE_DELETE_MODAL"});
 	 };
 }
