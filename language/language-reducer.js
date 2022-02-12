@@ -17,7 +17,7 @@ import reducerUtils from '../../core/common/reducer-utils';
 
 export default function languagesReducer(state = {}, action) {
 	switch(action.type) {
-		case 'LOAD_INIT_LANGUAGES': {
+		case 'ADMIN_LANGUAGE_INIT': {
 			if (action.responseJson != null && action.responseJson.params != null) {
 				return Object.assign({}, state, {
 					prefTexts: Object.assign({}, state.prefTexts, reducerUtils.getPrefTexts(action)),
@@ -32,7 +32,7 @@ export default function languagesReducer(state = {}, action) {
     				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_LANGUAGE_TABLE_TITLE'}],
 					paginationSegment: 1,
 					selected: null,
-					isModifyOpen: false,
+					view: "MAIN",
 					pageName:"ADMIN_LANGUAGE",
 					isDeleteModalOpen: false,
 					errors:null, 
@@ -44,7 +44,7 @@ export default function languagesReducer(state = {}, action) {
 				return state;
 			}
 		}
-		case 'LOAD_LIST_LANGUAGES': {
+		case 'ADMIN_LANGUAGE_LIST': {
 			if (action.responseJson != null && action.responseJson.params != null) {
 				return Object.assign({}, state, {
 					itemCount: reducerUtils.getItemCount(action),
@@ -53,7 +53,7 @@ export default function languagesReducer(state = {}, action) {
 					listStart: reducerUtils.getListStart(action),
 					paginationSegment: action.paginationSegment,
 					selected: null,
-					isModifyOpen: false,
+					view: "MAIN",
 					isDeleteModalOpen: false,
 					errors:null, 
 					warns:null, 
@@ -63,7 +63,7 @@ export default function languagesReducer(state = {}, action) {
 				return state;
 			}
 		}
-		case 'LANGUAGES_ITEM': {
+		case 'ADMIN_LANGUAGE_ITEM': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
@@ -125,43 +125,48 @@ export default function languagesReducer(state = {}, action) {
 					prefForms: Object.assign({}, state.prefForms, reducerUtils.getPrefForms(action)),
 					selected : action.responseJson.params.item,
 					inputFields : inputFields,
-					isModifyOpen: true
+					view: "MODIFY"
 				});
 			} else {
 				return state;
 			}
 		}
-		case 'LANGUAGES_INPUT_CHANGE': {
+		case 'ADMIN_LANGUAGE_INPUT_CHANGE': {
 			return reducerUtils.updateInputChange(state,action);
 		}
-		case 'LANGUAGES_LISTLIMIT': {
+		case 'ADMIN_LANGUAGE_LISTLIMIT': {
 			return reducerUtils.updateListLimit(state,action);
 		}
-		case 'LANGUAGES_SEARCH': { 
+		case 'ADMIN_LANGUAGE_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
-		case 'LANGUAGES_SEARCH_CHANGE': { 
+		case 'ADMIN_LANGUAGE_SEARCH_CHANGE': { 
 			return Object.assign({}, state, {
 				searchValue: action.value
 			});
 		}
-		case 'LANGUAGES_ORDERBY': { 
+		case 'ADMIN_LANGUAGE_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}
-		case 'LANGUAGES_SET_ERRORS': {
-			return Object.assign({}, state, {
-				errors: action.errors
-			});
+		case 'ADMIN_LANGUAGE_SET_STATUS': {
+			reducerUtils.updateStatus(state,action);
 		}
-		case 'LANGUAGES_CLOSE_DELETE_MODAL': {
+		case 'ADMIN_LANGUAGE_CLOSE_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: false
 			});
 		}
-		case 'LANGUAGES_OPEN_DELETE_MODAL': {
+		case 'ADMIN_LANGUAGE_OPEN_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: true,
 				selected: action.item
+			});
+		}
+		case 'ADMIN_LANGUAGE_CANCEL': {
+			return Object.assign({}, state, {
+				view: "MAIN",
+				selected:null,
+				inputFields:null
 			});
 		}
 		default:

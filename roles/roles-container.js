@@ -36,9 +36,9 @@ function RolesContainer() {
 	
 	useEffect(() => {
 		if (location.state != null && location.state.parent != null) {
-			dispatch(actions.init(location.state.parent,location.state.parentType));
+			dispatch(actions.init({parent:location.state.parent,parentType:location.state.parentType}));
 		} else {
-			dispatch(actions.init());
+			dispatch(actions.init({}));
 		}
 	}, []);
 
@@ -78,7 +78,7 @@ function RolesContainer() {
 	
 	const onModifyPermissions = (item) => {
 		fuLogger.log({level:'TRACE',loc:'RoleContainer::onModifyPermissions',msg:"test"+item.id});
-		navigate('/admin-permissions',{state:{parent:item}});
+		navigate('../permissions',{state:{parent:item}});
 	}
 	
 	const onUserRoleModify = (item) => {
@@ -95,10 +95,9 @@ function RolesContainer() {
 		let errors = utils.validateFormFields(itemState.prefForms.ADMIN_USER_ROLE_FORM,itemState.inputFields, appPrefs.prefGlobal.LANGUAGES);
 		
 		if (errors.isValid){
-			let searchCriteria = {'searchValue':this.state['ADMIN_ROLE_SEARCH_input'],'searchColumn':'ADMIN_ROLE_TABLE_NAME'};
 			dispatch(actions.saveRolePermission({state:itemState}));
 		} else {
-			dispatch(actions.setErrors({errors:errors.errorMap}));
+			dispatch(actions.setStatus({errors:errors.errorMap}));
 		}
 	}
 	
@@ -121,7 +120,7 @@ function RolesContainer() {
 	
 
 	fuLogger.log({level:'TRACE',loc:'RolesContainer::render',msg:"Hi there"});
-	if (itemState.isModifyOpen) {
+	if (itemState.view == "MODIFY") {
 		return (
 			<RolesModifyView
 			itemState={itemState}
@@ -131,7 +130,7 @@ function RolesContainer() {
 			inputChange={inputChange}
 			applicationSelectList={itemState.applicationSelectList}/>
 		);
-	} else if (itemState.isUserRoleOpen) {
+	} else if (itemState.view == "USER_ROLE_MODIFY") {
 		return (
 			<UserRolesModifyView
 			itemState={itemState}
@@ -140,7 +139,7 @@ function RolesContainer() {
 			onCancel={onCancel}
 			inputChange={inputChange}/>
 		);
-	} else if (itemState.items != null) {
+	} else if (itemState.view == "MAIN" && itemState.items != null) {
 		return (
 			<RolesView 
 			itemState={itemState}

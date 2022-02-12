@@ -35,7 +35,7 @@ function PreferencesContainer() {
 	const navigate = useNavigate();
 	
 	useEffect(() => {
-		dispatch(actions.init());
+		dispatch(actions.init({}));
 	}, []);
 
 	const onListLimitChange = (fieldName,event) => {
@@ -45,16 +45,16 @@ function PreferencesContainer() {
 		BaseContainer.onPaginationClick({state:itemState,actions:actions,dispatch:dispatch,value});
 	}
 	const onSearchChange = (field,event) => {
-		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,field,event});
+		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,field,event});
 	}
-	const onSearchClick = (fieldName,event) => {
-		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,fieldName,event});
+	const onSearchClick = (field,event) => {
+		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,field,event});
 	}
 	const inputChange = (type,field,value,event) => {
 		BaseContainer.inputChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,type,field,value,event});
 	}
-	const onOrderBy = (selectedOption, event) => {
-		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,selectedOption,event});
+	const onOrderBy = (field, event) => {
+		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,field,event});
 	}
 	const onSave = () => {
 		BaseContainer.onSave({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,form:"ADMIN_PREFERENCE_FORM"});
@@ -127,19 +127,19 @@ function PreferencesContainer() {
 		
 		switch(code) {
 			case 'SHOW_FORMFIELDS': {
-				navigate('/admin-prefsub',{state:{parent:item,subType:"FORM"}});
+				navigate('../prefsub',{state:{parent:item,subType:"FORM"}});
 				break;
 			}
 			case 'SHOW_LABELS': {
-				navigate('/admin-prefsub',{state:{parent:item,subType:"LABEL"}});
+				navigate('../prefsub',{state:{parent:item,subType:"LABEL"}});
 				break;
 			}
 			case 'SHOW_TEXTS': {
-				navigate('/admin-prefsub',{state:{parent:item,subType:"TEXT"}});
+				navigate('../prefsub',{state:{parent:item,subType:"TEXT"}});
 				break;
 			}
 			case 'SHOW_OPTIONS': {
-				navigate('/admin-prefsub',{state:{parent:item,subType:"OPTION"}});
+				navigate('../prefsub',{state:{parent:item,subType:"OPTION"}});
 				break;
 			}
 			case 'MOVESELECT': {
@@ -162,7 +162,7 @@ function PreferencesContainer() {
 	}
 
 	fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"test "});
-	if (itemState.isModifyOpen) {
+	if (itemState.view == "MODIFY") {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"view PreferenceModifyView"});
 		return (
 			<PreferenceModifyView
@@ -173,7 +173,7 @@ function PreferencesContainer() {
 			inputChange={inputChange}
 			/>
 		);
-	} else if (itemState.items != null) {
+	} else if (itemState.view == "MAIN" && itemState.items != null) {
 		fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"view PreferenceView"});
 		return (
 			<PreferencesView

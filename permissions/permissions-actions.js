@@ -21,18 +21,19 @@ import actionUtils from '../../core/common/action-utils';
 
 
 // thunks
-export function init(parent) {
+export function init({parent,parentType}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "INIT";
-		requestParams.service = "PERMISSIONS_SVC";
+		requestParams.service = "ADMIN_PERMISSION_SVC";
 		requestParams.prefTextKeys = new Array("ADMIN_PERMISSION_PAGE");
 		requestParams.prefLabelKeys = new Array("ADMIN_PERMISSION_PAGE");
 		if (parent != null) {
 			requestParams.parentId = parent.id;
-			dispatch({type:"PERMISSIONS_ADD_PARENT", parent});
+			requestParams.parentType = parentType;
+			dispatch({type:"ADMIN_PERMISSION_ADD_PARENT", parent});
 		} else {
-			dispatch({type:"PERMISSIONS_CLEAR_PARENT"});
+			dispatch({type:"ADMIN_PERMISSION_CLEAR_PARENT"});
 		}
 		
 		let params = {};
@@ -41,7 +42,7 @@ export function init(parent) {
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "ADMIN_PERMISSIONS_INIT", responseJson });
+				dispatch({ type: "ADMIN_PERMISSION_INIT", responseJson });
 			} else {
 				actionUtils.checkConnectivity(responseJson,dispatch);
 			}
@@ -56,7 +57,7 @@ export function list({state,listLimit,listStart,searchCriteria,orderCriteria,inf
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
-		requestParams.service = "PERMISSIONS_SVC";
+		requestParams.service = "ADMIN_PERMISSION_SVC";
 		if (listStart != null) {
 			requestParams.listStart = listStart;
 		} else {
@@ -88,7 +89,7 @@ export function list({state,listLimit,listStart,searchCriteria,orderCriteria,inf
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "ADMIN_PERMISSIONS_LIST", responseJson, paginationSegment });
+				dispatch({ type: "ADMIN_PERMISSION_LIST", responseJson, paginationSegment });
 				if (info != null) {
 		        	  dispatch({type:'SHOW_STATUS',info:info});  
 		        }
@@ -104,14 +105,14 @@ export function list({state,listLimit,listStart,searchCriteria,orderCriteria,inf
 
 export function listLimit({state,listLimit}) {
 	return function(dispatch) {
-		 dispatch({ type:"ADMIN_PERMISSIONS_LISTLIMIT",listLimit});
+		 dispatch({ type:"ADMIN_PERMISSION_LISTLIMIT",listLimit});
 		 dispatch(list({state,listLimit}));
 	 };
 }
 
 export function search({state,searchCriteria}) {
 	return function(dispatch) {
-		 dispatch({ type:"ADMIN_PERMISSIONS_SEARCH",searchCriteria});
+		 dispatch({ type:"ADMIN_PERMISSION_SEARCH",searchCriteria});
 		 dispatch(list({state,searchCriteria,listStart:0}));
 	 };
 }
@@ -120,7 +121,7 @@ export function saveItem({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
-	    requestParams.service = "PERMISSIONS_SVC";
+	    requestParams.service = "ADMIN_PERMISSION_SVC";
 	    requestParams.inputFields = state.inputFields;
 
 	    let params = {};
@@ -148,7 +149,7 @@ export function deleteItem({state,id}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
-	    requestParams.service = "PERMISSIONS_SVC";
+	    requestParams.service = "ADMIN_PERMISSION_SVC";
 	    requestParams.itemId = id;
 	    
 	    let params = {};
@@ -175,7 +176,7 @@ export function modifyItem({id,appPrefs}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
-	    requestParams.service = "PERMISSIONS_SVC";
+	    requestParams.service = "ADMIN_PERMISSION_SVC";
 	    requestParams.prefFormKeys = new Array("ADMIN_PERMISSION_FORM");
 	    if (id != null) {
 	    	requestParams.itemId = id;
@@ -186,7 +187,7 @@ export function modifyItem({id,appPrefs}) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'ADMIN_PERMISSIONS_ITEM',responseJson, appPrefs});
+	    		dispatch({ type: 'ADMIN_PERMISSION_ITEM',responseJson, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -200,7 +201,7 @@ export function modifyRolePermission({rolePermissionId, permissionId, appPrefs})
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "ROLE_PERMISSION_ITEM";
-	    requestParams.service = "PERMISSIONS_SVC";
+	    requestParams.service = "ADMIN_PERMISSION_SVC";
 	    requestParams.prefFormKeys = new Array("ADMIN_ROLE_PERMISSION_FORM");
 	    if (rolePermissionId != null) {
 	    	requestParams.itemId = rolePermissionId;
@@ -212,7 +213,7 @@ export function modifyRolePermission({rolePermissionId, permissionId, appPrefs})
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'ADMIN_PERMISSIONS_ROLE_PERMISSION',responseJson, appPrefs});
+	    		dispatch({ type: 'ADMIN_PERMISSION_ROLE_PERMISSION',responseJson, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -226,7 +227,7 @@ export function saveRolePermission({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "ROLE_PERMISSION_SAVE";
-	    requestParams.service = "PERMISSIONS_SVC";
+	    requestParams.service = "ADMIN_PERMISSION_SVC";
 	    requestParams.inputFields = state.inputFields;
 	    requestParams.roleId = state.parent.id;
 	    requestParams.permissionId = state.selected.permissionId
@@ -256,43 +257,50 @@ export function inputChange(field,value) {
 		 let params = {};
 		 params.field = field;
 		 params.value = value;
-		 dispatch({ type:"ADMIN_PERMISSIONS_INPUT_CHANGE",params});
+		 dispatch({ type:"ADMIN_PERMISSION_INPUT_CHANGE",params});
 	 };
 }
 
 export function searchChange({value}) {
 	 return function(dispatch) {
-		 dispatch({ type:"ADMIN_PERMISSIONS_SEARCH_CHANGE",value});
+		 dispatch({ type:"ADMIN_PERMISSION_SEARCH_CHANGE",value});
 	 };
 }
 
 export function orderBy({state,orderCriteria}) {
 	 return function(dispatch) {
-		 dispatch({ type:"ADMIN_PERMISSIONS_ORDERBY",orderCriteria});
+		 dispatch({ type:"ADMIN_PERMISSION_ORDERBY",orderCriteria});
 		 dispatch(list({state,orderCriteria}));
 	 };
 }
 
 export function clearPermission() {
 	return function(dispatch) {
-		dispatch({ type:"ADMIN_PERMISSIONS_CLEAR_PERMISSION"});
+		dispatch({ type:"ADMIN_PERMISSION_CLEAR_PERMISSION"});
 	};
 }
 
-export function setErrors({errors}) {
+export function setStatus({successes,errors}) {
 	 return function(dispatch) {
-		 dispatch({ type:"ADMIN_PERMISSIONS_SET_ERRORS",errors});
+		 dispatch({ type:"ADMIN_PERMISSION_SET_STATUS",successes,errors});
 	 };
 }
 
 export function openDeleteModal({item}) {
 	 return function(dispatch) {
-		 dispatch({type:"ADMIN_PERMISSIONS_OPEN_DELETE_MODAL",item});
+		 dispatch({type:"ADMIN_PERMISSION_OPEN_DELETE_MODAL",item});
 	 };
 }
 
 export function closeDeleteModal() {
 	 return function(dispatch) {
-		 dispatch({type:"ADMIN_PERMISSIONS_CLOSE_DELETE_MODAL"});
+		 dispatch({type:"ADMIN_PERMISSION_CLOSE_DELETE_MODAL"});
+	 };
+}
+
+export function cancel({state}) {
+	return function(dispatch) {
+		dispatch({type:"ADMIN_PERMISSION_CANCEL"});
+		dispatch(list({state}));
 	 };
 }

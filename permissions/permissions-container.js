@@ -38,9 +38,9 @@ function PermissionsContainer() {
 	
 	useEffect(() => {
 		if (location.state != null && location.state.parent != null) {
-			dispatch(actions.init(location.state.parent,location.state.parentType));
+			dispatch(actions.init({parent:location.state.parent,parentType:location.state.parentType}));
 		} else {
-			dispatch(actions.init());
+			dispatch(actions.init({}));
 		}
 	}, []);
 	
@@ -113,7 +113,7 @@ function PermissionsContainer() {
 	}
 
 	fuLogger.log({level:'TRACE',loc:'PermissionsContainer::render',msg:"Hi there"});
-	if (itemState.isModifyOpen) {
+	if (itemState.view == "MODIFY") {
 		return (
 			<PermissionsModifyView
 			itemState={itemState}
@@ -123,7 +123,7 @@ function PermissionsContainer() {
 			inputChange={inputChange}
 			applicationSelectList={itemState.applicationSelectList}/>
 		);
-	} else if (itemState.isRolePermissionOpen) {
+	} else if (itemState.view == "ROLE_PERMISSION_MODIFY") {
 		return (
 			<RolePermissionsModifyView
 			itemState={itemState}
@@ -132,7 +132,7 @@ function PermissionsContainer() {
 			onCancel={onCancel}
 			inputChange={inputChange}/>
 		);
-	} else if (itemState.items != null) {
+	} else if (itemState.view == "MAIN" && itemState.items != null) {
 		return (
 			<PermissionsView 
 			itemState={itemState}

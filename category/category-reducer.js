@@ -18,7 +18,7 @@ import reducerUtils from '../../core/common/reducer-utils';
 export default function categoryReducer(state = {}, action) {
 	let myState = {};
 	switch(action.type) {
-    	case 'LOAD_INIT_CATEGORY': {
+    	case 'ADMIN_CATEGORY_INIT': {
     		if (action.responseJson != null && action.responseJson.params != null) {
     			return Object.assign({}, state, {
     				prefTexts: Object.assign({}, state.prefTexts, reducerUtils.getPrefTexts(action)),
@@ -33,7 +33,7 @@ export default function categoryReducer(state = {}, action) {
     				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_CATEGORY_TABLE_NAME'}],
 					paginationSegment: 1,
 					selected: null,
-					isModifyOpen: false,
+					view: "MAIN",
 					pageName:"ADMIN_CATEGORY",
 					isDeleteModalOpen: false,
 					errors:null, 
@@ -45,7 +45,7 @@ export default function categoryReducer(state = {}, action) {
     			return state;
     		}
     	}
-    	case 'LOAD_LIST_CATEGORY': {
+    	case 'ADMIN_CATEGORY_LIST': {
     		if (action.responseJson != null && action.responseJson.params != null) {
     			return Object.assign({}, state, {
     				itemCount: reducerUtils.getItemCount(action),
@@ -54,7 +54,7 @@ export default function categoryReducer(state = {}, action) {
     				listStart: reducerUtils.getListStart(action),
     				paginationSegment: action.paginationSegment,
     				selected: null,
-					isModifyOpen: false,
+					view: "MAIN",
 					isDeleteModalOpen: false,
 					errors:null, 
 					warns:null, 
@@ -64,7 +64,7 @@ export default function categoryReducer(state = {}, action) {
     			return state;
     		}
 		}
-    	case 'CATEGORY_CATEGORY': {
+    	case 'ADMIN_CATEGORY_ITEM': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
@@ -72,7 +72,7 @@ export default function categoryReducer(state = {}, action) {
 				for (let i = 0; i < prefForms.ADMIN_CATEGORY_FORM.length; i++) {
 					if (prefForms.ADMIN_CATEGORY_FORM[i].group === "FORM1") {
 						let classModel = JSON.parse(prefForms.ADMIN_CATEGORY_FORM[i].classModel);
-						if (action.responseJson.params.item != null && action.responseJson.params.item[classModel.field]) {
+						if (action.responseJson.params.item != null && action.responseJson.params.item.hasOwnProperty(classModel.field)) {
 							inputFields[prefForms.ADMIN_CATEGORY_FORM[i].name] = action.responseJson.params.item[classModel.field];
 						} else {
 							let result = "";
@@ -96,46 +96,51 @@ export default function categoryReducer(state = {}, action) {
 					prefForms: Object.assign({}, state.prefForms, reducerUtils.getPrefForms(action)),
 					selected : action.responseJson.params.item,
 					inputFields : inputFields,
-					isModifyOpen: true
+					view: "MODIFY"
 				});
 			} else {
 				return state;
 			}
 		}
-		case 'CATEGORY_INPUT_CHANGE': {
+		case 'ADMIN_CATEGORY_INPUT_CHANGE': {
 			return reducerUtils.updateInputChange(state,action);
 		}
-		case 'CATEGORY_CLEAR_FIELD': {
+		case 'ADMIN_CATEGORY_CLEAR_FIELD': {
 			return reducerUtils.updateClearField(state,action);
 		}
-		case 'CATEGORY_LISTLIMIT': {
+		case 'ADMIN_CATEGORY_LISTLIMIT': {
 			return reducerUtils.updateListLimit(state,action);
 		}
-		case 'CATEGORY_SEARCH': { 
+		case 'ADMIN_CATEGORY_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
-		case 'CATEGORY_SEARCH_CHANGE': { 
+		case 'ADMIN_CATEGORY_SEARCH_CHANGE': { 
 			return Object.assign({}, state, {
 				searchValue: action.value
 			});
 		}
-		case 'CATEGORY_ORDERBY': { 
+		case 'ADMIN_CATEGORY_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}
-		case 'CATEGORY_SET_ERRORS': {
-			return Object.assign({}, state, {
-				errors: action.errors
-			});
+		case 'ADMIN_CATEGORY_SET_STATUS': {
+			reducerUtils.updateStatus(state,action);
 		}
-		case 'CATEGORY_CLOSE_DELETE_MODAL': {
+		case 'ADMIN_CATEGORY_CLOSE_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: false
 			});
 		}
-		case 'CATEGORY_OPEN_DELETE_MODAL': {
+		case 'ADMIN_CATEGORY_OPEN_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: true,
 				selected: action.item
+			});
+		}
+		case 'ADMIN_CATEGORY_CANCEL': {
+			return Object.assign({}, state, {
+				view: "MAIN",
+				selected:null,
+				inputFields:null
 			});
 		}
     	default:

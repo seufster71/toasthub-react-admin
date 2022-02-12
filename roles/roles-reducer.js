@@ -17,7 +17,7 @@ import reducerUtils from '../../core/common/reducer-utils';
 
 export default function rolesReducer(state = {}, action) {
 	switch(action.type) {
-    	case 'LOAD_INIT_ROLES': {
+    	case 'ADMIN_ROLE_INIT': {
     		if (action.responseJson != null && action.responseJson.params != null) {
     			return Object.assign({}, state, {
     				prefTexts: Object.assign({}, state.prefTexts, reducerUtils.getPrefTexts(action)),
@@ -32,8 +32,7 @@ export default function rolesReducer(state = {}, action) {
     				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_ROLE_TABLE_NAME'}],
     				paginationSegment: 1,
     				selected: null,
-    				isModifyOpen: false,
-    				isUserRoleOpen: false,
+    				view: "MAIN",
     				pageName:"ADMIN_ROLE",
 					isDeleteModalOpen: false,
 					errors:null, 
@@ -45,7 +44,7 @@ export default function rolesReducer(state = {}, action) {
     			return state;
     		}
     	}
-    	case 'LOAD_LIST_ROLES': {
+    	case 'ADMIN_ROLE_LIST': {
     		if (action.responseJson != null && action.responseJson.params != null) {
     			return Object.assign({}, state, {
     				itemCount: reducerUtils.getItemCount(action),
@@ -54,8 +53,7 @@ export default function rolesReducer(state = {}, action) {
     				listStart: reducerUtils.getListStart(action),
     				paginationSegment: action.paginationSegment,
     				selected: null,
-    				isModifyOpen: false,
-    				isUserRoleOpen: false,
+    				view: "MAIN",
     				isDeleteModalOpen: false,
 					errors:null, 
 					warns:null, 
@@ -65,7 +63,7 @@ export default function rolesReducer(state = {}, action) {
     			return state;
     		}
 		}
-    	case 'ROLES_ITEM': {
+    	case 'ADMIN_ROLE_ITEM': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
@@ -128,13 +126,13 @@ export default function rolesReducer(state = {}, action) {
 					selected : action.responseJson.params.item,
 					inputFields : inputFields,
 					applicationSelectList : action.responseJson.params.applicationSelectList,
-					isModifyOpen: true
+					view: "MODIFY"
 				});
 			} else {
 				return state;
 			}
 		}
-		case 'ROLES_INPUT_CHANGE': {
+		case 'ADMIN_ROLE_INPUT_CHANGE': {
 			if (action.params != null) {
 				let inputFields = Object.assign({}, state.inputFields);
 				inputFields[action.params.field] = action.params.value;
@@ -145,7 +143,7 @@ export default function rolesReducer(state = {}, action) {
 		        return state;
 		    }
 		}
-		case 'ROLES_ADD_PARENT': {
+		case 'ADMIN_ROLE_ADD_PARENT': {
 			if (action.parent != null) {
 				return Object.assign({}, state, {
 					parent: action.parent,
@@ -155,13 +153,13 @@ export default function rolesReducer(state = {}, action) {
 		        return state;
 		    }
 		}
-		case 'ROLES_CLEAR_PARENT': {
+		case 'ADMIN_ROLE_CLEAR_PARENT': {
 			return Object.assign({}, state, {
 				parent: null,
 				parentType: null
 			});
 		}
-		case 'ROLES_USER_ROLE': {
+		case 'ADMIN_ROLE_USER_ROLE': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
@@ -225,40 +223,45 @@ export default function rolesReducer(state = {}, action) {
 					prefForms: Object.assign({}, state.prefForms, reducerUtils.getPrefForms(action)),
 					selected : action.responseJson.params.item,
 					inputFields : inputFields,
-					isUserRoleOpen: true
+					view: "USER_ROLE_MODIFY"
 				});
 			} else {
 				return state;
 			}
 		}
-		case 'ROLES_LISTLIMIT': {
+		case 'ADMIN_ROLE_LISTLIMIT': {
 			return reducerUtils.updateListLimit(state,action);
 		}
-		case 'ROLES_SEARCH': { 
+		case 'ADMIN_ROLE_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
-		case 'ROLES_SEARCH_CHANGE': { 
+		case 'ADMIN_ROLE_SEARCH_CHANGE': { 
 			return Object.assign({}, state, {
 				searchValue: action.value
 			});
 		}
-		case 'ROLES_ORDERBY': { 
+		case 'ADMIN_ROLE_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}
-		case 'ROLES_SET_ERRORS': {
-			return Object.assign({}, state, {
-				errors: action.errors
-			});
+		case 'ADMIN_ROLE_SET_STATUS': {
+			reducerUtils.updateStatus(state,action);
 		}
-		case 'ROLES_CLOSE_DELETE_MODAL': {
+		case 'ADMIN_ROLE_CLOSE_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: false
 			});
 		}
-		case 'ROLES_OPEN_DELETE_MODAL': {
+		case 'ADMIN_ROLE_OPEN_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: true,
 				selected: action.item
+			});
+		}
+		case 'ADMIN_ROLE_CANCEL': {
+			return Object.assign({}, state, {
+				view: "MAIN",
+				selected:null,
+				inputFields:null
 			});
 		}
     	default:

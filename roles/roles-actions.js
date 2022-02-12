@@ -21,19 +21,19 @@ import actionUtils from '../../core/common/action-utils';
 
 
 // thunks
-export function init(parent,parentType) {
+export function init({parent,parentType}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "INIT";
-		requestParams.service = "ROLES_SVC";
+		requestParams.service = "ADMIN_ROLE_SVC";
 		requestParams.prefTextKeys = new Array("ADMIN_ROLE_PAGE");
 		requestParams.prefLabelKeys = new Array("ADMIN_ROLE_PAGE");
 		if (parent != null) {
 			requestParams.parentId = parent.id;
 			requestParams.parentType = parentType;
-			dispatch({type:"ROLES_ADD_PARENT", parent, parentType});
+			dispatch({type:"ADMIN_ROLE_ADD_PARENT", parent, parentType});
 		} else {
-			dispatch({type:"ROLES_CLEAR_PARENT"});
+			dispatch({type:"ADMIN_ROLE_CLEAR_PARENT"});
 		}
 		let params = {};
 		params.requestParams = requestParams;
@@ -41,7 +41,7 @@ export function init(parent,parentType) {
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_INIT_ROLES", responseJson });
+				dispatch({ type: "ADMIN_ROLE_INIT", responseJson });
 			} else {
 				actionUtils.checkConnectivity(responseJson,dispatch);
 			}
@@ -56,7 +56,7 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
-		requestParams.service = "ROLES_SVC";
+		requestParams.service = "ADMIN_ROLE_SVC";
 		if (listStart != null) {
 			requestParams.listStart = listStart;
 		} else {
@@ -88,7 +88,7 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_LIST_ROLES", responseJson, paginationSegment });
+				dispatch({ type: "ADMIN_ROLE_LIST", responseJson, paginationSegment });
 				if (info != null) {
 		        	  dispatch({type:'SHOW_STATUS',info:info});  
 		        }
@@ -104,14 +104,14 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 
 export function listLimit({state,listLimit}) {
 	return function(dispatch) {
-		 dispatch({ type:"ROLES_LISTLIMIT",listLimit});
+		 dispatch({ type:"ADMIN_ROLE_LISTLIMIT",listLimit});
 		 dispatch(list({state,listLimit}));
 	 };
 }
 
 export function search({state,searchCriteria}) {
 	return function(dispatch) {
-		 dispatch({ type:"ROLES_SEARCH",searchCriteria});
+		 dispatch({ type:"ADMIN_ROLE_SEARCH",searchCriteria});
 		 dispatch(list({state,searchCriteria,listStart:0}));
 	 };
 }
@@ -120,7 +120,7 @@ export function saveItem({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
-	    requestParams.service = "ROLES_SVC";
+	    requestParams.service = "ADMIN_ROLE_SVC";
 	    requestParams.inputFields = state.inputFields;
 		if (state.parent != null) {
 	    	requestParams.parentId = state.parent.id;
@@ -152,7 +152,7 @@ export function deleteRole({state,id}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
-	    requestParams.service = "ROLES_SVC";
+	    requestParams.service = "ADMIN_ROLE_SVC";
 	    requestParams.itemId = id;
 	    
 	    let params = {};
@@ -179,7 +179,7 @@ export function modifyItem({id, appPrefs}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
-	    requestParams.service = "ROLES_SVC";
+	    requestParams.service = "ADMIN_ROLE_SVC";
 	    requestParams.prefFormKeys = new Array("ADMIN_ROLE_FORM");
 	    if (id != null) {
 	    	requestParams.itemId = id;
@@ -190,7 +190,7 @@ export function modifyItem({id, appPrefs}) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'ROLES_ITEM',responseJson, appPrefs});
+	    		dispatch({ type: 'ADMIN_ROLE_ITEM',responseJson, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -204,7 +204,7 @@ export function modifyUserRole({userRoleId, roleId, appPrefs}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "USER_ROLE_ITEM";
-	    requestParams.service = "ROLES_SVC";
+	    requestParams.service = "ADMIN_ROLE_SVC";
 	    requestParams.prefFormKeys = new Array("ADMIN_USER_ROLE_FORM");
 	    if (userRoleId != null) {
 	    	requestParams.itemId = userRoleId;
@@ -216,7 +216,7 @@ export function modifyUserRole({userRoleId, roleId, appPrefs}) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'ROLES_USER_ROLE',responseJson, appPrefs});
+	    		dispatch({ type: 'ADMIN_ROLE_USER_ROLE',responseJson, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -230,7 +230,7 @@ export function saveRolePermission({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "USER_ROLE_SAVE";
-	    requestParams.service = "ROLES_SVC";
+	    requestParams.service = "ADMIN_ROLE_SVC";
 	    requestParams.inputFields = state.inputFields;
 	    requestParams.userId = state.parent.id;
 	    requestParams.roleId = state.selected.roleId
@@ -260,43 +260,50 @@ export function inputChange(field,value) {
 		 let params = {};
 		 params.field = field;
 		 params.value = value;
-		 dispatch({ type:"ROLES_INPUT_CHANGE",params});
+		 dispatch({ type:"ADMIN_ROLE_INPUT_CHANGE",params});
 	 };
 }
 
 export function searchChange({value}) {
 	 return function(dispatch) {
-		 dispatch({ type:"ROLES_SEARCH_CHANGE",value});
+		 dispatch({ type:"ADMIN_ROLE_SEARCH_CHANGE",value});
 	 };
 }
 
 export function orderBy({state,orderCriteria}) {
 	 return function(dispatch) {
-		 dispatch({ type:"ROLES_ORDERBY",orderCriteria});
+		 dispatch({ type:"ADMIN_ROLE_ORDERBY",orderCriteria});
 		 dispatch(list({state,orderCriteria}));
 	 };
 }
 
 export function clearRole() {
 	return function(dispatch) {
-		dispatch({ type:"ROLES_CLEAR_ROLE"});
+		dispatch({ type:"ADMIN_ROLE_CLEAR_ROLE"});
 	};
 }
 
-export function setErrors({errors}) {
+export function setStatus({successes,errors}) {
 	 return function(dispatch) {
-		 dispatch({ type:"PM_TEAM_SET_ERRORS",errors});
+		 dispatch({ type:"ADMIN_ROLE_SET_STATUS",successes,errors});
 	 };
 }
 
 export function openDeleteModal({item}) {
 	 return function(dispatch) {
-		 dispatch({type:"PM_TEAM_OPEN_DELETE_MODAL",item});
+		 dispatch({type:"ADMIN_ROLE_OPEN_DELETE_MODAL",item});
 	 };
 }
 
 export function closeDeleteModal() {
 	 return function(dispatch) {
-		 dispatch({type:"PM_TEAM_CLOSE_DELETE_MODAL"});
+		 dispatch({type:"ADMIN_ROLE_CLOSE_DELETE_MODAL"});
+	 };
+}
+
+export function cancel({state}) {
+	return function(dispatch) {
+		dispatch({type:"ADMIN_ROLE_CANCEL"});
+		dispatch(list({state}));
 	 };
 }

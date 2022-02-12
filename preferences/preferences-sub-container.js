@@ -28,7 +28,7 @@ import BaseContainer from '../../core/container/base-container';
 * Preference Sub Page
 */
 function PreferenceSubContainer() {
-	const itemState = useSelector((state) => state.adminpreferences);
+	const itemState = useSelector((state) => state.adminpreferenceSub);
 	const session = useSelector((state) => state.session);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
@@ -39,7 +39,7 @@ function PreferenceSubContainer() {
 		if (location.state != null && location.state.parent != null) {
 			dispatch(actions.init({parent:location.state.parent,subType:location.state.subType}));
 		} else {
-			dispatch(actions.init());
+			dispatch(actions.init({}));
 		}
 	}, []);
 
@@ -50,16 +50,16 @@ function PreferenceSubContainer() {
 		BaseContainer.onPaginationClick({state:itemState,actions:actions,dispatch:dispatch,value});
 	}
 	const onSearchChange = (field,event) => {
-		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,field,event});
+		BaseContainer.onSearchChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,field,event});
 	}
-	const onSearchClick = (fieldName,event) => {
-		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,fieldName,event});
+	const onSearchClick = (field,event) => {
+		BaseContainer.onSearchClick({state:itemState,actions:actions,dispatch:dispatch,field,event});
 	}
 	const inputChange = (type,field,value,event) => {
 		BaseContainer.inputChange({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,type,field,value,event});
 	}
-	const onOrderBy = (selectedOption, event) => {
-		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,selectedOption,event});
+	const onOrderBy = (field, event) => {
+		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,field,event});
 	}
 	
 	const closeModal = () => {
@@ -95,7 +95,7 @@ function PreferenceSubContainer() {
 		if (errors.isValid){
 			dispatch(actions.saveItem({state:itemState,parent:itemState.parent}));
 		} else {
-			dispatch(actions.setErrors({errors:errors.errorMap}));
+			dispatch(actions.setStatus({errors:errors.errorMap}));
 		}
 	}
 	
@@ -146,7 +146,7 @@ function PreferenceSubContainer() {
 	}
 
 	fuLogger.log({level:'TRACE',loc:'PreferencesContainer::render',msg:"test "});
-	if (itemState.isModifyOpen) {
+	if (itemState.view == "MODIFY") {
 		fuLogger.log({level:'TRACE',loc:'PreferenceSubContainer::render',msg:"view PreferenceSubModifyView"});
 		return (
 			<PreferenceSubModifyView
@@ -157,7 +157,7 @@ function PreferenceSubContainer() {
 			inputChange={inputChange}
 			/>
 		);
-	} else if (itemState.items != null) {
+	} else if (itemState.view == "MAIN" && itemState.items != null) {
 		fuLogger.log({level:'TRACE',loc:'PreferenceSubContainer::render',msg:"view PreferenceSubView"});
 		return (
 			<PreferenceSubView
@@ -171,10 +171,6 @@ function PreferenceSubContainer() {
 			onOption={onOption}
 			closeModal={closeModal}
 			inputChange={inputChange}
-			openFormView={openFormView}
-			openLabelView={openLabelView}
-			openTextView={openTextView}
-			openOptionView={openOptionView}
 			session={session}
 			goBack={goBack}/>
 		);

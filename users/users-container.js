@@ -32,7 +32,7 @@ function UsersContainer() {
 	const navigate = useNavigate();
 	
 	useEffect(() => {
-		dispatch(actions.init());
+		dispatch(actions.init({}));
 	}, []);
 
 	const onListLimitChange = (fieldName,event) => {
@@ -69,7 +69,7 @@ function UsersContainer() {
 	
 	const onModifyRoles = (item) => {
 		fuLogger.log({level:'TRACE',loc:'UsersContainer::onModifyRoles',msg:"test"+item.id});
-		navigate('/admin-roles',{state:{parent:item}});
+		navigate('../roles',{state:{parent:item}});
 	}
 	
 	const onOption = (code,item) => {
@@ -99,21 +99,21 @@ function UsersContainer() {
 						if (validation[optionalParams.onBlur.validation] != null && validation[optionalParams.onBlur.validation].id != null){
 							if (itemState.inputFields[validation[optionalParams.onBlur.validation].id] == itemState.inputFields[fieldName]) {
 								if (validation[optionalParams.onBlur.validation].successMsg != null) {
-									let successMap = this.state.successes;
+									let successMap = itemState.successes;
 									if (successMap == null){
 										successMap = {};
 									}
 									successMap[fieldName] = validation[optionalParams.onBlur.validation].successMsg;
-									this.setState({successes:successMap, errors:null});
+									dispatch(actions.setStatus({successes:successMap, errors:null}));
 								}
 							} else {
 								if (validation[optionalParams.onBlur.validation].failMsg != null) {
-									let errorMap = this.state.errors;
+									let errorMap = itemState.errorMap;
 									if (errorMap == null){
 										errorMap = {};
 									}
 									errorMap[fieldName] = validation[optionalParams.onBlur.validation].failMsg;
-									this.setState({errors:errorMap, successes:null});
+									dispatch(actions.setStatus({successes:null, errors:errorMap}));
 								}
 							}
 						}
@@ -129,12 +129,12 @@ function UsersContainer() {
 	
 	const clearVerifyPassword = () => {
 		fuLogger.log({level:'TRACE',loc:'UsersContainer::clearVerifyPassword',msg:"Hi there"});
-		dispatch(actions.setErrors({errors:null, successes:null}));
+		dispatch(actions.setStatus({errors:null, successes:null}));
 		dispatch(actions.clearField('ADMIN_USER_FORM_VERIFY_PASSWORD'));
 	}
 
 	fuLogger.log({level:'TRACE',loc:'UsersContainer::render',msg:"Hi there"});
-	if (itemState.isModifyOpen) {
+	if (itemState.view == "MODIFY") {
 		return (
 			<UsersModifyView
 			itemState={itemState}
@@ -144,7 +144,7 @@ function UsersContainer() {
 			inputChange={inputChange}
 			onBlur={onBlur}/>
 		);
-	} else if (itemState.items != null) {
+	} else if (itemState.view == "MAIN" && itemState.items != null) {
 		return (
 			<UsersView
 			itemState={itemState}

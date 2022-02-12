@@ -29,19 +29,19 @@ export function init({parent, subType}) {
 	    
 	    if (subType != null) {
 		    if (subType === "FORM") {
-				requestParams.service = "PREF_FORMFIELD_SVC";
+				requestParams.service = "ADMIN_PREF_FORMFIELD_SVC";
 				requestParams.prefTextKeys = new Array("ADMIN_FORMFIELD_PAGE");
 				requestParams.prefLabelKeys = new Array("ADMIN_FORMFIELD_PAGE");
 			} else if (subType === "LABEL") {
-				requestParams.service = "PREF_LABEL_SVC";
+				requestParams.service = "ADMIN_PREF_LABEL_SVC";
 				requestParams.prefTextKeys = new Array("ADMIN_LABEL_PAGE");
 				requestParams.prefLabelKeys = new Array("ADMIN_LABEL_PAGE");
 			} else if (subType === "TEXT") {
-				requestParams.service = "PREF_TEXT_SVC";
+				requestParams.service = "ADMIN_PREF_TEXT_SVC";
 				requestParams.prefTextKeys = new Array("ADMIN_TEXT_PAGE");
 				requestParams.prefLabelKeys = new Array("ADMIN_TEXT_PAGE");
 			} else if (subType === "OPTION") {
-				requestParams.service = "PREF_OPTION_SVC";
+				requestParams.service = "ADMIN_PREF_OPTION_SVC";
 				requestParams.prefTextKeys = new Array("ADMIN_OPTION_PAGE");
 				requestParams.prefLabelKeys = new Array("ADMIN_OPTION_PAGE");
 			}
@@ -49,9 +49,9 @@ export function init({parent, subType}) {
 	    
 	    if (parent != null) {
 			requestParams.parentId = parent.id;
-			dispatch({type:"PREFERENCES_SUB_ADD_PARENT", parent});
+			dispatch({type:"ADMIN_PREFERENCE_SUB_ADD_PARENT", parent});
 		} else {
-			dispatch({type:"PREFERENCES_SUB_CLEAR_PARENT"});
+			dispatch({type:"ADMIN_PREFERENCE_SUB_CLEAR_PARENT"});
 		}
 	    
 	    let params = {};
@@ -63,7 +63,7 @@ export function init({parent, subType}) {
     			if(responseJson.status != null && responseJson.status == "ACTIONFAILED"){  
     				dispatch({type:'SHOW_STATUS',error:responseJson.errors});
     			} else {
-    				dispatch({ type: 'PREFERENCES_SUB_INIT',responseJson, parent, subType});	
+    				dispatch({ type: 'ADMIN_PREFERENCE_SUB_INIT',responseJson, parent, subType});	
     			}
 	    	} else {
 				actionUtils.checkConnectivity(responseJson,dispatch);
@@ -82,16 +82,16 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 	    let page = "preferences";
 	    
 	    if (state.subType === "FORM") {
-			requestParams.service = "PREF_FORMFIELD_SVC";
+			requestParams.service = "ADMIN_PREF_FORMFIELD_SVC";
 			page = "pref_formfields";
 		} else if (state.subType === "LABEL") {
-			requestParams.service = "PREF_LABEL_SVC";
+			requestParams.service = "ADMIN_PREF_LABEL_SVC";
 			page = "pref_labels";
 		} else if (state.subType === "TEXT") {
-			requestParams.service = "PREF_TEXT_SVC";
+			requestParams.service = "ADMIN_PREF_TEXT_SVC";
 			page = "pref_texts";
 		} else if (state.subType === "OPTION") {
-			requestParams.service = "PREF_OPTION_SVC";
+			requestParams.service = "ADMIN_PREF_OPTION_SVC";
 			page = "pref_options";
 		}
 	    if (state.parent != null) {
@@ -130,7 +130,7 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
     		  if(responseJson.status != null && responseJson.status == "ACTIONFAILED"){
     			  dispatch({type:'SHOW_STATUS',error:responseJson.errors});
     		  } else {
-    			  dispatch({ type: "PREFERENCES_SUB_LIST", responseJson, paginationSegment });
+    			  dispatch({ type: "ADMIN_PREFERENCE_SUB_LIST", responseJson, paginationSegment });
     		  }
 	    	  if (info != null) {
 	    		  dispatch({type:'SHOW_STATUS',info:info});  
@@ -146,14 +146,14 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 
 export function listLimit({state,listLimit}) {
 	return function(dispatch) {
-		dispatch({type:"PREFERENCES_SUB_LISTLIMIT",listLimit});
+		dispatch({type:"ADMIN_PREFERENCE_SUB_LISTLIMIT",listLimit});
 		dispatch(list({state,listLimit}));
 	};
 }
 
 export function search({state,searchCriteria}) {
 	return function(dispatch) {
-		dispatch({type:"PREFERENCES_SUB_SEARCH",searchCriteria});
+		dispatch({type:"ADMIN_PREFERENCE_SUB_SEARCH",searchCriteria});
 		dispatch(list({state,searchCriteria,listStart:0}));
 	 };
 }
@@ -164,13 +164,13 @@ export function saveItem({state,parent}) {
 	    requestParams.action = "SAVE";
 
 	    if (state.subType === "FORM") {
-	    	requestParams.service = "PREF_FORMFIELD_SVC";
+	    	requestParams.service = "ADMIN_PREF_FORMFIELD_SVC";
 	    } else if (state.subType === "LABEL") {
-	    	requestParams.service = "PREF_LABEL_SVC";
+	    	requestParams.service = "ADMIN_PREF_LABEL_SVC";
 	    } else if (state.subType === "TEXT") {
-	    	requestParams.service = "PREF_TEXT_SVC";
+	    	requestParams.service = "ADMIN_PREF_TEXT_SVC";
 	    } else if (state.subType === "OPTION") {
-	    	requestParams.service = "PREF_OPTION_SVC";
+	    	requestParams.service = "ADMIN_PREF_OPTION_SVC";
 	    }
 	    requestParams.inputFields = state.inputFields;
 
@@ -206,13 +206,13 @@ export function deleteItem({state,id}) {
 	    requestParams.itemId = id;
 
 	    if (state.subType === "FORM") {
-	    	requestParams.service = "PREF_FORMFIELD_SVC";
+	    	requestParams.service = "ADMIN_PREF_FORMFIELD_SVC";
 	    } else if (state.subType === "LABEL") {
-	    	requestParams.service = "PREF_LABEL_SVC";
+	    	requestParams.service = "ADMIN_PREF_LABEL_SVC";
 	    } else if (state.subType === "TEXT") {
-	    	requestParams.service = "PREF_TEXT_SVC";
+	    	requestParams.service = "ADMIN_PREF_TEXT_SVC";
 	    } else if (state.subType === "OPTION") {
-	    	requestParams.service = "PREF_OPTION_SVC";
+	    	requestParams.service = "ADMIN_PREF_OPTION_SVC";
 	    }
 
 	    let params = {};
@@ -240,16 +240,16 @@ export function modifyItem({state,id,appPrefs}) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
 	    if (state.subType === "FORM") {
-	    	requestParams.service = "PREF_FORMFIELD_SVC";
+	    	requestParams.service = "ADMIN_PREF_FORMFIELD_SVC";
 	    	requestParams.prefFormKeys = new Array("ADMIN_FORMFIELD_FORM");
 	    } else if (state.subType === "LABEL") {
-	    	requestParams.service = "PREF_LABEL_SVC";
+	    	requestParams.service = "ADMIN_PREF_LABEL_SVC";
 	    	requestParams.prefFormKeys = new Array("ADMIN_LABEL_FORM");
 	    } else if (state.subType === "TEXT") {
-	    	requestParams.service = "PREF_TEXT_SVC";
+	    	requestParams.service = "ADMIN_PREF_TEXT_SVC";
 	    	requestParams.prefFormKeys = new Array("ADMIN_TEXT_FORM");
 	    } else if (state.subType === "OPTION") {
-	    	requestParams.service = "PREF_OPTION_SVC";
+	    	requestParams.service = "ADMIN_PREF_OPTION_SVC";
 	    	requestParams.prefFormKeys = new Array("ADMIN_OPTION_FORM");
 	    }
 	    
@@ -262,7 +262,7 @@ export function modifyItem({state,id,appPrefs}) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'PREFERENCES_SUB_ITEM', responseJson, subType:state.subType, appPrefs});
+	    		dispatch({ type: 'ADMIN_PREFERENCE_SUB_ITEM', responseJson, subType:state.subType, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -278,45 +278,45 @@ export function inputChange(field,value) {
 		let params = {};
 		params.field = field;
 		params.value = value;
-		dispatch({ type:"PREFERENCES_SUB_INPUT_CHANGE",params});
+		dispatch({ type:"ADMIN_PREFERENCE_SUB_INPUT_CHANGE",params});
 	 };
 }
 
 export function searchChange({value}) {
 	 return function(dispatch) {
-		 dispatch({ type:"PREFERENCES_SUB_SEARCH_CHANGE",value});
+		 dispatch({ type:"ADMIN_PREFERENCE_SUB_SEARCH_CHANGE",value});
 	 };
 }
 
 export function orderBy({state,orderCriteria}) {
 	 return function(dispatch) {
-		 dispatch({type:"PREFERENCES_SUB_ORDERBY",orderCriteria});
+		 dispatch({type:"ADMIN_PREFERENCE_SUB_ORDERBY",orderCriteria});
 		 dispatch(list({state,stateSubView,orderCriteria}));
 	 };
 }
 
 export function clearPreference() {
 	return function(dispatch) {
-		dispatch({ type:"PREFERENCES_CLEAR_PREFERENCE"});
+		dispatch({ type:"ADMIN_PREFERENCE_CLEAR_PREFERENCE"});
 	};
 }
 
 export function goBack() {
 	 return function(dispatch) {
-		 dispatch({ type:"PREFERENCES_GOBACK"});
+		 dispatch({ type:"ADMIN_PREFERENCE_GOBACK"});
 	 };
 }
 
 export function moveSelect({state,item}) {
 	 return function(dispatch) {
-		 dispatch({ type:"PREFERENCES_SUB_MOVE_SELECT",item});
+		 dispatch({ type:"ADMIN_PREFERENCE_SUB_MOVE_SELECT",item});
 		 dispatch(list({state,item,orderCriteria:[],searchCriteria:[]}));
 	 };
 }
 
 export function moveCancel({state}) {
 	 return function(dispatch) {
-		 dispatch({ type:"PREFERENCES_SUB_MOVE_CANCEL"});
+		 dispatch({ type:"ADMIN_PREFERENCE_SUB_MOVE_CANCEL"});
 		 dispatch(list({state}));
 	 };
 }
@@ -327,13 +327,13 @@ export function moveSave({state,code,item}) {
 	    requestParams.action = "MOVE_SAVE";
 	    if (state != null) {
 		    if (state.subType === "FORM") {
-		    	requestParams.service = "PREF_FORMFIELD_SVC";
+		    	requestParams.service = "ADMIN_PREF_FORMFIELD_SVC";
 		    } else if (state.subType === "LABEL") {
-		    	requestParams.service = "PREF_LABEL_SVC";
+		    	requestParams.service = "ADMIN_PREF_LABEL_SVC";
 		    } else if (state.subType === "TEXT") {
-		    	requestParams.service = "PREF_TEXT_SVC";
+		    	requestParams.service = "ADMIN_PREF_TEXT_SVC";
 		    } else if (state.subType === "OPTION") {
-		    	requestParams.service = "PREF_OPTION_SVC";
+		    	requestParams.service = "ADMIN_PREF_OPTION_SVC";
 		    }
 	    }
 	    
@@ -352,7 +352,7 @@ export function moveSave({state,code,item}) {
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
 	    		if(responseJson != null && responseJson.status != null && responseJson.status == "SUCCESS"){  
-	    			dispatch({ type:"PREFERENCES_SUB_MOVE_CANCEL"});
+	    			dispatch({ type:"ADMIN_PREFERENCE_SUB_MOVE_CANCEL"});
 	    			dispatch(list({state,info:["Save Successful"]}));
 	    		} else if (responseJson != null && responseJson.status != null && responseJson.status == "ACTIONFAILED") {
 	    			dispatch({type:'SHOW_STATUS',error:responseJson.errors});
@@ -366,20 +366,27 @@ export function moveSave({state,code,item}) {
 	};
 }
 
-export function setErrors({errors}) {
+export function setStatus({successes,errors}) {
 	 return function(dispatch) {
-		 dispatch({ type:"PREFERENCES_SUB_SET_ERRORS",errors});
+		 dispatch({ type:"ADMIN_PREFERENCE_SUB_SET_STATUS",successes,errors});
 	 };
 }
 
 export function openDeleteModal({item}) {
 	 return function(dispatch) {
-		 dispatch({type:"PREFERENCES_SUB_OPEN_DELETE_MODAL",item});
+		 dispatch({type:"ADMIN_PREFERENCE_SUB_OPEN_DELETE_MODAL",item});
 	 };
 }
 
 export function closeDeleteModal() {
 	 return function(dispatch) {
-		 dispatch({type:"PREFERENCES_SUB_CLOSE_DELETE_MODAL"});
+		 dispatch({type:"ADMIN_PREFERENCE_SUB_CLOSE_DELETE_MODAL"});
+	 };
+}
+
+export function cancel({state}) {
+	return function(dispatch) {
+		dispatch({type:"ADMIN_PREFERENCE_SUB_CANCEL"});
+		dispatch(list({state}));
 	 };
 }

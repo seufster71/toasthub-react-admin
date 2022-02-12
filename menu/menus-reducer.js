@@ -18,7 +18,7 @@ import reducerUtils from '../../core/common/reducer-utils';
 export default function menusReducer(state = {}, action) {
 	let myState = {};
 	switch(action.type) {
-    	case 'LOAD_INIT_MENUS': {
+    	case 'ADMIN_MENU_INIT': {
     		if (action.responseJson != null && action.responseJson.params != null) {
     		    return Object.assign({}, state, {
     		    	prefTexts: Object.assign({}, state.prefTexts, reducerUtils.getPrefTexts(action)),
@@ -33,7 +33,7 @@ export default function menusReducer(state = {}, action) {
     		    	searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_MENU_TABLE_NAME'}],
 					paginationSegment: 1,
 					selected: null,
-					isModifyOpen: false,
+					view: "MAIN",
 					pageName:"ADMIN_MENUS",
 					isDeleteModalOpen: false,
 					errors:null, 
@@ -45,7 +45,7 @@ export default function menusReducer(state = {}, action) {
     		    return state;
     		  }
     	}
-    	case 'LOAD_LIST_MENUS': {
+    	case 'ADMIN_MENU_LIST': {
     		if (action.responseJson != null && action.responseJson.params != null) {
     			return Object.assign({}, state, {
     				itemCount: reducerUtils.getItemCount(action),
@@ -54,7 +54,7 @@ export default function menusReducer(state = {}, action) {
     				listStart: reducerUtils.getListStart(action),
     				paginationSegment: action.paginationSegment,
     				selected: null,
-					isModifyOpen: false,
+					view: "MAIN",
 					isDeleteModalOpen: false,
 					errors:null, 
 					warns:null, 
@@ -64,7 +64,7 @@ export default function menusReducer(state = {}, action) {
     			return state;
     		}
 		}
-    	case 'MENUS_ITEM': {
+    	case 'ADMIN_MENU_ITEM': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
@@ -78,46 +78,51 @@ export default function menusReducer(state = {}, action) {
 					prefForms: Object.assign({}, state.prefForms, reducerUtils.getPrefForms(action)),
 					selected : action.responseJson.params.item,
 					inputFields : inputFields,
-					isModifyOpen: true
+					view: "MODIFY"
 				});
 			} else {
 				return state;
 			}
 		}
-		case 'MENUS_INPUT_CHANGE': {
+		case 'ADMIN_MENU_INPUT_CHANGE': {
 			return reducerUtils.updateInputChange(state,action);
 		}
-		case 'MENUS_CLEAR_FIELD': {
+		case 'ADMIN_MENU_CLEAR_FIELD': {
 			return reducerUtils.updateClearField(state,action);
 		}
-		case 'MENUS_LISTLIMIT': {
+		case 'ADMIN_MENU_LISTLIMIT': {
 			return reducerUtils.updateListLimit(state,action);
 		}
-		case 'MENUS_SEARCH': { 
+		case 'ADMIN_MENU_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
-		case 'MENUS_SEARCH_CHANGE': { 
+		case 'ADMIN_MENU_SEARCH_CHANGE': { 
 			return Object.assign({}, state, {
 				searchValue: action.value
 			});
 		}
-		case 'MENUS_ORDERBY': { 
+		case 'ADMIN_MENU_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}
-		case 'MENUS_SET_ERRORS': {
-			return Object.assign({}, state, {
-				errors: action.errors
-			});
+		case 'ADMIN_MENU_SET_STATUS': {
+			reducerUtils.updateStatus(state,action);
 		}
-		case 'MENUS_CLOSE_DELETE_MODAL': {
+		case 'ADMIN_MENU_CLOSE_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: false
 			});
 		}
-		case 'MENUS_OPEN_DELETE_MODAL': {
+		case 'ADMIN_MENU_OPEN_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: true,
 				selected: action.item
+			});
+		}
+		case 'ADMIN_MENU_CANCEL': {
+			return Object.assign({}, state, {
+				view: "MAIN",
+				selected:null,
+				inputFields:null
 			});
 		}
     	default:

@@ -19,11 +19,11 @@ import actionUtils from '../../core/common/action-utils';
 
 
 // thunks
-export function init() {
+export function init({parent,parentType}) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "INIT";
-		requestParams.service = "CATEGORY_SVC";
+		requestParams.service = "ADMIN_CATEGORY_SVC";
 		requestParams.prefTextKeys = new Array("ADMIN_CATEGORY_PAGE");
 		requestParams.prefLabelKeys = new Array("ADMIN_CATEGORY_PAGE");
 		let params = {};
@@ -32,7 +32,7 @@ export function init() {
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_INIT_CATEGORY", responseJson });
+				dispatch({ type: "ADMIN_CATEGORY_INIT", responseJson });
 			} else {
 				actionUtils.checkConnectivity(responseJson,dispatch);
 			}
@@ -47,7 +47,7 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
-		requestParams.service = "CATEGORY_SVC";
+		requestParams.service = "ADMIN_CATEGORY_SVC";
 		if (listStart != null) {
 			requestParams.listStart = listStart;
 		} else {
@@ -76,7 +76,7 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_LIST_CATEGORY", responseJson, paginationSegment });
+				dispatch({ type: "ADMIN_CATEGORY_LIST", responseJson, paginationSegment });
 				if (info != null) {
 		        	  dispatch({type:'SHOW_STATUS',info:info});  
 		        }
@@ -92,14 +92,14 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 
 export function listLimit({state,listLimit}) {
 	return function(dispatch) {
-		 dispatch({ type:"CATEGORY_LISTLIMIT",listLimit});
+		 dispatch({ type:"ADMIN_CATEGORY_LISTLIMIT",listLimit});
 		 dispatch(list({state,listLimit}));
 	 };
 }
 
 export function search({state,searchCriteria}) {
 	return function(dispatch) {
-		 dispatch({ type:"CATEGORY_SEARCH",searchCriteria});
+		 dispatch({ type:"ADMIN_CATEGORY_SEARCH",searchCriteria});
 		 dispatch(list({state,searchCriteria,listStart:0}));
 	 };
 }
@@ -108,7 +108,7 @@ export function saveItem({state}) {
 	return function(dispatch) {
 		let requestParams = {};
 	    requestParams.action = "SAVE";
-	    requestParams.service = "CATEGORY_SVC";
+	    requestParams.service = "ADMIN_CATEGORY_SVC";
 	    requestParams.inputFields = state.inputFields;
 
 	    let params = {};
@@ -136,7 +136,7 @@ export function deleteItem({state,id}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "DELETE";
-	    requestParams.service = "CATEGORY_SVC";
+	    requestParams.service = "ADMIN_CATEGORY_SVC";
 	    requestParams.itemId = id;
 	    
 	    let params = {};
@@ -163,7 +163,7 @@ export function modifyItem({id, appPrefs}) {
 	return function(dispatch) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
-	    requestParams.service = "CATEGORY_SVC";
+	    requestParams.service = "ADMIN_CATEGORY_SVC";
 	    requestParams.prefFormKeys = new Array("ADMIN_CATEGORY_FORM");
 	    if (id != null) {
 	    	requestParams.itemId = id;
@@ -174,7 +174,7 @@ export function modifyItem({id, appPrefs}) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'CATEGORY_CATEGORY',responseJson});
+	    		dispatch({ type: 'ADMIN_CATEGORY_ITEM',responseJson});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -189,26 +189,26 @@ export function inputChange(field,value) {
 		 let params = {};
 		 params.field = field;
 		 params.value = value;
-		 dispatch({ type:"CATEGORY_INPUT_CHANGE",params});
+		 dispatch({ type:"ADMIN_CATEGORY_INPUT_CHANGE",params});
 	 };
 }
 
 export function searchChange({value}) {
 	 return function(dispatch) {
-		 dispatch({ type:"CATEGORY_SEARCH_CHANGE",value});
+		 dispatch({ type:"ADMIN_CATEGORY_SEARCH_CHANGE",value});
 	 };
 }
 
 export function orderBy({state,orderCriteria}) {
 	 return function(dispatch) {
-		 dispatch({ type:"CATEGORY_ORDERBY",orderCriteria});
+		 dispatch({ type:"ADMIN_CATEGORY_ORDERBY",orderCriteria});
 		 dispatch(list({state,orderCriteria}));
 	 };
 }
 
 export function clearCategory() {
 	return function(dispatch) {
-		dispatch({ type:"CATEGORY_CLEAR_CATEGORY"});
+		dispatch({ type:"ADMIN_CATEGORY_CLEAR_CATEGORY"});
 	};
 }
 
@@ -216,24 +216,31 @@ export function clearField(field) {
 	return function(dispatch) {
 		let params = {};
 		 params.field = field;
-		dispatch({ type:"CATEGORY_CLEAR_FIELD",params});
+		dispatch({ type:"ADMIN_CATEGORY_CLEAR_FIELD",params});
 	};
 }
 
-export function setErrors({errors}) {
+export function setStatus({successes,errors}) {
 	 return function(dispatch) {
-		 dispatch({ type:"CATEGORY_SET_ERRORS",errors});
+		 dispatch({ type:"ADMIN_CATEGORY_SET_STATUS",successes,errors});
 	 };
 }
 
 export function openDeleteModal({item}) {
 	 return function(dispatch) {
-		 dispatch({type:"CATEGORY_OPEN_DELETE_MODAL",item});
+		 dispatch({type:"ADMIN_CATEGORY_OPEN_DELETE_MODAL",item});
 	 };
 }
 
 export function closeDeleteModal() {
 	 return function(dispatch) {
-		 dispatch({type:"CATEGORY_CLOSE_DELETE_MODAL"});
+		 dispatch({type:"ADMIN_CATEGORY_CLOSE_DELETE_MODAL"});
+	 };
+}
+
+export function cancel({state}) {
+	return function(dispatch) {
+		dispatch({type:"ADMIN_CATEGORY_CANCEL"});
+		dispatch(list({state}));
 	 };
 }

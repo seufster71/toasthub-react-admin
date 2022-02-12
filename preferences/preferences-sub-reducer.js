@@ -17,7 +17,7 @@ import reducerUtils from '../../core/common/reducer-utils';
 
 export default function preferenceSubViewReducer(state = {}, action) {
 	switch(action.type) {
-		case 'PREFERENCES_SUB_INIT': {
+		case 'ADMIN_PREFERENCE_SUB_INIT': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				let orderCriteria = [];
 				let searchCriteria = [];
@@ -48,7 +48,7 @@ export default function preferenceSubViewReducer(state = {}, action) {
 					paginationSegment: 1,
 					selected: null,
 					parent: action.parent,
-					isModifyOpen: false,
+					view: "MAIN",
 					subType: action.subType,
 					pageName:"ADMIN_PREFERENCE_SUB",
 					isDeleteModalOpen: false,
@@ -61,7 +61,7 @@ export default function preferenceSubViewReducer(state = {}, action) {
 				return state;
 			}
 		}
-		case 'PREFERENCES_SUB_LIST': {
+		case 'ADMIN_PREFERENCE_SUB_LIST': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				return Object.assign({}, state, {
 	    			itemCount: reducerUtils.getItemCount(action),
@@ -70,7 +70,7 @@ export default function preferenceSubViewReducer(state = {}, action) {
 	    			listStart: reducerUtils.getListStart(action),
 	    			paginationSegment: action.paginationSegment,
 	    			selected: null,
-    				isModifyOpen: false,
+    				view: "MAIN",
     				isDeleteModalOpen: false,
 					errors:null, 
 					warns:null, 
@@ -80,7 +80,7 @@ export default function preferenceSubViewReducer(state = {}, action) {
 				return state;
 			}
 		}
-		case 'PREFERENCES_SUB_ITEM': {
+		case 'ADMIN_PREFERENCE_SUB_ITEM': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
@@ -103,30 +103,30 @@ export default function preferenceSubViewReducer(state = {}, action) {
 					prefForms: Object.assign({}, state.prefForms, reducerUtils.getPrefForms(action)),
 					selected : action.responseJson.params.item,
 					inputFields : inputFields,
-					isModifyOpen: true
+					view: "MODIFY"
 				});
 			} else {
 				return state;
 			}
 		}
-		case 'PREFERENCES_SUB_INPUT_CHANGE': {
+		case 'ADMIN_PREFERENCE_SUB_INPUT_CHANGE': {
 			return reducerUtils.updateInputChange(state,action);
 		}
-		case 'PREFERENCES_SUB_LISTLIMIT': {
+		case 'ADMIN_PREFERENCE_SUB_LISTLIMIT': {
 			return reducerUtils.updateListLimit(state,action);
 		}
-		case 'PREFERENCES_SUB_SEARCH': { 
+		case 'ADMIN_PREFERENCE_SUB_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
-		case 'PREFERENCES_SUB_SEARCH_CHANGE': { 
+		case 'ADMIN_PREFERENCE_SUB_SEARCH_CHANGE': { 
 			return Object.assign({}, state, {
 				searchValue: action.value
 			});
 		}
-		case 'PREFERENCES_SUB_ORDERBY': { 
+		case 'ADMIN_PREFERENCE_SUB_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}
-		case 'PREFERENCES_SUB_GOBACK': {
+		case 'ADMIN_PREFERENCE_SUB_GOBACK': {
 			if (action != null) {
 				 return Object.assign({}, state, {
 					 items: null,
@@ -134,14 +134,14 @@ export default function preferenceSubViewReducer(state = {}, action) {
 					 selected: null,
 					 inputfields: null,
 					 subType: null,
-					 isModifyOpen: false,
+					 view: "MAIN",
 					 moveSelectedItem: null
 				 });
 			} else {
 		        return state;
 		    }
 		}
-		case 'PREFERENCES_SUB_MOVE_SELECT': {
+		case 'ADMIN_PREFERENCE_SUB_MOVE_SELECT': {
 			if (action.item != null) {
 				return Object.assign({}, state, {
 					moveSelectedItem: action.item
@@ -150,12 +150,12 @@ export default function preferenceSubViewReducer(state = {}, action) {
 		        return state;
 		    }
 		}
-		case 'PREFERENCES_SUBVIEW_MOVE_CANCEL': {
+		case 'ADMIN_PREFERENCE_SUBVIEW_MOVE_CANCEL': {
 			return Object.assign({}, state, {
 				moveSelectedItem: null
 			});
 		}
-		case 'PREFERENCES_SUB_ADD_PARENT': {
+		case 'ADMIN_PREFERENCE_SUB_ADD_PARENT': {
 			if (action.parent != null) {
 				return Object.assign({}, state, {
 					parent: action.parent
@@ -164,25 +164,32 @@ export default function preferenceSubViewReducer(state = {}, action) {
 		        return state;
 		    }
 		}
-		case 'PREFERENCES_SUB_CLEAR_PARENT': {
+		case 'ADMIN_PREFERENCE_SUB_CLEAR_PARENT': {
 			return Object.assign({}, state, {
 				parent: null
 			});
 		}
-		case 'PREFERENCES_SUB_SET_ERRORS': {
+		case 'ADMIN_PREFERENCE_SUB_SET_ERRORS': {
 			return Object.assign({}, state, {
 				errors: action.errors
 			});
 		}
-		case 'PREFERENCES_SUB_CLOSE_DELETE_MODAL': {
+		case 'ADMIN_PREFERENCE_SUB_CLOSE_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: false
 			});
 		}
-		case 'PREFERENCES_SUB_OPEN_DELETE_MODAL': {
+		case 'ADMIN_PREFERENCE_SUB_OPEN_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: true,
 				selected: action.item
+			});
+		}
+		case 'ADMIN_PREFERENCE_SUB_CANCEL': {
+			return Object.assign({}, state, {
+				view: "MAIN",
+				selected:null,
+				inputFields:null
 			});
 		}
     	default:

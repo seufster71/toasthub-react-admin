@@ -17,7 +17,7 @@ import reducerUtils from '../../core/common/reducer-utils';
 
 export default function usersReducer(state = {}, action) {
 	switch(action.type) {
-		case 'LOAD_INIT_USERS': {
+		case 'ADMIN_USER_INIT': {
 			if (action.responseJson != null && action.responseJson.params != null) {
 				return Object.assign({}, state, {
 					prefTexts: Object.assign({}, state.prefTexts, reducerUtils.getPrefTexts(action)),
@@ -32,7 +32,7 @@ export default function usersReducer(state = {}, action) {
     				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_USER_TABLE_USERNAME'}],
 					paginationSegment: 1,
 					selected: null,
-					isModifyOpen: false,
+					view: "MAIN",
 					pageName:"ADMIN_USER",
 					isDeleteModalOpen: false,
 					errors:null, 
@@ -44,7 +44,7 @@ export default function usersReducer(state = {}, action) {
 				return state;
 			}
 		}
-		case 'LOAD_LIST_USERS': {
+		case 'ADMIN_USER_LIST': {
 			if (action.responseJson != null && action.responseJson.params != null) {
 				return Object.assign({}, state, {
 					itemCount: reducerUtils.getItemCount(action),
@@ -53,7 +53,7 @@ export default function usersReducer(state = {}, action) {
 					listStart: reducerUtils.getListStart(action),
 					paginationSegment: action.paginationSegment,
 					selected: null,
-					isModifyOpen: false,
+					view: "MAIN",
 					isDeleteModalOpen: false,
 					errors:null, 
 					warns:null, 
@@ -63,7 +63,7 @@ export default function usersReducer(state = {}, action) {
 				return state;
 			}
 		}
-		case 'USERS_ITEM': {
+		case 'ADMIN_USER_ITEM': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
@@ -77,49 +77,54 @@ export default function usersReducer(state = {}, action) {
 					prefForms: Object.assign({}, state.prefForms, reducerUtils.getPrefForms(action)),
 					selected : action.responseJson.params.item,
 					inputFields : inputFields,
-					isModifyOpen: true
+					view: "MODIFY"
 				});
 			} else {
 				return state;
 			}
 		}
-		case 'USERS_INPUT_CHANGE': {
+		case 'ADMIN_USER_INPUT_CHANGE': {
 			return reducerUtils.updateInputChange(state,action);
 		}
-		case 'USERS_SELECT_CHANGE': {
+		case 'ADMIN_USER_SELECT_CHANGE': {
 			return reducerUtils.selectChange(state,action);
 		}
-		case 'USERS_CLEAR_FIELD': {
+		case 'ADMIN_USER_CLEAR_FIELD': {
 			return reducerUtils.updateClearField(state,action);
 		}
-		case 'USERS_LISTLIMIT': {
+		case 'ADMIN_USER_LISTLIMIT': {
 			return reducerUtils.updateListLimit(state,action);
 		}
-		case 'USERS_SEARCH': { 
+		case 'ADMIN_USER_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
-		case 'USERS_SEARCH_CHANGE': { 
+		case 'ADMIN_USER_SEARCH_CHANGE': { 
 			return Object.assign({}, state, {
 				searchValue: action.value
 			});
 		}
-		case 'USERS_ORDERBY': { 
+		case 'ADMIN_USER_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}
-		case 'USERS_SET_ERRORS': {
-			return Object.assign({}, state, {
-				errors: action.errors
-			});
+		case 'ADMIN_USER_SET_STATUS': {
+			reducerUtils.updateStatus(state,action);
 		}
-		case 'USERS_CLOSE_DELETE_MODAL': {
+		case 'ADMIN_USER_CLOSE_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: false
 			});
 		}
-		case 'USERS_OPEN_DELETE_MODAL': {
+		case 'ADMIN_USER_OPEN_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: true,
 				selected: action.item
+			});
+		}
+		case 'ADMIN_USER_CANCEL': {
+			return Object.assign({}, state, {
+				view: "MAIN",
+				selected:null,
+				inputFields:null
 			});
 		}
 		default:
