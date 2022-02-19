@@ -6,11 +6,11 @@ import actionUtils from '../../core/common/action-utils';
 
 
 // thunks
-export function init() {
+export function init({parent,parentType}) {
   return function(dispatch) {
     let requestParams = {};
     requestParams.action = "INIT";
-    requestParams.service = "STATUS_SVC";
+    requestParams.service = "ADMIN_STATUS_SVC";
     requestParams.prefFormKeys = new Array("ADMIN_STATUS_FORM");
     requestParams.prefTextKeys = new Array("ADMIN_STATUS_PAGE");
     requestParams.prefLabelKeys = new Array("ADMIN_STATUS_TABLE");
@@ -20,7 +20,7 @@ export function init() {
 
     return callService(params).then( (responseJson) => {
     	if (responseJson != null && responseJson.protocalError == null){
-    		dispatch({ type: "LOAD_INIT_STATUSES", responseJson });
+    		dispatch({ type: "ADMIN_STATUS_INIT", responseJson });
     	} else {
 			actionUtils.checkConnectivity(responseJson,dispatch);
 		}
@@ -35,7 +35,7 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 	return function(dispatch) {
 		let requestParams = {};
 		requestParams.action = "LIST";
-		requestParams.service = "STATUS_SVC";
+		requestParams.service = "ADMIN_STATUS_SVC";
 		requestParams.listStart = listStart;
 		requestParams.listLimit = listLimit;
 		requestParams.searchCriteria = searchCriteria;
@@ -48,7 +48,7 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "LOAD_LIST_STATUSES", responseJson });
+				dispatch({ type: "ADMIN_STATUS_LIST", responseJson });
 			} else {
 				actionUtils.checkConnectivity(responseJson,dispatch);
 			}
@@ -62,7 +62,7 @@ export function list(listStart,listLimit,searchCriteria,orderCriteria,info) {
 export function saveLanguage(status,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 		let requestParams = {};
-	    requestParams.action = "STATUS_SAVE";
+	    requestParams.action = "ADMIN_STATUS_SAVE";
 	    requestParams.params = {"STATIS" : status};
 
 	    let params = {};
@@ -89,7 +89,7 @@ export function saveLanguage(status,listStart,listLimit,searchCriteria,orderCrit
 export function deleteLanguage(id,listStart,listLimit,searchCriteria,orderCriteria) {
 	return function(dispatch) {
 	    let requestParams = {};
-	    requestParams.action = "STATUS_DELETE";
+	    requestParams.action = "ADMIN_STATUS_DELETE";
 	    requestParams.params = {"STATUS_ID":id};
 	    
 	    let params = {};

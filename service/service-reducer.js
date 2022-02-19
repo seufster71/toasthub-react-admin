@@ -17,7 +17,7 @@ import reducerUtils from '../../core/common/reducer-utils';
 
 export default function serviceReducer(state = {}, action) {
 	switch(action.type) {
-		case 'LOAD_INIT_SERVICES': {
+		case 'ADMIN_SERVICE_INIT': {
 			if (action.responseJson != null && action.responseJson.params != null) {
 				return Object.assign({}, state, {
 					prefForms: Object.assign({}, state.prefForms, reducerUtils.getPrefForms(action)),
@@ -32,7 +32,7 @@ export default function serviceReducer(state = {}, action) {
     				searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_SERVICES_TABLE_SERVICE_NAME'}],
 					paginationSegment: 1,
 					selected: null,
-					isModifyOpen: false,
+					view: "MAIN",
 					pageName:"ADMIN_SERVICES",
 					isDeleteModalOpen: false,
 					errors:null, 
@@ -44,7 +44,7 @@ export default function serviceReducer(state = {}, action) {
 				return state;
 			}
 		}
-		case 'LOAD_LIST_SERVICES': {
+		case 'ADMIN_SERVICE_LIST': {
 			if (action.responseJson != null && action.responseJson.params != null) {
 				return Object.assign({}, state, {
 					itemCount: reducerUtils.getItemCount(action),
@@ -53,7 +53,7 @@ export default function serviceReducer(state = {}, action) {
 					listStart: reducerUtils.getListStart(action),
 					paginationSegment: action.paginationSegment,
 					selected: null,
-					isModifyOpen: false,
+					view: "MAIN",
 					isDeleteModalOpen: false,
 					errors:null, 
 					warns:null, 
@@ -63,7 +63,7 @@ export default function serviceReducer(state = {}, action) {
 				return state;
 			}
 		}
-		case 'SERVICES_ITEM': {
+		case 'ADMIN_SERVICE_ITEM': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
@@ -77,49 +77,54 @@ export default function serviceReducer(state = {}, action) {
 					prefForms: Object.assign({}, state.prefForms, reducerUtils.getPrefForms(action)),
 					selected : action.responseJson.params.item,
 					inputFields : inputFields,
-					isModifyOpen: true
+					view: "MODIFY"
 				});
 			} else {
 				return state;
 			}
 		}
-		case 'SERVICES_INPUT_CHANGE': {
+		case 'ADMIN_SERVICE_INPUT_CHANGE': {
 			return reducerUtils.updateInputChange(state,action);
 		}
-		case 'SERVICES_SELECT_CHANGE': {
+		case 'ADMIN_SERVICE_SELECT_CHANGE': {
 			return reducerUtils.selectChange(state,action);
 		}
-		case 'SERVICES_CLEAR_FIELD': {
+		case 'ADMIN_SERVICE_CLEAR_FIELD': {
 			return reducerUtils.updateClearField(state,action);
 		}
-		case 'SERVICES_LISTLIMIT': {
+		case 'ADMIN_SERVICE_LISTLIMIT': {
 			return reducerUtils.updateListLimit(state,action);
 		}
-		case 'SERVICES_SEARCH': { 
+		case 'ADMIN_SERVICE_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
-		case 'SERVICES_SEARCH_CHANGE': { 
+		case 'ADMIN_SERVICE_SEARCH_CHANGE': { 
 			return Object.assign({}, state, {
 				searchValue: action.value
 			});
 		}
-		case 'SERVICES_ORDERBY': { 
+		case 'ADMIN_SERVICE_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}
-		case 'SERVICES_SET_ERRORS': {
-			return Object.assign({}, state, {
-				errors: action.errors
-			});
+		case 'ADMIN_SERVICE_SET_STATUS': {
+			reducerUtils.updateStatus(state,action);
 		}
-		case 'SERVICES_CLOSE_DELETE_MODAL': {
+		case 'ADMIN_SERVICE_CLOSE_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: false
 			});
 		}
-		case 'SERVICES_OPEN_DELETE_MODAL': {
+		case 'ADMIN_SERVICE_OPEN_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: true,
 				selected: action.item
+			});
+		}
+		case 'ADMIN_SERVICE_CANCEL': {
+			return Object.assign({}, state, {
+				view: "MAIN",
+				selected:null,
+				inputFields:null
 			});
 		}
 		default:

@@ -38,7 +38,7 @@ function AdminContainer() {
 	const navigate = useNavigate();
 	
   	useEffect(() => {
-    	dispatch(actions.initAdmin());
+    	dispatch(actions.init());
 	}, []);
 
   	const changeTab = (code,index) => {

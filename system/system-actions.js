@@ -7,15 +7,15 @@ export function init() {
     return function(dispatch) {
       let requestParams = {};
       requestParams.action = "INIT";
-      requestParams.service = "ADMIN_SVC";
-      requestParams.prefTexts = new Array("ADMIN_PAGE");
-      requestParams.menuNames = new Array("ADMIN_MENU_TOP");
+      requestParams.service = "SYSTEM_SVC";
+      requestParams.prefTexts = new Array("SYSTEM_PAGE");
+      requestParams.menuNames = new Array("SYSTEM_MENU_TOP");
       let params = {};
       params.requestParams = requestParams;
-      params.URI = '/api/admin/callService';
+      params.URI = '/api/system/callService';
 
       return callService(params).then( (responseJson) => {
-        dispatch({ type: "GLOBAL_INIT", responseJson });
+        dispatch({ type: "SYSTEM_INIT", responseJson });
       }).catch(error => {
         throw(error);
       });
