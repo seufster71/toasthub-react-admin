@@ -8,7 +8,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import * as actions from './admin-actions';
 import StatusView from '../coreView/status/status-view';
 import LoadingView from '../coreView/status/loading-view';
-import NavigationView from '../coreView/navigation/navigation-view';
+import NavigationBarView from '../coreView/navigation/navigation-bar-view';
 import DashboardContainer from './dashboard/dashboard-container';
 import BugsContainer from './bugs/bugs-container';
 import ChangeRequestsContainer from './changerequests/changerequests-container';
@@ -59,8 +59,8 @@ function AdminContainer() {
     if (myMenus.length > 0) {
       return (
         <AdminView>
-          <NavigationView appPrefs={appPrefs} permissions={myPermissions}
-          menus={myMenus} changeTab={changeTab} activeTab={location.pathname} backToTab={"member"} user={session.selected}/>
+          <NavigationBarView appPrefs={appPrefs} permissions={myPermissions}
+          menus={myMenus} changeTab={changeTab} activeTab={location.pathname} backToTab={"member"} user={session.selected} navigate={navigate}/>
           <StatusView/>
           <Routes>
             <Route index element={<DashboardContainer />}/>
