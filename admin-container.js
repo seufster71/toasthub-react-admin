@@ -8,7 +8,7 @@ import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import * as actions from './admin-actions';
 import StatusView from '../coreView/status/status-view';
 import LoadingView from '../coreView/status/loading-view';
-import NavigationBarView from '../coreView/navigation/navigation-bar-view';
+import NavigationView from '../coreView/navigation/navigation-view';
 import DashboardContainer from './dashboard/dashboard-container';
 import BugsContainer from './bugs/bugs-container';
 import ChangeRequestsContainer from './changerequests/changerequests-container';
@@ -27,9 +27,9 @@ import SystemContainer from './system/system-container';
 import AdminView from '../adminView/admin-view';
 import UserMgmtContainer from './usermgmt/usermgmt-container';
 import fuLogger from '../core/common/fu-logger';
-import {PrivateRoute} from '../core/common/utils';
+import {PrivateRoute} from '../core/common/router-utils-web';
 
-function AdminContainer() {
+export default function AdminContainer() {
 	const session = useSelector((state) => state.session);
 	const appMenus = useSelector((state) => state.appMenus);
 	const appPrefs = useSelector((state) => state.appPrefs);
@@ -59,7 +59,7 @@ function AdminContainer() {
     if (myMenus.length > 0) {
       return (
         <AdminView>
-          <NavigationBarView appPrefs={appPrefs} permissions={myPermissions}
+          <NavigationView appPrefs={appPrefs} permissions={myPermissions}
           menus={myMenus} changeTab={changeTab} activeTab={location.pathname} backToTab={"member"} user={session.selected} navigate={navigate}/>
           <StatusView/>
           <Routes>
@@ -125,5 +125,3 @@ function AdminContainer() {
       );
     }
 }
-
-export default AdminContainer;
