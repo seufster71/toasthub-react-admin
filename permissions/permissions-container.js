@@ -16,7 +16,6 @@
 'use-strict';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate, useLocation } from "react-router-dom";
 import * as actions from './permissions-actions';
 import fuLogger from '../../core/common/fu-logger';
 import utils from '../../core/common/utils';
@@ -28,13 +27,11 @@ import BaseContainer from '../../core/container/base-container';
 /*
 * Permission Page
 */
-function PermissionsContainer() {
+function PermissionsContainer({location,navigate}) {
 	const itemState = useSelector((state) => state.adminpermissions);
 	const session = useSelector((state) => state.session);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
-	const location = useLocation();
-	const navigate = useNavigate();
 	
 	useEffect(() => {
 		if (location.state != null && location.state.parent != null) {
