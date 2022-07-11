@@ -19,20 +19,17 @@
 'use-strict';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate, useLocation } from "react-router-dom";
 import * as actions from './category-actions';
 import fuLogger from '../../core/common/fu-logger';
 import CategoryModifyView from '../../adminView/category/category-modify-view';
 import CategoryView from '../../adminView/category/category-view';
 import BaseContainer from '../../core/container/base-container';
 
-function CategoryContainer() {
+function CategoryContainer({location,navigate}) {
 	const itemState = useSelector((state) => state.admincategory);
 	const session = useSelector((state) => state.session);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
-	const location = useLocation();
-	const navigate = useNavigate();
 	
 	useEffect(() => {
 		dispatch(actions.init({}));
