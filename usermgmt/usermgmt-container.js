@@ -4,18 +4,15 @@
 'use-strict';
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import * as appPrefActions from '../../core/common/apppref-actions';
 import fuLogger from '../../core/common/fu-logger';
 import UserMgmtView from '../../adminView/usermgmt/usermgmt-view';
 
-function UserMgmtContainer() {
+function UserMgmtContainer({location,navigate}) {
 	const session = useSelector((state) => state.session);
 	const appMenus = useSelector((state) => state.appMenus);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
-	const location = useLocation();
-	const navigate = useNavigate();
 	
 	const changeTab = (index) => {
       navigate(index);

@@ -16,7 +16,6 @@
 'use-strict';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate, useLocation } from "react-router-dom";
 import * as actions from './language-actions';
 import fuLogger from '../../core/common/fu-logger';
 import LanguageView from '../../adminView/language/language-view';
@@ -26,13 +25,11 @@ import BaseContainer from '../../core/container/base-container';
 /*
 * Language Page
 */
-function LanguageContainer() {
+function LanguageContainer({location,navigate}) {
 	const itemState = useSelector((state) => state.adminlanguage);
 	const session = useSelector((state) => state.session);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
-	const location = useLocation();
-	const navigate = useNavigate();
 	
 	useEffect(() => {
 		dispatch(actions.init({}));
