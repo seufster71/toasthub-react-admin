@@ -4,7 +4,7 @@
 'use strict';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import * as actions from './admin-actions';
 import StatusView from '../coreView/status/status-view';
 import LoadingView from '../coreView/status/loading-view';
@@ -29,13 +29,11 @@ import UserMgmtContainer from './usermgmt/usermgmt-container';
 import fuLogger from '../core/common/fu-logger';
 import {PrivateRoute} from '../core/common/router-utils-web';
 
-export default function AdminContainer() {
+export default function AdminContainer({location,navigate}) {
 	const session = useSelector((state) => state.session);
 	const appMenus = useSelector((state) => state.appMenus);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
-	const location = useLocation();
-	const navigate = useNavigate();
 	
   	useEffect(() => {
     	dispatch(actions.init());
@@ -63,57 +61,57 @@ export default function AdminContainer() {
           menus={myMenus} changeTab={changeTab} activeTab={location.pathname} backToTab={"member"} user={session.selected} navigate={navigate}/>
           <StatusView/>
           <Routes>
-            <Route index element={<DashboardContainer />}/>
+            <Route index element={<DashboardContainer location={location} navigate={navigate}/>}/>
             <Route element={<PrivateRoute permissions={myPermissions} code="AB" pathto="/access-denied"/>} >
-				<Route path="/bugs/*" element={<BugsContainer />} />
+				<Route path="/bugs/*" element={<BugsContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="ABLA" pathto="/access-denied"/>} >
-				<Route path="/buglanes/*" element={<BugsContainer />} />
+				<Route path="/buglanes/*" element={<BugsContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="ABLI" pathto="/access-denied"/>} >
-				<Route path="/buglist/*" element={<BugsContainer />} />
+				<Route path="/buglist/*" element={<BugsContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="ACR" pathto="/access-denied"/>} >
-				<Route path="/changerequests/*" element={<ChangeRequestsContainer />} />
+				<Route path="/changerequests/*" element={<ChangeRequestsContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="AU" pathto="/access-denied"/>} >
-				<Route path="/users/*" element={<UsersContainer />} />
+				<Route path="/users/*" element={<UsersContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="AR" pathto="/access-denied"/>} >
-				<Route path="/roles/*" element={<RolesContainer />} />
+				<Route path="/roles/*" element={<RolesContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="AP" pathto="/access-denied"/>} >
-				<Route path="/permissions/*" element={<PermissionsContainer />} />
+				<Route path="/permissions/*" element={<PermissionsContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="APR" pathto="/access-denied"/>} >
-				<Route path="/prefmgmt/*" element={<PreferencesContainer />} />
+				<Route path="/prefmgmt/*" element={<PreferencesContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="APR" pathto="/access-denied"/>} >
-				<Route path="/prefsub/*" element={<PreferenceSubContainer />} />
+				<Route path="/prefsub/*" element={<PreferenceSubContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="AL" pathto="/access-denied"/>} >
-				<Route path="/language/*" element={<LanguageContainer />} />
+				<Route path="/language/*" element={<LanguageContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="AC" pathto="/access-denied"/>} >
-				<Route path="/category/*" element={<CategoryContainer />} />
+				<Route path="/category/*" element={<CategoryContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="AS" pathto="/access-denied"/>} >
-				<Route path="/status/*" element={<StatusContainer />} />
+				<Route path="/status/*" element={<StatusContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="ASVR" pathto="/access-denied"/>} >
-				<Route path="/service/*" element={<ServiceContainer />} />
+				<Route path="/service/*" element={<ServiceContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="AM" pathto="/access-denied"/>} >
-				<Route path="/menu/*" element={<MenuContainer />} />
+				<Route path="/menu/*" element={<MenuContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="ASYS" pathto="/access-denied"/>} >
-				<Route path="/system/*" element={<SystemContainer />} />
+				<Route path="/system/*" element={<SystemContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="AO" pathto="/access-denied"/>} >
-				<Route path="/other/*" element={<SubMenuContainer />} />
+				<Route path="/other/*" element={<SubMenuContainer location={location} navigate={navigate}/>} />
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="AUM" pathto="/access-denied"/>} >
-				<Route path="/usermgmt/*" element={<UserMgmtContainer />} />
+				<Route path="/usermgmt/*" element={<UserMgmtContainer location={location} navigate={navigate}/>} />
 			</Route>
           </Routes>
         </AdminView>

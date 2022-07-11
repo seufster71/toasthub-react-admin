@@ -16,7 +16,6 @@
 'use-strict';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate, useLocation } from "react-router-dom";
 import * as actions from './preferences-sub-actions';
 import fuLogger from '../../core/common/fu-logger';
 import PreferenceSubView from '../../adminView/preferences/preferences-sub-view';
@@ -27,13 +26,11 @@ import BaseContainer from '../../core/container/base-container';
 /*
 * Preference Sub Page
 */
-function PreferenceSubContainer() {
+function PreferenceSubContainer({location,navigate}) {
 	const itemState = useSelector((state) => state.adminpreferenceSub);
 	const session = useSelector((state) => state.session);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
-	const location = useLocation();
-	const navigate = useNavigate();
 	
 	useEffect(() => {
 		if (location.state != null && location.state.parent != null) {

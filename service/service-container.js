@@ -16,20 +16,17 @@
 'use-strict';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate, useLocation } from "react-router-dom";
 import * as actions from './service-actions';
 import fuLogger from '../../core/common/fu-logger';
 import ServiceView from '../../adminView/service/service-view';
 import ServiceModifyView from '../../adminView/service/service-modify-view';
 import BaseContainer from '../../core/container/base-container';
 
-function ServiceContainer() {
+function ServiceContainer({location,navigate}) {
 	const itemState = useSelector((state) => state.adminservice);
 	const session = useSelector((state) => state.session);
 	const appPrefs = useSelector((state) => state.appPrefs);
 	const dispatch = useDispatch();
-	const location = useLocation();
-	const navigate = useNavigate();
 	
 	useEffect(() => {
 		dispatch(actions.init({}));
