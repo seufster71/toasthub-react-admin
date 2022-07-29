@@ -62,22 +62,17 @@ function UsersContainer({location,navigate}) {
 	const goBack = () => {
 		BaseContainer.goBack({navigate});
 	}
-
-	
-	const onModifyRoles = (item) => {
-		fuLogger.log({level:'TRACE',loc:'UsersContainer::onModifyRoles',msg:"test"+item.id});
-		navigate('../roles',{state:{parent:item}});
-	}
 	
 	const onOption = (code,item) => {
 		fuLogger.log({level:'TRACE',loc:'UsersContainer::onOption',msg:" code "+code});
 		if (BaseContainer.onOptionBase({state:itemState,actions:actions,dispatch:dispatch,code:code,appPrefs:appPrefs,item:item})) {
 			return;
 		}
-		
+		let newPath = location.pathname.substr(0, location.pathname.lastIndexOf("/"));
 		switch(code) {
 			case 'MODIFY_ROLE': {
-				onModifyRoles(item);
+				newPath = newPath + "/roles";
+				navigate(newPath,{state:{parent:item,parentType:"USER"}});
 				break;
 			}
 		}

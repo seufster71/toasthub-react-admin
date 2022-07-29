@@ -26,9 +26,9 @@ export function init({parent,parentType}) {
 		let requestParams = {};
 		requestParams.action = "INIT";
 		requestParams.service = "ADMIN_MENU_SVC";
-		requestParams.prefTextKeys = new Array("ADMIN_MENU_PAGE");
-		requestParams.prefLabelKeys = new Array("ADMIN_MENU_PAGE");
-		requestParams.orderCriteria = [{'orderColumn':'ADMIN_MENU_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_MENU_TABLE_NAME','orderDir':'ASC'}];
+		requestParams.prefTextKeys = new Array("ADMIN_MENU_ITEM_PAGE");
+		requestParams.prefLabelKeys = new Array("ADMIN_MENU_ITEM_PAGE");
+		requestParams.orderCriteria = [{'orderColumn':'ADMIN_MENU_ITEM_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_MENU_ITEM_TABLE_NAME','orderDir':'ASC'}];
 		requestParams.category = "MEMBER";
 		let params = {};
 		params.requestParams = requestParams;
@@ -36,7 +36,7 @@ export function init({parent,parentType}) {
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "ADMIN_MENU_INIT", responseJson });
+				dispatch({ type: "ADMIN_MENU_ITEM_INIT", responseJson });
 			} else {
 				actionUtils.checkConnectivity(responseJson,dispatch);
 			}	
@@ -73,14 +73,14 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 			requestParams.orderCriteria = state.orderCriteria;
 		}
 		let prefChange = {"page":"menus","orderCriteria":orderCriteria,"listStart":listStart,"listLimit":listLimit};
-		dispatch({type:"MENU_PREF_CHANGE", prefChange});
+		dispatch({type:"MENU_ITEM_CHANGE", prefChange});
 		let params = {};
 		params.requestParams = requestParams;
 		params.URI = '/api/admin/callService';
 
 		return callService(params).then( (responseJson) => {
 			if (responseJson != null && responseJson.protocalError == null){
-				dispatch({ type: "ADMIN_MENU_LIST", responseJson, paginationSegment });
+				dispatch({ type: "ADMIN_MENU_ITEM_LIST", responseJson, paginationSegment });
 				if (info != null) {
 		        	  dispatch({type:'SHOW_STATUS',info:info});  
 		        }
@@ -96,14 +96,14 @@ export function list({state,listStart,listLimit,searchCriteria,orderCriteria,inf
 
 export function listLimit({state,listLimit}) {
 	return function(dispatch) {
-		 dispatch({ type:"ADMIN_MENU_LISTLIMIT",listLimit});
+		 dispatch({ type:"ADMIN_MENU_ITEM_LISTLIMIT",listLimit});
 		 dispatch(list({state,listLimit}));
 	 };
 }
 
 export function search({state,searchCriteria}) {
 	return function(dispatch) {
-		 dispatch({ type:"ADMIN_MENU_SEARCH",searchCriteria});
+		 dispatch({ type:"ADMIN_MENU_ITEM_SEARCH",searchCriteria});
 		 dispatch(list({state,searchCriteria,listStart:0}));
 	 };
 }
@@ -168,7 +168,7 @@ export function modifyItem({id,appPrefs}) {
 	    let requestParams = {};
 	    requestParams.action = "ITEM";
 	    requestParams.service = "ADMIN_MENU_SVC";
-	    requestParams.prefFormKeys = new Array("ADMIN_MENU_FORM");
+	    requestParams.prefFormKeys = new Array("ADMIN_MENU_ITEM_FORM");
 	    if (id != null) {
 	    	requestParams.itemId = id;
 	    }
@@ -178,7 +178,7 @@ export function modifyItem({id,appPrefs}) {
 
 	    return callService(params).then( (responseJson) => {
 	    	if (responseJson != null && responseJson.protocalError == null){
-	    		dispatch({ type: 'ADMIN_MENU_ITEM',responseJson, appPrefs});
+	    		dispatch({ type: 'ADMIN_MENU_IETM_ITEM',responseJson, appPrefs});
 	    	} else {
 	    		actionUtils.checkConnectivity(responseJson,dispatch);
 	    	}
@@ -193,26 +193,26 @@ export function inputChange(field,value) {
 		 let params = {};
 		 params.field = field;
 		 params.value = value;
-		 dispatch({ type:"ADMIN_MENU_INPUT_CHANGE",params});
+		 dispatch({ type:"ADMIN_MENU_ITEM_INPUT_CHANGE",params});
 	 };
 }
 
 export function searchChange({value}) {
 	 return function(dispatch) {
-		 dispatch({ type:"ADMIN_MENU_SEARCH_CHANGE",value});
+		 dispatch({ type:"ADMIN_MENU_ITEM_SEARCH_CHANGE",value});
 	 };
 }
 
 export function orderBy({state,orderCriteria}) {
 	 return function(dispatch) {
-		 dispatch({ type:"ADMIN_MENU_ORDERBY",orderCriteria});
+		 dispatch({ type:"ADMIN_MENU_ITEM_ORDERBY",orderCriteria});
 		 dispatch(list({state,orderCriteria}));
 	 };
 }
 
 export function clearMenu() {
 	return function(dispatch) {
-		dispatch({ type:"ADMIN_MENU_CLEAR_MENU"});
+		dispatch({ type:"ADMIN_MENU_ITEM_CLEAR_MENU"});
 	};
 }
 
@@ -220,31 +220,31 @@ export function clearField(field) {
 	return function(dispatch) {
 		let params = {};
 		 params.field = field;
-		dispatch({ type:"ADMIN_MENU_CLEAR_FIELD",params});
+		dispatch({ type:"ADMIN_MENU_ITEM_CLEAR_FIELD",params});
 	};
 }
 
 export function setErrors({errors}) {
 	 return function(dispatch) {
-		 dispatch({ type:"ADMIN_MENU_SET_ERRORS",errors});
+		 dispatch({ type:"ADMIN_MENU_ITEM_SET_ERRORS",errors});
 	 };
 }
 
 export function openDeleteModal({item}) {
 	 return function(dispatch) {
-		 dispatch({type:"ADMIN_MENU_OPEN_DELETE_MODAL",item});
+		 dispatch({type:"ADMIN_MENU_ITEM_OPEN_DELETE_MODAL",item});
 	 };
 }
 
 export function closeDeleteModal() {
 	 return function(dispatch) {
-		 dispatch({type:"ADMIN_MENU_CLOSE_DELETE_MODAL"});
+		 dispatch({type:"ADMIN_MENU_ITEM_CLOSE_DELETE_MODAL"});
 	 };
 }
 
 export function cancel({state}) {
 	return function(dispatch) {
-		dispatch({type:"ADMIN_MENU_CANCEL"});
+		dispatch({type:"ADMIN_MENU_ITEM_CANCEL"});
 		dispatch(list({state}));
 	 };
 }
