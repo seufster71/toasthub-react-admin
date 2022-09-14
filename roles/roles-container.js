@@ -73,20 +73,6 @@ function RolesContainer({location,navigate}) {
 		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch,field});
 	}
 	
-	const onModifyPermissions = (item) => {
-		fuLogger.log({level:'TRACE',loc:'RoleContainer::onModifyPermissions',msg:"test"+item.id});
-		navigate('../permissions',{state:{parent:item}});
-	}
-	
-	const onUserRoleModify = (item) => {
-		fuLogger.log({level:'TRACE',loc:'RoleContainer::onUserRoleModify',msg:"test"+item.id});
-		if (item.userRole != null) {
-			dispatch(actions.modifyUserRole({userRoleId:item.userRole.id,roleId:item.id,appPrefs:appPrefs}));
-		} else {
-			dispatch(actions.modifyUserRole({roleId:item.id,appPrefs:appPrefs}));
-		}
-	}
-	
 	const onUserRoleSave = () => {
 		fuLogger.log({level:'TRACE',loc:'RoleContainer::onUserRoleSave',msg:"test"});
 		let errors = utils.validateFormFields(itemState.prefForms.ADMIN_USER_ROLE_FORM,itemState.inputFields, appPrefs.prefGlobal.LANGUAGES);
@@ -103,13 +89,19 @@ function RolesContainer({location,navigate}) {
 		if (BaseContainer.onOptionBase({state:itemState,actions:actions,dispatch:dispatch,code:code,appPrefs:appPrefs,item:item})) {
 			return;
 		}
+		let newPath = location.pathname.substr(0, location.pathname.lastIndexOf("/"));
 		switch(code) {
 			case 'MODIFY_USER_ROLE': {
-				onUserRoleModify(item);
+				if (item.userRole != null) {
+					dispatch(actions.modifyUserRole({userRoleId:item.userRole.id,roleId:item.id,appPrefs:appPrefs}));
+				} else {
+					dispatch(actions.modifyUserRole({roleId:item.id,appPrefs:appPrefs}));
+				}
 				break;
 			}
 			case 'MODIFY_PERMISSION': {
-				onModifyPermissions(item);
+				newPath = newPath + "/permissions";
+				navigate(newPath,{state:{parent:item,parentType:"ROLE"}});
 				break;
 			}
 		}
