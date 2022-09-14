@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The ToastHub Project
+ * Copyright (C) 2016 - 2050 The ToastHub Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,22 +121,26 @@ function PreferencesContainer({location,navigate}) {
 		if (BaseContainer.onOptionBase({state:itemState,actions:actions,dispatch:dispatch,code:code,appPrefs:appPrefs,item:item})) {
 			return;
 		}
-		
+		let newPath = location.pathname.substr(0, location.pathname.lastIndexOf("/"));
 		switch(code) {
 			case 'SHOW_FORMFIELDS': {
-				navigate('../prefsub',{state:{parent:item,subType:"FORM"}});
+				newPath = newPath + "/prefsub";
+				navigate(newPath,{state:{parent:item,subType:"FORM"}});
 				break;
 			}
 			case 'SHOW_LABELS': {
-				navigate('../prefsub',{state:{parent:item,subType:"LABEL"}});
+				newPath = newPath + "/prefsub";
+				navigate(newPath,{state:{parent:item,subType:"LABEL"}});
 				break;
 			}
 			case 'SHOW_TEXTS': {
-				navigate('../prefsub',{state:{parent:item,subType:"TEXT"}});
+				newPath = newPath + "/prefsub";
+				navigate(newPath,{state:{parent:item,subType:"TEXT"}});
 				break;
 			}
 			case 'SHOW_OPTIONS': {
-				navigate('../prefsub',{state:{parent:item,subType:"OPTION"}});
+				newPath = newPath + "/prefsub";
+				navigate(newPath,{state:{parent:item,subType:"OPTION"}});
 				break;
 			}
 			case 'MOVESELECT': {

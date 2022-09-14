@@ -16,16 +16,16 @@
 'use-strict';
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import * as actions from './menus-actions';
+import * as actions from './menu-item-actions';
 import fuLogger from '../../core/common/fu-logger';
-import MenuView from '../../adminView/menu/menu-view';
-import MenuModifyView from '../../adminView/menu/menu-modify-view';
+import MenuItemView from '../../adminView/menu/menu-item-view';
+import MenuItemModifyView from '../../adminView/menu/menu-item-modify-view';
 import BaseContainer from '../../core/container/base-container';
 
 /*
 * Menu Page
 */
-function MenuContainer({location,navigate}) {
+function MenuItemContainer({location,navigate}) {
 	const itemState = useSelector((state) => state.adminmenus);
 	const session = useSelector((state) => state.session);
 	const appPrefs = useSelector((state) => state.appPrefs);
@@ -54,7 +54,7 @@ function MenuContainer({location,navigate}) {
 		BaseContainer.onOrderBy({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,field,event});
 	}
 	const onSave = () => {
-		BaseContainer.onSave({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,form:"ADMIN_MENU_FORM"});
+		BaseContainer.onSave({state:itemState,actions:actions,dispatch:dispatch,appPrefs:appPrefs,form:"ADMIN_MENU_ITEM_FORM"});
 	}
 	const closeModal = () => {
 		BaseContainer.closeModal({actions:actions,dispatch:dispatch});
@@ -70,16 +70,16 @@ function MenuContainer({location,navigate}) {
 	}
 	
 	const onOption = (code,item) => {
-		fuLogger.log({level:'TRACE',loc:'MenuContainer::onOption',msg:" code "+code});
+		fuLogger.log({level:'TRACE',loc:'MenuItemContainer::onOption',msg:" code "+code});
 		if (BaseContainer.onOptionBase({state:itemState,actions:actions,dispatch:dispatch,code:code,appPrefs:appPrefs,item:item})) {
 			return;
 		}
 	}
 	
-	fuLogger.log({level:'TRACE',loc:'MenuContainer::render',msg:"Hi there"});
+	fuLogger.log({level:'TRACE',loc:'MenuItemContainer::render',msg:"Hi there"});
 	if (itemState.view == "MODIFY") {
 		return (
-			<MenuModifyView
+			<MenuItemModifyView
 			itemState={itemState}
 			appPrefs={appPrefs}
 			onSave={onSave}
@@ -89,7 +89,7 @@ function MenuContainer({location,navigate}) {
 		);
 	} else if (itemState.view == "MAIN" && itemState.items != null) {
 		return (
-			<MenuView 
+			<MenuItemView 
 			itemState={itemState}
 			appPrefs={appPrefs}
 			onListLimitChange={onListLimitChange}
@@ -107,4 +107,4 @@ function MenuContainer({location,navigate}) {
 	}
 }
 
-export default MenuContainer;
+export default MenuItemContainer;
