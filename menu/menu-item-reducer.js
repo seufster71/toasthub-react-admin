@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 - 2050 The ToastHub Project
+ * Copyright (C) 2016 The ToastHub Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 import reducerUtils from '../../core/common/reducer-utils';
 
-export default function menusReducer(state = {}, action) {
+export default function menuItemReducer(state = {}, action) {
 	let myState = {};
 	switch(action.type) {
-    	case 'ADMIN_MENU_INIT': {
+    	case 'ADMIN_MENU_ITEM_INIT': {
     		if (action.responseJson != null && action.responseJson.params != null) {
     		    return Object.assign({}, state, {
     		    	prefTexts: Object.assign({}, state.prefTexts, reducerUtils.getPrefTexts(action)),
@@ -29,12 +29,12 @@ export default function menusReducer(state = {}, action) {
     		    	items: reducerUtils.getItems(action),
     		    	listLimit: reducerUtils.getListLimit(action),
     		    	listStart: reducerUtils.getListStart(action),
-    		    	orderCriteria: [{'orderColumn':'ADMIN_MENU_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_MENU_TABLE_NAME','orderDir':'ASC'}],
-    		    	searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_MENU_TABLE_NAME'}],
+    		    	orderCriteria: [{'orderColumn':'ADMIN_MENU_ITEM_TABLE_CATEGORY','orderDir':'ASC'},{'orderColumn':'ADMIN_MENU_ITEM_TABLE_NAME','orderDir':'ASC'}],
+    		    	searchCriteria: [{'searchValue':'','searchColumn':'ADMIN_MENU_ITEM_TABLE_NAME'}],
 					paginationSegment: 1,
 					selected: null,
 					view: "MAIN",
-					pageName:"ADMIN_MENUS",
+					pageName:"ADMIN_MENU_ITEM",
 					isDeleteModalOpen: false,
 					errors:null, 
 					warns:null, 
@@ -45,7 +45,7 @@ export default function menusReducer(state = {}, action) {
     		    return state;
     		  }
     	}
-    	case 'ADMIN_MENU_LIST': {
+    	case 'ADMIN_MENU_ITEM_LIST': {
     		if (action.responseJson != null && action.responseJson.params != null) {
     			return Object.assign({}, state, {
     				itemCount: reducerUtils.getItemCount(action),
@@ -64,7 +64,7 @@ export default function menusReducer(state = {}, action) {
     			return state;
     		}
 		}
-    	case 'ADMIN_MENU_ITEM': {
+    	case 'ADMIN_MENU_ITEM_ITEM': {
 			if (action.responseJson !=  null && action.responseJson.params != null) {
 				// load inputFields
 				let inputFields = {};
@@ -84,41 +84,41 @@ export default function menusReducer(state = {}, action) {
 				return state;
 			}
 		}
-		case 'ADMIN_MENU_INPUT_CHANGE': {
+		case 'ADMIN_MENU_ITEM_INPUT_CHANGE': {
 			return reducerUtils.updateInputChange(state,action);
 		}
-		case 'ADMIN_MENU_CLEAR_FIELD': {
+		case 'ADMIN_MENU_ITEM_CLEAR_FIELD': {
 			return reducerUtils.updateClearField(state,action);
 		}
-		case 'ADMIN_MENU_LISTLIMIT': {
+		case 'ADMIN_MENU_ITEM_LISTLIMIT': {
 			return reducerUtils.updateListLimit(state,action);
 		}
-		case 'ADMIN_MENU_SEARCH': { 
+		case 'ADMIN_MENU_ITEM_SEARCH': { 
 			return reducerUtils.updateSearch(state,action);
 		}
-		case 'ADMIN_MENU_SEARCH_CHANGE': { 
+		case 'ADMIN_MENU_ITEM_SEARCH_CHANGE': { 
 			return Object.assign({}, state, {
 				searchValue: action.value
 			});
 		}
-		case 'ADMIN_MENU_ORDERBY': { 
+		case 'ADMIN_MENU_ITEM_ORDERBY': { 
 			return reducerUtils.updateOrderBy(state,action);
 		}
-		case 'ADMIN_MENU_SET_STATUS': {
+		case 'ADMIN_MENU_ITEM_SET_STATUS': {
 			reducerUtils.updateStatus(state,action);
 		}
-		case 'ADMIN_MENU_CLOSE_DELETE_MODAL': {
+		case 'ADMIN_MENU_ITEM_CLOSE_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: false
 			});
 		}
-		case 'ADMIN_MENU_OPEN_DELETE_MODAL': {
+		case 'ADMIN_MENU_ITEM_OPEN_DELETE_MODAL': {
 			return Object.assign({}, state, {
 				isDeleteModalOpen: true,
 				selected: action.item
 			});
 		}
-		case 'ADMIN_MENU_CANCEL': {
+		case 'ADMIN_MENU_ITEM_CANCEL': {
 			return Object.assign({}, state, {
 				view: "MAIN",
 				selected:null,
