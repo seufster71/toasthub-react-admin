@@ -26,6 +26,8 @@ import MenuContainer from './menu/menus-container';
 import SystemContainer from './system/system-container';
 import AdminView from '../adminView/admin-view';
 import UserMgmtContainer from './usermgmt/usermgmt-container';
+import ECMarketContainer from '../adminec/market/market-container';
+import ECStoreContainer from '../adminec/store/store-container';
 import fuLogger from '../core/common/fu-logger';
 import {PrivateRoute} from '../core/common/router-utils-web';
 
@@ -112,6 +114,12 @@ export default function AdminContainer({location,navigate}) {
 			</Route>
             <Route element={<PrivateRoute permissions={myPermissions} code="AUM" pathto="/access-denied"/>} >
 				<Route path="/usermgmt/*" element={<UserMgmtContainer location={location} navigate={navigate}/>} />
+			</Route>
+			<Route element={<PrivateRoute permissions={myPermissions} code="AECMARKET" pathto="/access-denied"/>} >
+				<Route path="/ec-markets/*" element={<ECMarketContainer location={location} navigate={navigate}/>} />
+			</Route>
+			<Route element={<PrivateRoute permissions={myPermissions} code="AECSTORE" pathto="/access-denied"/>} >
+				<Route path="/ec-stores/*" element={<ECStoreContainer location={location} navigate={navigate}/>} />
 			</Route>
           </Routes>
         </AdminView>

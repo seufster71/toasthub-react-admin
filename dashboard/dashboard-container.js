@@ -59,7 +59,7 @@ function DashboardContainer({location,navigate}) {
 		BaseContainer.onCancel({state:itemState,actions:actions,dispatch:dispatch,field});
 	}
 
-	fuLogger.log({level:'TRACE',loc:'DashboardContainer::render',msg:"Hi there trser"});
+	fuLogger.log({level:'TRACE',loc:'AdminDashboardContainer::render',msg:"Hi there trser"});
   	return (
 		<DashboardView
 			itemState={itemState}
